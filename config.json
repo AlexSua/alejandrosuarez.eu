@@ -1,0 +1,21 @@
+{
+    "siteMetadata": {
+        "title": "Alejandro Suárez",
+        "siteUrl": "https://alejandrosuarez.eu",
+        "description": "The webpage of Alejandro Suárez",
+        "keywords":[],        
+        "author": {
+          "name": "Alejandro Suárez",
+          "description": "I'm <strong>Alejandro Suárez</strong>",
+          "social": {
+            "facebook": "",
+            "twitter": "",
+            "linkedin": "https://www.linkedin.com/in/alejandro-suárez",
+            "instagram": "",
+            "youtube": "",
+            "github": "https://github.com/AlexSua",
+            "twitch": ""
+          }
+        }
+      }
+}

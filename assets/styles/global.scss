@@ -1,0 +1,289 @@
+@import "setup/typography.scss";
+@import "setup/variables.scss";
+// @import "components/markdown.scss"
+// @import "~github-markdown-css/github-markdown-light.css";
+// @import "~highlight.js/scss/base16/gruvbox-dark-hard.scss";
+
+html {
+  font-size: 16px;
+  // text-align: justify;
+  line-height: unset;
+  overflow-y: auto !important;
+}
+
+body {
+  font-family: $font-family;
+  margin: 0;
+  font-size: $font-size;
+}
+
+body.loaded {
+  overflow: auto;
+}
+
+h1,
+h2 {
+  margin: 0;
+}
+
+ul{
+  list-style: none;
+  padding: 0;
+
+}
+/////////////////////white mode #1b16142b
+ul,p {
+  font-size: 1.15em;
+  line-height: calc(1.2em * 1.25)!important;
+  text-align: left;
+}
+
+h1 {
+
+  font-weight: bold;
+  font-size: 3em;  
+}
+
+h2 {
+  // display: block;
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+h3 {
+  display: block;
+  font-size: 1.17em;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+}
+
+h4 {
+  display: block;
+  margin-block-start: 1.33em;
+  margin-block-end: 1.33em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+}
+
+
+.secciones-navegacion {
+  padding-bottom: 2.5rem;
+  min-height: 7rem;
+  // margin-bottom: 2.5rem;
+  align-items: flex-start;
+}
+
+nav {
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  // padding-bottom: 1.25rem;
+  color: #f2d492;
+  z-index: 2;
+
+  ul {
+    font-size: 1.2em;
+    display: flex;
+    max-width: 16.8em;
+    flex-direction: row;
+    flex-flow: wrap;
+    justify-content: center;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+  }
+
+  li {
+    text-align: center;
+    margin-top: 0.625rem;
+    // font-size: 1.1rem;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+
+    &:nth-child(n + 2):not(:nth-child(4))::before {
+      content: "/";
+      font-weight: 100;
+      padding-left: 0.9375rem;
+      padding-right: 0.625rem;
+    }
+  }
+
+  span {
+    position: relative;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      width: 0%;
+      display: block;
+      margin-top: 0.0625rem;
+      height: 0.3125rem;
+      background: #f2d492;
+    }
+
+    &:hover {
+      cursor: pointer;
+
+      &::after {
+        transition: width 0.5s;
+        width: 100%;
+        cursor: pointer;
+      }
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      font-size: inherit;
+    }
+  }
+
+  &.idioma {
+    >ul {
+      margin: 0;
+      padding: 0;
+    }
+
+    li {
+      margin-top: 0;
+
+      &.selected {
+        font-weight: 700;
+      }
+    }
+  }
+
+
+}
+
+.up{
+  position: absolute;
+  top: 2.5rem;
+  font-weight: 100;
+
+}
+
+.up.left{
+  left: 3.125rem;
+}
+
+.up.right{
+  right: 3.125rem;
+}
+
+// .load-animation {
+//   display: inline-block;
+//   position: absolute;
+//   width: 4rem;
+//   height: 4rem;
+
+//   div {
+//     box-sizing: border-box;
+//     display: block;
+//     position: absolute;
+//     width: inherit;
+//     height: inherit;
+//     border: 8px solid #fff;
+//     border-radius: 50%;
+//     animation: load-animation 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+//     border-color: #f2d492 transparent transparent transparent;
+
+//     &:nth-child(2) {
+//       animation-delay: -0.6s;
+//     }
+//   }
+// }
+
+@keyframes load-animation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
+
+
+
+// }
+
+
+@media (max-width: 1024px) {
+  main {
+    display: flex;
+    flex-direction: column;
+  }
+
+
+  .secciones-navegacion {
+    min-height: 6rem;
+  }
+
+  body {
+    font-size: 0.9em;
+  }
+
+  p {
+    line-height: 140%;
+  }
+
+  nav {
+    span::after {
+      background-color: unset;
+    }
+  }
+
+  .up{
+    top: 25px;
+  
+  }
+  .up.left{
+    left: 30px;
+  }
+  
+  .up.right{
+    right: 30px;
+  }
+
+
+}
+
+@media screen and (min-width: 2560px) {
+  html {
+    font-size: 23px;
+  }
+}
+
+@media screen and (min-width: 3000px) {
+  html {
+    font-size: 28px;
+  }
+}
+
+.text-vanilla-yellow {
+  color: $vanilla-yellow !important;
+  border-color: $vanilla-yellow;
+}
+
+.bg-vanilla-yellow {
+  background-color: $vanilla-yellow !important;
+}

@@ -1,0 +1,292 @@
+{
+  "profile": {
+    "header": {
+      "title": "Software Engineer",
+      "subtitle": "Always getting better"
+    },
+    "aboutme": "<h3>\n          I am a spanish software engineer who currently lives in Santiago de\n          Compostela.\n        </h3>\n        <p>\n          With a master’s degree in Web Engineering, 2 years of experience as\n          FullStack Developer and the ability to speak English, Spanish and\n          Galician, I am looking to learn and participate in the development of\n          new projects that allow me to grow professionally.\n        </p>\n        <h4>Versatile</h4>\n        <p>\n          Where I have more experience is in FullStack development but I also\n          have knowledge in low level development, system administration, as\n          well as video and audio transcoding. I like to experiment and discover\n          new fields in computer science.\n        </p>\n        <h4>Looking for ways to automate tasks</h4>\n        <p>\n          Repetitive tasks are my worst enemy and when I have to deal with them\n          I will always look for a way to automate or avoid doing them by hand.\n        </p>\n        <h4>Aware of technological news</h4>\n        <p>\n          I usually get informed about new technologies and I always wonder in\n          which project I could use these new things to have the opportunity to\n          learn about them or solve a specific type of scenario.\n        </p>\n        <h4>Finding a way to do it better</h4>\n        <p>\n          I don't settle just solving the problem and I am always trying to find\n          a better way to do so.\n        </p>\n        <h3>Motivations</h3>\n        <ul>\n          <li>\n            A challenge that makes me raise many possibilities in order to solve\n            it.\n          </li>\n          <li>A variable environment where I can learn new technologies.</li>\n          <li>\n            Freedom. Having the freedom to set my work environment and not\n            having restrictions when I solve a problem helps me maximize\n            productivity.\n          </li>\n        </ul>\n\n        <h3>Hobbies</h3>\n\n        <ul>\n          <li>Thinking</li>\n          <li>Music</li>\n          <li>Fixing electronic devices</li>\n          <li>Getting away from the routine</li>\n        </ul>",
+    "navigation": {
+      "aboutme": {"title": "About me", "path":"#info"},
+      "education": {"title": "Education", "path":"#seccion-estudios"},
+      "experience": {"title": "Experience", "path":"#seccion-trabajo"},
+      "abilities":{"title": "Abilities", "path":"#habilidades"}, 
+      "contact": {"title": "Contact", "path":"#contacto"},
+      "blog": {"title": "Blog", "path":"/blog"}
+    },
+    "education": [
+      {
+        "title": "Software Development",
+        "place": "Cork Institute of Technology, Ireland",
+        "logo": "logo_cit.png",
+        "duration": "2019",
+        "description": "During my Erasmus stay at CIT, I studied in the software development branch, where I learned to develop progressive web applications, analyse data sets using Hadoop and Spark, as well as develop addons, themes and tools for the Drupal content manager system. During this time I also participated in a design course that brings me some notions to improve the visual appearance of user interfaces.\n<br /><br />\nThanks to this opportunity I could improve my English up to the level of being able to keep a conversation without problems."
+      },
+      {
+        "title": "Master's degree in Web Engineering",
+        "place": "University of Oviedo",
+        "logo": "logo_uniovi.png",
+        "duration": "2017 - 2019",
+        "description": "This master’s degree offered me a transversal training inside computer science. From the administration of web servers such as Apache and Nginx, data mining and machine learning to web frameworks and design patterns. With this, the master gave me a broad spectrum of knowledge which made me a versatile person in the field of Computer Science."
+      },
+      {
+        "title": "University degree in Computer Science",
+        "place": "University of Santiago de Compostela",
+        "logo": "logo_usc.png",
+        "duration": "2012 - 2016",
+        "description": "A university degree with mainly practical training which helped me stablish the foundations of Computer Science. Operating Systems, software development, compilers, project management and databases are some of the subjects I went through during this time. Within the acquired skills I got, I also need to highlight: problem solving, teamwork and organization in order to solve the practices that were proposed to us.\n<br/><br/>\nDuring the degree I learned programming using C and Java as the main languages on which I sustained my learning."
+      }
+    ],
+    "work": {
+      "about_title": "About the company",
+      "workdone_title": "What I did",
+      "technologies_title": "Technologies",
+      "more_title": "More",
+      "positions": [
+        {
+          "title": "CERN",
+          "place": "Geneva, Switzerland",
+          "logo": "cern.png",
+          "url": "https://home.cern/",
+          "background": "cern.jpg",
+          "duration": "Nov ‘20 - Present",
+          "about": "CERN is one of the world's largest research centers. It focuses on fundamental physics and its goal is to try to discover what the universe is made of and how it works.",
+          "workdone": "In the organization I have been in the systems administration team where I have actively participated in the creation of tools that automate tasks within the group, I have supported the virtual machines of the openstack based cloud infrastructure that CERN uses, I have deployed with ansible and supported a FastX cluster that provides a remote desktop service and during my time there I have also participated in the development in Python of a framework that would serve as an abstraction layer between cern services and users.",
+          "technologies": [
+            {
+              "logo": "ansible.png",
+              "title": "Ansible"
+            },
+            {
+              "logo": "linux.png",
+              "title": "Linux"
+            },
+            {
+              "logo": "fastx.png",
+              "title": "FastX"
+            },
+            {
+              "logo": "python.svg",
+              "title": "Python"
+            },
+            {
+              "logo": "gitlab.png",
+              "title": "Gitlab CI/CD"
+            },
+            {
+              "logo": "openstack.png",
+              "title": "Openstack"
+            }
+          ]
+        },
+        {
+          "title": "Enxine",
+          "place": "Santiago de Compostela, Galicia",
+          "logo": "enxine.png",
+          "url": "https://www.enxine.com/",
+          "style": "mix-blend-mode: hard-light",
+          "background": "enxine.jpg",
+          "duration": "Oct ‘19 - Oct ‘20 (1 year)",
+          "about": "Enxine is a company specialized in Internet of Things. They offer all kind of hardware and software solutions to control and monitor electronic devices through internet.\n\n",
+          "workdone": "Inside the company I participate in the maintenance and development of new functionalities in the backend part of a system which controls electrical car chargers. This system belongs to Efimob, company that provides an electrical car charging network in Spain. Monitoring, automatic recharges payment, maintenance and control of this chargers are some of the features this system includes and where I actively work in.\n\n",
+          "technologies": [
+            {
+              "logo": "javascript.png",
+              "title": "JavaScript"
+            },
+            {
+              "logo": "nodejs.png",
+              "title": "NodeJS"
+            },
+            {
+              "logo": "postgresql.png",
+              "title": "PostgreSQL"
+            },
+            {
+              "logo": "redis.png",
+              "title": "Redis"
+            }
+          ]
+        },
+        {
+          "title": "Connectors",
+          "place": "Vigo, Galicia",
+          "logo": "connectors.jpg",
+          "url": "https://connectors-plus.com/",
+          "background": "connectors.jpeg",
+          "duration": "Jan ‘17 - May ‘17 (5 months)",
+          "about": "International mobility agency that facilitates experiences abroad in order to improve the linguistic and training capacities of people.",
+          "workdone": "I developed a cross-platform social network whose function was to promote relationships between clients linked to mobility programs and improve communication between company and customers. Among some of its features, the social network includes administration and uploading of pictures, group creation, role management, permissions, user administration and group chats.\n\n",
+          "technologies": [
+            {
+              "logo": "react-redux.png",
+              "title": "React & Redux"
+            },
+            {
+              "logo": "spring-framework.png",
+              "title": "Spring Boot"
+            },
+            {
+              "logo": "postgresql.png",
+              "title": "PostgreSQL"
+            }
+          ]
+        },
+        {
+          "title": "Amazon Provider",
+          "place": "Cambridge, United Kingdom",
+          "logo": "null",
+          "url": "null",
+          "background": "almacen.jpeg",
+          "duration": "Jun ‘16 - Aug ‘16 (2 months)",
+          "about": "During my stay in United Kingdom I have worked for a small Amazon Provider.",
+          "workdone": "I created software whose purpose was to automate processes like keeping record of orders, products and stock and the generation and printing of shipping tags. The visualization of these records and the execution of tasks could be done through interaction with a user interface written in java Swing.\n\n",
+          "technologies": [
+            {
+              "logo": "java.png",
+              "title": "Java"
+            },
+            {
+              "logo": "postgresql.png",
+              "title": "PostgreSQL"
+            }
+          ]
+        },
+        {
+          "title": "Plexus",
+          "place": "Santiago de Compostela, Galicia",
+          "logo": "Plexus.png",
+          "url": "https://www.tecnologiasplexus.com/",
+          "background": "plexus.jpg",
+          "duration": "April ‘16 - May ‘16 (2 months)",
+          "about": "Multinational software consulting company.\n\n",
+          "workdone": "I took part in the development of a data gathering system and its processing in order to show statistics based on some parameters such as gender, age, location… of people who make connections from different platforms. I participated as well in the refactoring of a database and the associated system in charge of the user management of different platforms.\n\n",
+          "technologies": [
+            {
+              "logo": "java.png",
+              "title": "Java"
+            },
+            {
+              "logo": "mysql.png",
+              "title": "MySQL"
+            }
+          ]
+        }
+      ]
+    },
+    "abilities": {
+      "programminglang": {
+        "title":"Programming languages",
+        "items": [
+          {
+            "logo": "c.png",
+            "title": "C"
+          },
+          {
+            "logo": "java.png",
+            "title": "Java"
+          },
+          {
+            "logo": "javascript.png",
+            "title": "JavaScript"
+          },
+          {
+            "logo": "golang.png",
+            "title": "GoLang"
+          },
+          {
+            "logo": "python.svg",
+            "title": "Python"
+          },
+          {
+            "logo": "html.png",
+            "title": "HTML"
+          },
+          {
+            "logo": "css.png",
+            "title": "CSS"
+          }
+        ]
+      },
+      "databases": {
+        "title": "Databases",
+        "items": [
+          {
+            "logo": "postgresql.png",
+            "title": "PostgreSQL"
+          },
+          {
+            "logo": "redis.png",
+            "title": "Redis"
+          },
+          {
+            "logo": "mysql.png",
+            "title": "MySQL"
+          }
+        ]
+      },
+      "frameworks": {
+        "title":"Frameworks",
+        "items": [
+          {
+            "logo": "spring-framework.png",
+            "title": "Spring Boot"
+          },
+          {
+            "logo": "nodejs.png",
+            "title": "NodeJS"
+          },
+          {
+            "logo": "react-redux.png",
+            "title": "React & Redux"
+          },
+          {
+            "logo": "ffmpeg.png",
+            "title": "FFmpeg"
+          },
+          {
+            "logo": "angular2.png",
+            "title": "Angular"
+          }
+        ]
+      },
+      "other": {
+        "title":"Other",
+        "items": [
+          {
+            "logo": "spark.png",
+            "title": "Apache spark"
+          },
+          {
+            "logo": "machine-learning.png",
+            "title": "Machine learning"
+          },
+          {
+            "logo": "linux.png",
+            "title": "Linux"
+          },
+          {
+            "logo": "git.png",
+            "title": "Git"
+          }
+        ]
+      }
+    },
+    "footer":{
+      "title": "Created by Alejandro Suárez",
+      "subtitle": "Made with JS, HTML, CSS and nothing more."
+    }
+  },
+  "blog": {
+    "header": {
+      "title": "Blog - Alejandro Suárez",
+      "subtitle": "Computer science blog"
+    },
+    "navigation": {
+      "home": {"title":"Blog home","path":"/blog"},
+      "profile":{"title": "Go to my profile","path":"/"}
+    },
+    "home":{
+      "title":"Articles"
+    }
+  }
+}

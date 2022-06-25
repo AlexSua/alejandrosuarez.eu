@@ -1,0 +1,103 @@
+{
+  "profile": {
+    "header": {
+      "title": "Ingeniero informático",
+      "subtitle": "Siempre a mejor"
+    },
+    "aboutme": "<h3>\n          Soy un ingeniero informático gallego que se encuentra ahora mismo\n          viviendo en Santiago de Compostela.\n        </h3>\n        <p>\n          Con un máster en Ingeniería Web, 3 años de experiencia como\n          desarrollador FullStack e administrador de sistemas Linux y con\n          capacidad para hablar de forma fluida en idiomas español, inglés y\n          gallego, busco aprender y participar en el desarrollo de proyectos con\n          los que encontrar mis límites y crecer profesionalmente.\n        </p>\n        <h4>Versátil</h4>\n        <p>\n          Donde tengo más experiencia es en el desarrollo FullStack,\n          administración de sistemas y automatización de procesos pero también\n          tengo conocimientos en desarrollo a bajo nivel y codificación de audio\n          y video. Me gusta experimentar y probar nuevos campos dentro de la\n          informática.\n        </p>\n        <h4>Busco la manera de automatizar las tareas</h4>\n        <p>\n          Las tareas repetitivas son mi peor enemigo y cuando tengo que\n          enfrentarme a ellas siempre buscaré una manera de automatizarlas y\n          evitar a toda costa hacerlas a mano.\n        </p>\n        <h4>Al tanto de las novedades tecnológicas</h4>\n        <p>\n          Me informo habitualmente de las nuevas tecnologías y siempre me\n          pregunto en que proyecto podría emplearlas para tener la oportunidad\n          de aprenderlas, o para solucionar un determinado tipo de escenario.\n        </p>\n        <h4>Trato de encontrar una manera de hacerlo mejor</h4>\n        <p>\n          No me conformo con solucionar el problema y siempre intento buscar la\n          mejor manera de resolverlo.\n        </p>\n        <h3>Motivaciones</h3>\n        <ul>\n          <li>\n            Un reto que me haga plantear muchas posibilidades para poder\n            resolverlo.\n          </li>\n          <li>Entorno cambiante donde pueda aprender nuevas tecnologías.</li>\n          <li>\n            Libertad. Tener la libertad para configurar mi entorno de trabajo y\n            no tener restricciones cuando voy a resolver un problema me ayuda a\n            maximizar la productividad.\n          </li>\n        </ul>\n\n        <h3>Aficiones</h3>\n\n        <ul>\n          <li>Pensar</li>\n          <li>La música</li>\n          <li>Reparar aparatos electrónicos</li>\n          <li>Escapar de la rutina</li>\n        </ul>\n      </div>",
+    "navigation": {
+      "aboutme":{"title": "Sobre mi"},
+      "education":{"title": "Estudios"},
+      "experience":{"title": "Trabajo"},
+      "abilities":{"title": "Habilidades"},
+      "contact":{"title": "Contacto"},
+      "blog":{"title": "Blog"}
+      
+    },
+    "education": [
+      {
+        "title": "Software Development",
+        "place": "Cork Institute of Technology, Ireland",
+        "description": "Durante mi estancia en el CIT he estudiado en la rama de desarrollo del software, donde he aprendido a desarrollar aplicaciones web progresivas, a analizar datos usando Hadoop y Spark así como a desarrollar plugins y herramientas para el gestor de contenidos Drupal. En esta etapa también participé en un curso de diseño lo que me proporcionó unas nociones para mejorar el aspecto visual de nuevas interfaces de usuario que pudiese desarrollar.\n<br /><br />\nGracias a esta oportunidad pude mejorar mi nivel de inglés hasta el nivel de poder mantener una conversación en este idioma sin dificultad."
+      },
+      {
+        "title": "Master en Ingeniería Web",
+        "place": "Universidad de Oviedo",
+        "description": "El máster en Ingeniería Web me ofreció una formación transversal dentro de la Ingeniería Informática. Desde administración de sistemas como administración de servidores web Apache y Nginx, recuperación de datos y machine learning hasta frameworks web y patrones de diseño. Con esto el máster me proporcionó un amplio abanico de conocimientos haciéndome una persona versátil en el ámbito de la informática."
+      },
+      {
+        "title": "Grado en ingeniería informática",
+        "place": "Universidad de Santiago de Compostela",
+        "description": "Una carrera con una formación mayormente práctica que me sirvió para establecer las bases de la Ingeniería Informática. Dentro de las habilidades adquiridas durante esta etapa he de destacar: resolución de problemas, trabajo en equipo y organización para afrontar las prácticas que nos proponían.\n<br/><br/>\nDurante la carrera aprendí a programar usando C y Java como principales lenguajes de programación sobre los cuáles se han sustentado mis conocimientos."
+      }
+    ],
+    "work": {
+      "about_title": "Sobre la empresa",
+      "workdone_title": "Trabajo realizado",
+      "technologies_title": "Tecnologías usadas",
+      "more_title": "Ver más",
+      "positions": [
+        {
+          "place": "Ginebra, Suiza",
+          "duration": "Nov ‘20 - Actualidad",
+          "about": "El CERN es uno de los centros de investigación más grandes del mundo. Se centra en la física fundamental y su objetivo es tratar de descubrir de que está hecho el universo y de cómo funciona.\n\n",
+          "workdone": "Dentro de la organización he estado en el departamento de administración de sistemas donde he participado activamente en la creación de herramientas que automatizan tareas dentro del grupo, he sido responsable de la administración de los sistemas que controlan componentes del acelerador, he dado soporte a las máquinas virtuales basadas en la infraestructura cloud openstack del CERN, he participado en la reorganización y división del proyecto ansible responsable de los sistemas que dan soporte a la infraestructura del acelerador junto con su publicación y despliegue con Gitlab CI/CD, he desplegado con ansible y dado soporte a un cluster FastX que provee un servicio de escritorio remoto y durante mi tiempo alli también he participado en el desarrollo en Python de un framework que serviría como capa de abstraccion entre los servicios del cern y los usuarios.\n\n"
+        },
+        {
+          "place": "Santiago de Compostela, Galicia",
+          "duration": "Oct ‘19 - Oct ‘20 (1 año)",
+          "about": "Enxine es una empresa especializada en Internet de las Cosas. Ofrecen todo tipo de soluciones hardware o software para controlar y monitorizar componentes electrónicos a través de internet.\n\n",
+          "workdone": "Dentro de la empresa he participado en el mantenimiento y desarrollo de nuevas funcionalidades dentro de la parte de backend de un sistema que se encarga del control de cargadores de coches eléctricos. Este sistema pertenece a Efimob, empresa que proporciona una red de cargadores para coches eléctricos en toda España. La monitorización, pago automático de recargas, mantenimiento y control de estos cargadores son algunas de las funcionalidades que este sistema incluye y en las cuales yo participo activamente."
+        },
+        {
+          "place": "Vigo, Galicia",
+          "duration": "Enero ‘17 - Mayo ‘17 (5 meses)",
+          "about": "Agencia de movilidad internacional que facilita experiencias en el extranjero con el fin de mejorar las capacidades lingüísticas y formativas de las personas.\n\n",
+          "workdone": "Desarrollé una red social multiplataforma que fomenta las relaciones entre los clientes adscritos a los programas de movilidad asi como la comunicación entre la empresa y sus clientes. Entre algunas de las funcionalidades de la red social se incluye la subida y gestión de imágenes, creación de grupos, gestión de roles, permisos, usuarios y chats grupales.\n\n"
+        },
+        {
+          "duration": "Jun ‘16 - Ago ‘16 (2 meses)",
+          "about": "Durante mi estancia en Reino Unido he trabajado para un pequeño proveedor de Amazon.\n\n",
+          "workdone": "El trabajo que hice fue el de crear un software cuyo objetivo era la automatización de procesos como llevar un registro de los productos y su stock, los pedidos y la generación e impresión de las etiquetas de envío. La visualización de los registros y ejecución de las tareas podían realizarse a través de la interacción con una interfaz gráfica.\n\n"
+        },
+        {
+          "place": "Santiago de Compostela, Galicia",
+          "duration": "Abril ‘16 - Mayo ‘16 (2 meses)",
+          "about": "Empresa internacional de consultaría software\n\n",
+          "workdone": "Participé en el desarrollo de un sistema de ingesta de datos y su procesado para la muestra de estadísticas sobre ciertos parámetros como puede ser el sexo, edad, localidad.. de gente que realiza conexiones desde diferentes plataformas. Participé en la refactorización de una base de datos y el sistema asociado encargado de realizar la gestión de usuarios para distintas aplicaciones haciendo uso de servicios Web REST\n\n"
+        }
+      ]
+    },
+    "abilities": {
+      "programminglang": {
+        "title":"Lenguajes de programación"
+      },
+      "databases": {
+        "title": "Bases de datos"
+      },
+      "frameworks": {
+        "title":"Frameworks"
+      },
+      "other": {
+        "title":"Otros"
+      }
+    },
+    "footer":{
+      "title": "Creado por Alejandro Suárez",
+      "subtitle": "Hecho con puro JS, HTML, CSS y nada más."
+    }
+  },
+  "blog": {
+    "header": {
+      "title": "Blog - Alejandro Suárez",
+      "subtitle": "Blog de ingeniería informática"
+    },
+    "navigation": {
+      "home": {"title":"Blog home"},
+      "profile":{"title": "Ir a mi perfil"}
+    },
+    "home":{
+      "title":"Artículos"
+    }
+  }
+}
