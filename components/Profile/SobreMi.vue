@@ -10,7 +10,7 @@
     <div class="seccion-derecha">
       <div
         class="seccion-contenido"
-        v-html="$t(`profile.aboutme`)"
+        v-html="aboutme()"
       />
     </div>
   </section>
@@ -19,9 +19,11 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 
-const { t } = useI18n()
+const { t} = useI18n()
 
 const title = computed(function () { return t(`profile.navigation.aboutme.title`) })
+const aboutme = function () { return t(`profile.aboutme`) }
+
 
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-    <div class="flex-grow-0 w-md bg-black  h-screen z-50 flex-col overflow-hidden transition-all duration-[400ms] text-light-50 box-content max-w-full <lg:absolute <lg:right-0 "
+    <div class="flex-grow-0 w-md  h-screen z-50 flex-col overflow-hidden transition-all duration-[400ms] text-light-50 box-content max-w-full <lg:absolute <lg:right-0 "
         :class="{ '!w-0': !open }">
         <div class="flex flex-col  h-screen w-full">
             <div class="basis-[5rem] flex-grow-0 flex flex-row bg-dark-400 m-4 cool-shadow overflow-hidden">

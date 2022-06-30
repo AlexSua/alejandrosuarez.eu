@@ -187,28 +187,28 @@ nav {
   right: 3.125rem;
 }
 
-// .load-animation {
-//   display: inline-block;
-//   position: absolute;
-//   width: 4rem;
-//   height: 4rem;
+.load-animation {
+  display: inline-block;
+  position: absolute;
+  width: 4rem;
+  height: 4rem;
 
-//   div {
-//     box-sizing: border-box;
-//     display: block;
-//     position: absolute;
-//     width: inherit;
-//     height: inherit;
-//     border: 8px solid #fff;
-//     border-radius: 50%;
-//     animation: load-animation 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-//     border-color: #f2d492 transparent transparent transparent;
+  div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: inherit;
+    height: inherit;
+    border: 8px solid #fff;
+    border-radius: 50%;
+    animation: load-animation 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: #f2d492 transparent transparent transparent;
 
-//     &:nth-child(2) {
-//       animation-delay: -0.6s;
-//     }
-//   }
-// }
+    &:nth-child(2) {
+      animation-delay: -0.6s;
+    }
+  }
+}
 
 @keyframes load-animation {
   0% {

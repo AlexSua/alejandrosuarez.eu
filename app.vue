@@ -1,7 +1,7 @@
 <template>
-  <router-view v-slot="{ Component }">
+  <router-view  v-slot="{ Component }">
     <transition :name="transitionName" @before-leave="onBeforeLeave" @after-enter="() => onAfterEnter()">
-      <component :is="Component" v-model:afterEnter="afterEnter" />
+      <component :is="Component" v-model:afterEnter="afterEnter"/>
     </transition>
   </router-view>
 </template>
@@ -12,7 +12,7 @@ import { useI18n } from 'vue-i18n';
 
 const route = useRoute();
 const router = useRouter();
-const { locale } = useI18n();
+const { locale,  } = useI18n();
 const afterEnter = ref(function (): any { });
 
 const transitionName = computed(() => {
@@ -22,8 +22,25 @@ const transitionName = computed(() => {
     : "";
 });
 
+// const getLanguage = () => {
+//   if (process.client) {
+//     let langageStorage = useLocalStorage("language")
+//     if (langageStorage) {
+//       return langageStorage
+//     } else {
+//       if (navigator.language.includes("es")) {
+//         return "es"
+//       } else {
+//         return "en"
+//       }
+//     }
+//   } else {
+//     return "en"
+//   }
+// }
 const onAfterEnter = computed(() => {
   window.scrollTo(0, 0);
+  // languageSet()
   return afterEnter.value;
 });
 
@@ -31,9 +48,34 @@ function onBeforeLeave() {
   afterEnter.value = () => { }
 }
 
-watch(locale, (value) => {
-  useLocalStorage('language',value)
-})
+
+// function languageSet(){
+// if(route.params.lang==="es"){
+//   locale.value = "es"
+// }
+
+// onRou(() => {
+//   console.log(route.params)
+//   if (route.params.lang === "es") {
+//     locale.value = "es"
+//   } else {
+//     locale.value = "en"
+//   }
+// })
+// }
+
+// onBeforeMount(() => {
+//       locale.value = getLanguage()
+
+// });
+
+// onMounted(()=>{
+//     locale.value = getLanguage()
+// });
+
+// watch(locale, (value) => {
+//   useLocalStorage('language', value)
+// })
 
 </script>
 

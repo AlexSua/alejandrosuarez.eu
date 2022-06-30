@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 
-const darkmode = useState('dark-mode')
+const darkmode = useDarkMode()
 
 function switchDarkMode() {
     darkmode.value?darkmode.value=false:darkmode.value=true;

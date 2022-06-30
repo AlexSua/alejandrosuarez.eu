@@ -22,6 +22,8 @@ export default class WebRtcConnection {
     private _receiveStreams: Record<string, MediaStream> = {}
 
     private _dataChannels: Record<string, RTCDataChannel> = {}
+    private _websocket: WebSocket | null = null
+    private _signalingFromWebsocket = false
 
     private _onDataChannel: ((connection: WebRtcConnection, channel: RTCDataChannel) => void) | undefined
     private _onTrack: ((connection: WebRtcConnection, track: MediaStreamTrack, stream: readonly MediaStream[]) => void) | undefined
@@ -32,6 +34,11 @@ export default class WebRtcConnection {
     private _temporary_alfa: boolean = false
     private _connected: boolean = false
     private _state: string = ""
+
+
+    private readonly websocket_configuration = {
+        address: "wss://skynet.sytes.net:5355/ws/",
+    }
 
     private readonly configuration = {
         iceServers: [{
@@ -48,14 +55,14 @@ export default class WebRtcConnection {
     constructor(
         mediaSourcesHandler?: MediaSourcesHandler,
         onTrack?: (connection: WebRtcConnection, track: MediaStreamTrack, stream: readonly MediaStream[]) => void,
-        onDataChannel?: (connection: WebRtcConnection, channel: RTCDataChannel) => void, 
+        onDataChannel?: (connection: WebRtcConnection, channel: RTCDataChannel) => void,
         writeOnChat?: (message: ChatMessage) => void,
         writeOnOffer?: (message: string) => void,
 
-        ) {
+    ) {
 
         this.pc = new RTCPeerConnection(this.configuration);
-        
+
         this._onTrack = onTrack
         this._onDataChannel = onDataChannel
         this._writeOnChat = writeOnChat
@@ -66,15 +73,21 @@ export default class WebRtcConnection {
         this.pc.onicecandidate = (event) => {
             if (event.candidate) {
                 this._localCandidates.push(event.candidate)
-            } 
+            }
             else {
                 const message: Message = {
                     sdp: this.pc.localDescription,
                     candidate: this._localCandidates
                 }
                 const compressedString = LZString.compressToEncodedURIComponent(JSON.stringify(message));
-                navigator.clipboard.writeText(compressedString)
-                writeOnOffer ? writeOnOffer(compressedString) : console.log(compressedString)
+                if (this._signalingFromWebsocket) {
+                    this._websocket.send(compressedString);
+                } else {
+                    writeOnOffer ? writeOnOffer(compressedString) : console.log(compressedString)
+                    navigator.clipboard.writeText(compressedString)
+
+                }
+
 
             }
         };
@@ -140,6 +153,75 @@ export default class WebRtcConnection {
         return offerDesc
     }
 
+
+    _generateUUID() {
+        var d = new Date().getTime();
+        var d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now() * 1000)) || 0;
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16;
+            if (d > 0) {
+                r = (d + r) % 16 | 0;
+                d = Math.floor(d / 16);
+            } else {
+                r = (d2 + r) % 16 | 0;
+                d2 = Math.floor(d2 / 16);
+            }
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+    }
+
+    _createWebsocket(uuid?: string) {
+        return new Promise(function (resolve, reject) {
+            if (!uuid) {
+                uuid = this._generateUUID()
+            }
+            let websocket = new WebSocket(this.websocket_configuration.address + uuid)
+
+            console.log(websocket)
+            websocket.onopen = () => {
+                this._websocket = websocket;
+                resolve(uuid);
+            }
+            websocket.onmessage = async (msg: MessageEvent<any>) => {
+                if (msg.data.startsWith("/get")) {
+                    this._signalingFromWebsocket = true;
+                    this.createOffer();
+                } else {
+                    this._signalingFromWebsocket = true;
+                    this.createAnswerFromString(msg.data)
+                }
+            }
+            websocket.onclose = (msg: CloseEvent) => {
+                websocket = null
+                this._websocket = null;
+            }
+            websocket.onerror = (err: ErrorEvent) => {
+                this._websocket = null;
+                resolve(null)
+            }
+
+        }.bind(this))
+
+    }
+
+    async websocketGenerateLink() {
+        return await this._createWebsocket();
+    }
+
+    async websocketConsumeLink(uuid) {
+        let result = await this._createWebsocket(uuid)
+        return result;
+
+    }
+
+
+    async close(){
+        // this._mediaSourcesHandler.stopAudio()
+        // this._mediaSourcesHandler.stopVideo()
+        this.pc.close();
+        this._websocket.close();
+    }
+
     async createAnswerFromString(message: string) {
         const decompressedMessage = LZString.decompressFromEncodedURIComponent(message)
         decompressedMessage && (message = decompressedMessage)
@@ -157,15 +239,7 @@ export default class WebRtcConnection {
                     await this.pc.setRemoteDescription(message.sdp)
                 } catch (err) {
                     console.log(err)
-                    // if (!this.alfa){
-                    console.log("asdasdsad")
-                    // await this.pc.setLocalDescription({ type: "rollback" })
                     await this.pc.setRemoteDescription(message.sdp)
-
-                    // return this.createAnswer(message)
-                    // }else{
-                    //     return null
-                    // }
                 }
                 if (sdpMessage.type == "offer") {
                     // this.alfa = false;
@@ -201,17 +275,19 @@ export default class WebRtcConnection {
     attachVideoChatStream(stream: MediaStream = this._mediaSourcesHandler.currentStream) {
         const videochattracks = stream.getTracks()
         console.log(videochattracks)
+        console.log(this._mediaSourcesHandler)
 
         Object.entries(this._videoChatSenders).forEach(([key, sender]) => {
             const track = videochattracks.find((track) => track.kind == key)
-            if (track) {
+            console.log(track)
+            if (track && track!=undefined) {
                 if (track?.label != sender.track?.label) {
                     sender.replaceTrack(track)
                     console.log("replace" + track.label)
                 }
             } else {
                 this.pc.removeTrack(sender)
-                this._videoChatSenders
+                delete this._videoChatSenders[key]
             }
         })
 
@@ -238,6 +314,7 @@ export default class WebRtcConnection {
             console.log("p2p is open!");
             this._connected = true;
             this._videoChatSendStream && this.attachVideoChatStream()
+            this._websocket && this._websocket.close()
             if (this._alfa)
                 this.attachDataChannel("chat", 2);
             // (async () => {

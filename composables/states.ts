@@ -5,7 +5,8 @@ export const useDarkMode = () => {
             if (result && result == "false")
                 return false
             return true
+        }else{
+            return true;
         }
-
     })
 }

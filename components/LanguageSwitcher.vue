@@ -8,6 +8,8 @@
       >
         <span @click="changeLocale(locale_switch)">
           {{ locale_switch.toUpperCase() }}
+                    <NuxtLink class="hidden" :to="$route.params.lang?'/'+locale_switch+$route.path.replace('/'+$route.params.lang,''):'/'+locale_switch+$route.path">{{ locale_switch.toUpperCase() }}</NuxtLink>
+
         </span>
       </li>
     </ul>

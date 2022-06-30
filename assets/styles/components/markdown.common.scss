@@ -15,6 +15,7 @@
   box-sizing: border-box;
   margin-left:0;
   margin-right: 0;
+  margin-bottom: 1rem;
 
   p {
     // font-size: 1em !important;
@@ -55,12 +56,13 @@
   }
 
   a {
-    color: #4770a7;
+    // color: #4770a7;
+    color:#4770a7;
   }
 }
 
 
-@media (max-width: 1024px) {
+@media (max-width: 700px) {
    
 
     .markdown-body {

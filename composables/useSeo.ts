@@ -27,6 +27,10 @@ export default function({
     const metaImage = image ? `${metadata.siteUrl}${image}` : null;
     const canonical = url.resolve(metadata.siteUrl, location);
 
+    publishedAt && (publishedAt = new Date(publishedAt).toISOString())
+    updatedAt && (updatedAt = new Date(updatedAt).toISOString())
+
+
     // lang ? null : lang = String(useI18n().locale);
 
 
@@ -115,6 +119,7 @@ export default function({
             },
             ...(publishedAt ? [{ name: `article:published_time`, content: publishedAt }] : []),
             ...(updatedAt ? [{ name: `article:modified_time`, content: updatedAt }] : []),
+            ...(tags.length > 0 ? [...tags.map((tag)=> {return { name: "article:tag", content: tag }})] : []),
             ...(tags.length > 0 ? [{ name: `twitter:label2`, content: `Filed under`, }, { name: `twitter:data2`, content: tags[0], }] : []),
             ...(metaImage ? [{ property: `og:image`, content: metaImage, }, { name: `twitter:image`, content: metaImage, }] : []),
 

@@ -12,7 +12,7 @@
                 </template>
                 <template v-else>
                     <div class="header-title">
-                        <nuxt-link to="/">
+                        <nuxt-link to="/blog">
                             {{ $t("blog.header.title") }}
                         </nuxt-link>
                     </div>
@@ -24,20 +24,20 @@
             <Navegacion navigation-id="blog.navigation" :blacklist="nav_blacklist" />
         </header>
         <main>
-            <div class="!relative">
+            <div class="!relative col-start-2 col-end-3">
                 <div class="load-bar-animation" :class="{ 'loaded': resolved, 'pending': pending }" />
 
             </div>
 
             <router-view v-slot="{ Component }">
                 <transition @before-enter="after_enter">
-                    <keep-alive>
+                    <!-- <keep-alive> -->
                         <suspense @pending="change_to_pending" @resolve="change_to_resolved">
                             <template #default>
                                 <component :is="Component" :key="$route.path" />
                             </template>
                         </suspense>
-                    </keep-alive>
+                    <!-- </keep-alive> -->
                 </transition>
             </router-view>
         </main>
@@ -92,8 +92,14 @@ function after_enter() {
     setTimeout(() => { $bus.emit('triggerScroll', '') }, 0)
 }
 
+
 watch(darkMode, (value) => {
     useLocalStorage('dark-mode', `${value}`)
+})
+
+onMounted(()=>{
+    const darkmode = useDarkMode()
+    console.log(darkmode)
 })
 
 </script>

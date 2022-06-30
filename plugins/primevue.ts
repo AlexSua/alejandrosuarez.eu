@@ -12,6 +12,7 @@ import BadgeDirective from 'primevue/badgedirective';
 import Dialog from 'primevue/dialog';
 import RadioButton from 'primevue/radiobutton';
 import Textarea from 'primevue/textarea';
+import Checkbox from 'primevue/checkbox';
 
 export default defineNuxtPlugin((nuxtApp) => {
     nuxtApp.vueApp.use(PrimeVue, {ripple: true});
@@ -24,6 +25,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     nuxtApp.vueApp.component('Dialog', Dialog);
     nuxtApp.vueApp.component('RadioButton', RadioButton);
     nuxtApp.vueApp.component('Textarea', Textarea);
+    nuxtApp.vueApp.component('Checkbox', Checkbox);
     nuxtApp.vueApp.directive('badge', BadgeDirective);
    //other components that you need
 });

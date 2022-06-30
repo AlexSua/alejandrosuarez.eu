@@ -1,4 +1,4 @@
-export default function useLocalStorage(key: string, value?: string): void | string {
+export default function useLocalStorage(key: string, value?: string): null | string {
     if(process.client)
         if (value)
             localStorage.setItem(key, value)
