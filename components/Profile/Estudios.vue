@@ -48,16 +48,11 @@
 </template>
 
 <script setup lang="ts">
-
 import { useI18n } from "vue-i18n";
 
-const i18n_page = "profile.education";
 const { t } = useI18n()
 
-const getSrc = (path) => {
-  const modules = import.meta.globEager("/assets/img/estudios/*");
-  return modules["/assets/img/estudios/"+path].default;
-};
+const i18n_page = "profile.education";
 
 const title = computed(() => {
   return t(`profile.navigation.education.title`)
@@ -66,6 +61,11 @@ const title = computed(() => {
 function getEstudio(index: any) {
   return `${i18n_page}[${String(index)}]`;
 }
+
+const getSrc = (path) => {
+  const modules = import.meta.globEager("/assets/img/estudios/*");
+  return modules["/assets/img/estudios/"+path].default;
+};
 
 </script>
 

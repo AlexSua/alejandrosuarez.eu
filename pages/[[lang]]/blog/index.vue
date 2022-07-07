@@ -1,7 +1,7 @@
 
 
 <template>
-    <div class="blog-home-title-filter-wrapper col-start-2 col-end-3 row-start-2 row-end-3">
+    <div class="blog-home-title-filter-wrapper col-start-2 col-end-3 row-start-2 row-end-3 ">
         <div class="blog-home-title-filter">
             <div class="blog-home-title">
                 <h2>{{ $t(`blog.home.title`) }} </h2>
@@ -22,18 +22,11 @@
         <BlogEntry v-for="(blog, index) in getBlogList" :key="$i18n.locale + blog._path" :blog="blog" />
     </div>
     <div v-if="filteredBlogList.length <= 0" class="empty-array-message ">
-        No articles for<span v-if="filter.search"> "{{
+        No articles<span v-if="filter.search">&nbsp;for "{{
                 filter.search
-        }}"</span> in language"{{ $i18n.locale }}"
+        }}"</span>&nbsp;in language "{{ $i18n.locale }}"
     </div>
 </template>
-
-<!-- <script lang="ts" setup>
-const { data } = await useAsyncData('blog-content', () => queryContent('/blog').find())
-
-</script> -->
-
-
 
 <script setup lang="ts">
 
@@ -45,6 +38,14 @@ const { t, locale, availableLocales } = useI18n()
 
 const route = useRoute()
 const router = useRouter()
+const filter = reactive({
+    search: "",
+    tags: [] as string[],
+});
+
+let firstTime = true;
+let filteredBlogList = ref([] as ParsedContent[]);
+
 useSeo({
     title: "Blog",
     description: "List of articles in the blog",
@@ -54,19 +55,8 @@ useSeo({
 });
 
 
-
-
-let firstTime = true;
-
-const filter = reactive({
-    search: "",
-    tags: [] as string[],
-});
-let filteredBlogList = ref([] as ParsedContent[]);
-
 let result = await useAsyncData('blog-content', () => queryContent('/blog/').find())
 const blogList = ref<ParsedContent[] | null>(result.data.value);
-
 
 filter.search = route.query.search as string || "";
 
@@ -77,14 +67,6 @@ if (route.query.tags) {
         filter.tags = route.query.tags as string[];
     }
 }
-
-
-// if (availableLocales.includes(route.query.language as string)) {
-//     locale.value = route.query.language as string || locale.value;
-// }
-
-
-filterResult();
 
 function filterResult() {
     if (blogList.value)
@@ -112,7 +94,7 @@ function filterResult() {
             }
         );
 }
-
+filterResult();
 
 
 const getBlogList = computed(() => {
@@ -166,17 +148,6 @@ watch(filter, (value) => {
 watch(blogList, (value) => {
     filterResult()
 })
-
-
-
-// useAsyncData('blog-content', () => queryContent('/blog/').find()).then((result) => {
-//     blogList.value = result.data.value;
-//     filter.search = route.query.search as string || "";
-//     if (availableLocales.includes(route.query.language as string)){
-//         locale.value = route.query.language as string || locale.value;
-//     }
-// })
-
 
 
 

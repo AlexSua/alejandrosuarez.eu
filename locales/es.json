@@ -84,7 +84,7 @@
     },
     "footer":{
       "title": "Creado por Alejandro Suárez",
-      "subtitle": "Hecho con puro JS, HTML, CSS y nada más."
+      "subtitle": "Desarrollado con Nuxt3 y Vue3."
     }
   },
   "blog": {

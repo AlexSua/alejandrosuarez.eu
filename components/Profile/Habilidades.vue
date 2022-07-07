@@ -27,17 +27,17 @@
 
 
 import { useI18n } from "vue-i18n";
-const modules = import.meta.globEager("/assets/img/habilidades/*");
-
-const getSrc = (path) => {
-  return modules[path].default;
-};
 
 const { t } = useI18n();
 
-const title = computed(() => {
-  return t("profile.navigation.abilities.title")
-});
+const title = computed(() => {return t("profile.navigation.abilities.title")});
+
+
+const getSrc = (path) => {
+  const modules = import.meta.globEager("/assets/img/habilidades/*");
+  return modules[path].default;
+};
+
 
 </script>
 

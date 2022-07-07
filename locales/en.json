@@ -273,7 +273,7 @@
     },
     "footer":{
       "title": "Created by Alejandro Suárez",
-      "subtitle": "Made with JS, HTML, CSS and nothing more."
+      "subtitle": "Made with Vue3 and Nuxt3."
     }
   },
   "blog": {

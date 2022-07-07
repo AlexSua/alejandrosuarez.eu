@@ -13,7 +13,6 @@ export default class MediaSourcesHandler {
         this._videoLocal = videoLocal
     }
 
-
     public get currentDevices() {
         const videoTracks = this.currentVideoTracks
         const audioTracks = this.currentAudioTracks
@@ -40,14 +39,13 @@ export default class MediaSourcesHandler {
     public get currentStream() {
         return this._currentStream
     }
-    
 
     public get currentVideoTracks() {
         return this._currentStream.getVideoTracks()
     }
 
-    public get currentVideoCapabilities(){
-        return this.currentStream.getVideoTracks()[0]?this.currentStream.getVideoTracks()[0].getCapabilities():null;
+    public get currentVideoCapabilities() {
+        return this.currentStream.getVideoTracks()[0] ? this.currentStream.getVideoTracks()[0].getCapabilities() : null;
     }
 
     public get currentAudioTracks() {
@@ -72,8 +70,8 @@ export default class MediaSourcesHandler {
         if (navigator && navigator.mediaDevices) {
             try {
                 await this.getMediaDevices();
-                this.audioDevices.length<=0 && (constraints.audio = false)
-                this.videoDevices.length<=0 && (constraints.video = false)
+                this.audioDevices.length <= 0 && (constraints.audio = false)
+                this.videoDevices.length <= 0 && (constraints.video = false)
                 this._currentStream = await navigator.mediaDevices.getUserMedia(constraints)
                 return this._currentStream
             } catch (e: any) {
@@ -84,14 +82,14 @@ export default class MediaSourcesHandler {
         return null
     }
 
-    public async getScreenStream(){
+    public async getScreenStream() {
         if (navigator && navigator.mediaDevices) {
             try {
-                this._currentScreenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio:true })
+                this._currentScreenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
                 console.log(this._currentScreenStream)
                 await this.stopAndRemoveVideo()
                 this.currentStream.addTrack(this._currentScreenStream.getVideoTracks()[0])
-                
+
                 return this._currentScreenStream
             } catch (e: any) {
                 console.log(e)
@@ -125,12 +123,12 @@ export default class MediaSourcesHandler {
         if (this.currentDevices.video != videoSelected) {
             await this.stopAndRemoveVideo()
             stream = await this.startVideo(videoSelected)
-        }        
+        }
         // this.attachStreamToLocalVideo(stream)
     }
 
     public attachStreamToLocalVideo(stream: MediaStream | null) {
-        
+
         if (stream) {
             console.log(this._videoLocal)
             this._videoLocal && stream && (this._videoLocal.value.srcObject = stream)
@@ -138,32 +136,33 @@ export default class MediaSourcesHandler {
             this._videoLocal.value.play()
         }
     }
-    
+
 
     public async stopAndRemoveVideo() {
-        this.currentVideoTracks.forEach(track => track.enabled=false)
+        this.currentVideoTracks.forEach(track => track.enabled = false)
         await new Promise(resolve => setTimeout(resolve, 100));
-        this.currentVideoTracks.forEach(track => { track.stop(); this._currentStream.removeTrack(track)})
+        this.currentVideoTracks.forEach(track => { track.stop(); this._currentStream.removeTrack(track) })
     }
+
     public stopAndRemoveAudio() {
-        this.currentAudioTracks.forEach(track => { track.stop();  this._currentStream.removeTrack(track)})
+        this.currentAudioTracks.forEach(track => { track.stop(); this._currentStream.removeTrack(track) })
     }
     public stopAudio() {
-        this.currentVideoTracks.forEach(track => track.stop()) 
+        this.currentVideoTracks.forEach(track => track.stop())
     }
     public stopVideo() {
         this.currentAudioTracks.forEach(track => track.stop())
     }
 
 
-    public async startVideo(videoDeviceStr:string) {
+    public async startVideo(videoDeviceStr: string) {
         const videoDevice = this.getMediaDeviceByName(videoDeviceStr)
         let stream = await navigator.mediaDevices.getUserMedia({ video: videoDevice ? { deviceId: videoDevice.deviceId } : false })
         this.currentVideoTracks[0] && this.currentStream.removeTrack(this.currentVideoTracks[0])
         this.currentStream.addTrack(stream.getVideoTracks()[0])
         return stream
     }
-    public async startAudio(audioDeviceStr:string) {
+    public async startAudio(audioDeviceStr: string) {
         const audioDevice = this.getMediaDeviceByName(audioDeviceStr)
         let stream = await navigator.mediaDevices.getUserMedia({ audio: audioDevice ? { deviceId: audioDevice.deviceId, autoGainControl: false, channelCount: 1, echoCancellation: true, latency: 0, noiseSuppression: true, sampleRate: 48000, sampleSize: 16 } : false })
         this.currentAudioTracks[0] && this.currentStream.removeTrack(this.currentAudioTracks[0])

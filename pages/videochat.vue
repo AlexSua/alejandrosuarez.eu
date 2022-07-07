@@ -105,7 +105,7 @@
             </div>
 
             <div class="flex flex-1 items-center justify-center">
-              
+
             </div>
         </div>
 
@@ -146,26 +146,25 @@ const drawerChatOpen = ref(false)
 const drawerSettingsOpen = ref(false)
 const dialogServerLessOpen = ref(false)
 const dialogLinkOpen = ref(false)
-const mediaDevicesAllowed = ref(true)
-const getMediaDevices = ref(false)
-
 const link = ref("")
 
 const devices = reactive({
     video: [],
     audio: [],
 })
+const mediaDevicesAllowed = ref(true)
+const getMediaDevices = ref(false)
 const audioSelected = ref<string>()
 const videoSelected = ref<string>()
 const audioEnabled = ref<boolean>(true)
 const videoEnabled = ref<boolean>(true)
 const videoRemoteFullSize = ref<boolean>(false)
 const call = ref(false)
-
 const mediaSelectionDisabled = ref(false)
 
 const sdpMessageInput = ref("")
 const offerTextArea = ref("")
+
 
 const drawerChatOpenFun = () => {
     if (drawerChatOpen.value)
@@ -203,16 +202,16 @@ const drawerSettingsOpenFun = () => {
 const enableVideoFunc = async () => {
     mediaSelectionDisabled.value = true;
     if (videoEnabled.value) {
-        await mediaSourcesHandler.stopAndRemoveVideo()
+        !screenSharing.value && await mediaSourcesHandler.stopAndRemoveVideo()
         videoEnabled.value = false
-    } else if(videoSelected.value) {
-        await mediaSourcesHandler.startVideo(videoSelected.value)
+    } else if (videoSelected.value) {
+        !screenSharing.value && await mediaSourcesHandler.startVideo(videoSelected.value)
         videoEnabled.value = true;
     }
     webRtcConnection && webRtcConnection.attachVideoChatStream()
     mediaSelectionDisabled.value = false;
-
 };
+
 const enableAudioFunc = async () => {
     mediaSelectionDisabled.value = true;
 
@@ -226,7 +225,6 @@ const enableAudioFunc = async () => {
     }
     webRtcConnection && webRtcConnection.attachVideoChatStream()
     mediaSelectionDisabled.value = false;
-
 };
 
 
@@ -236,7 +234,6 @@ const linkDialogOpenFunc = async () => {
 };
 
 const items = ref([
-
     {
         label: 'Exit',
         icon: 'pi pi-angle-left text-vanilla-yellow ',
@@ -250,7 +247,6 @@ const items = ref([
         icon: 'pi pi-server',
         command: () => {
             dialogServerLessOpen.value = true;
-            //  toast.add({severity: 'success', summary: 'Link created', detail: 'You have created succesfully a new link and has bee copied into your clipboard', group: 'br', life: 3000});
 
         }
     },
@@ -258,16 +254,13 @@ const items = ref([
         label: 'Maximize',
         icon: 'pi pi-window-maximize',
         command: () => {
-            // dialogLinkOpen.value = true;
-            // toast.add({ severity: 'success', summary: 'Link created', detail: 'You have created succesfully a new link and has bee copied into your clipboard', group: 'br', life: 3000 });
-            if(call.value && videoRemote.value){
+            if (call.value && videoRemote.value) {
                 videoRemote.value.requestFullscreen()
-            }else{
-                 videoLocal.value.requestFullscreen()
+            } else {
+                videoLocal.value.requestFullscreen()
             }
         }
     },
-
     {
         label: 'Settings',
         icon: 'pi pi-cog',
@@ -284,16 +277,15 @@ function writeOnChat(message: ChatMessage) {
 }
 function sendChatMessage(message: ChatMessage[]) {
     webRtcConnection && webRtcConnection.dataChannels["chat"] && webRtcConnection.dataChannels["chat"].send(message[message.length - 1].data)
-
 }
 
-
 async function generateLink() {
-    router.push({
-        path: '/videochat',
 
-    });
     if (!link.value) {
+        console.log(link.value)
+        router.push({
+            path: '/videochat',
+        });
         webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnChat, writeOnOffer)
         let result = await webRtcConnection.websocketGenerateLink()
         if (!result) {
@@ -310,7 +302,6 @@ async function generateLink() {
         });
     }
     dialogLinkOpen.value = true;
-
 }
 
 function copyLinkToClipboard() {
@@ -320,16 +311,10 @@ function copyLinkToClipboard() {
 
 function ontrack(connection: WebRtcConnection, track: MediaStreamTrack, stream: readonly MediaStream[]) {
     console.log("ontrack", connection, track, stream)
-
     if (videoRemote.value) {
         videoRemote.value.srcObject = stream[0];
         stream[0].addTrack(track);
-        // videoRemoteStream.addTrack(track);
-        // videoRemote.value.play()
-        videoRemote.value.oncanplay = () => {
-            // videoRemote.value.play()
-            videoLocalContainer.value.classList.add("w-1/4", "h-1/4");
-        }
+        videoRemote.value.play();
     }
 };
 
@@ -346,11 +331,12 @@ function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
         console.log("channel close");
         videoRemote.value.srcObject = null;
         call.value = false;
+        closeWebRTCConnection()
+        initalizeWebRTCfromCurrentRoomParam()
     };
 
     channel.onmessage = event => {
         console.log(event.data);
-
         writeOnChat({ data: event.data, own: false })
         if (!drawerChatOpen.value) {
             nonReadedMessages.value++
@@ -359,7 +345,14 @@ function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
 }
 
 function closeConnection() {
+    link.value = ""
+    router.push({
+        path: '/videochat'
+    });
+    closeWebRTCConnection()
+}
 
+function closeWebRTCConnection() {
     webRtcConnection && webRtcConnection.close();
 }
 
@@ -367,11 +360,11 @@ function writeOnOffer(message: string) {
     offerTextArea.value = message
 }
 
-
 async function createOffer() {
     webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnChat, writeOnOffer)
     await webRtcConnection.createOffer()
 }
+
 async function createOrRecibeAnswer() {
     if (!webRtcConnection || webRtcConnection.state != "have-local-offer") {
         webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnChat, writeOnOffer)
@@ -388,25 +381,21 @@ async function refreshMediaDevices() {
 
 }
 
-function shareScreen() {
-
-}
-
 function initializeLocalStream() {
     if (process.client) {
         mediaSourcesHandler = new MediaSourcesHandler(videoLocal);
         mediaSourcesHandler.initializeLocalStream().then(async (value) => {
             if (!value) {
-                videoEnabled.value=false;
-                audioEnabled.value=false;
+                videoEnabled.value = false;
+                audioEnabled.value = false;
                 toast.add({ severity: 'error', summary: 'Error', detail: 'Error while trying to get the camera. Check the permissions for the camera.', group: 'br', life: 3000 });
                 getMediaDevices.value = true
                 return null
             }
             getMediaDevices.value = false
             await mediaSourcesHandler.getMediaDevices()
-            mediaSourcesHandler.currentAudioTracks.length>0 && (audioEnabled.value = true)
-            mediaSourcesHandler.currentVideoTracks.length>0 && (videoEnabled.value = true)
+            mediaSourcesHandler.currentAudioTracks.length > 0 && (audioEnabled.value = true)
+            mediaSourcesHandler.currentVideoTracks.length > 0 && (videoEnabled.value = true)
             devices.audio = mediaSourcesHandler.audioDevices;
             devices.video = mediaSourcesHandler.videoDevices;
             audioSelected.value = mediaSourcesHandler.currentDevices.audio;
@@ -418,7 +407,6 @@ function initializeLocalStream() {
 async function initializeScreenStream() {
     if (process.client) {
         mediaDevicesAllowed.value = false;
-
         if (screenSharing.value) {
             await mediaSourcesHandler.stopAndRemoveVideo()
             if (videoEnabled.value) {
@@ -434,10 +422,18 @@ async function initializeScreenStream() {
             frontCamera.value = false;
             screenSharing.value = true;
         }
-
-
     }
     mediaDevicesAllowed.value = true;
+}
+
+async function initalizeWebRTCfromCurrentRoomParam() {
+    if (link.value) {
+        webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnChat, writeOnOffer);
+        let result = await webRtcConnection.websocketConsumeLink(route.query.room)
+        if (!result) {
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Error while trying to connnect to the signaling server', group: 'br', life: 3000 });
+        }
+    }
 }
 
 const onSourceChange = (type: string) => async (value: string | undefined, oldValue: string | undefined) => {
@@ -459,17 +455,11 @@ const onSourceChange = (type: string) => async (value: string | undefined, oldVa
 watch(audioSelected, onSourceChange("audio"))
 watch(videoSelected, onSourceChange("video"))
 
-
 onMounted(() => {
     initializeLocalStream()
-    if (route.query.room) {
-        webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnChat, writeOnOffer);
-        (async () => {
-            let result = await webRtcConnection.websocketConsumeLink(route.query.room)
-            if (!result) {
-                toast.add({ severity: 'error', summary: 'Error', detail: 'Error while trying to connnect to the signaling server', group: 'br', life: 3000 });
-            }
-        })();
+    if (route.query.room && route.query.room.length > 0) {
+        link.value = document.location.href;
+        initalizeWebRTCfromCurrentRoomParam()
     }
 })
 onBeforeUnmount(() => {
@@ -520,18 +510,14 @@ button {
     }
 }
 
-
 video::-webkit-media-controls-play-button,
 video::-webkit-media-controls-timeline,
 video::-webkit-media-controls-current-time-display,
 video::-webkit-media-controls-time-remaining-display,
-video::-webkit-media-controls-mute-button ,
+video::-webkit-media-controls-mute-button,
 video::-webkit-media-controls-toggle-closed-captions-button,
-video::-webkit-media-controls-volume-slider{
-    display:none;
-    
+video::-webkit-media-controls-volume-slider {
+    display: none;
+
 }
-// video{
-//       pointer-events: none;
-// }
 </style>

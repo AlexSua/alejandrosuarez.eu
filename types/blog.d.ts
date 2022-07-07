@@ -8,6 +8,7 @@ declare module "@nuxt/content/dist/runtime/types" {
         title: string;
         readtime: string;
         language: string;
+        image: string;
     }
 }
 export {} 

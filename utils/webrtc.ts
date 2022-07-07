@@ -38,6 +38,7 @@ export default class WebRtcConnection {
 
     private readonly websocket_configuration = {
         address: "wss://skynet.sytes.net:5355/ws/",
+        // address: "ws://127.0.0.1:8080/ws/",
     }
 
     private readonly configuration = {
@@ -80,18 +81,16 @@ export default class WebRtcConnection {
                     candidate: this._localCandidates
                 }
                 const compressedString = LZString.compressToEncodedURIComponent(JSON.stringify(message));
-                if (this._signalingFromWebsocket) {
+                if (this._signalingFromWebsocket && this._websocket) {
                     this._websocket.send(compressedString);
                 } else {
                     writeOnOffer ? writeOnOffer(compressedString) : console.log(compressedString)
                     navigator.clipboard.writeText(compressedString)
-
                 }
 
 
             }
         };
-
         this.pc.ontrack = event => {
             event.streams.forEach((stream) => {
                 if (!(stream.id in this._receiveStreams))
@@ -136,8 +135,6 @@ export default class WebRtcConnection {
         }
     }
 
-
-
     async createOffer() {
         console.log("create offer")
         this._localCandidates = []
@@ -145,11 +142,8 @@ export default class WebRtcConnection {
             this._alfa = true;
             this.attachDataChannel();
         }
-
         const offerDesc = await this.pc.createOffer();
         await this.pc.setLocalDescription(offerDesc);
-
-
         return offerDesc
     }
 
@@ -170,35 +164,44 @@ export default class WebRtcConnection {
         });
     }
 
-    _createWebsocket(uuid?: string) {
-        return new Promise(function (resolve, reject) {
+    _createWebsocket(uuid?: string, attempt: number = 0) {
+        return new Promise(async function (resolve, reject) {
             if (!uuid) {
                 uuid = this._generateUUID()
             }
-            let websocket = new WebSocket(this.websocket_configuration.address + uuid)
 
-            console.log(websocket)
-            websocket.onopen = () => {
-                this._websocket = websocket;
-                resolve(uuid);
-            }
-            websocket.onmessage = async (msg: MessageEvent<any>) => {
-                if (msg.data.startsWith("/get")) {
-                    this._signalingFromWebsocket = true;
-                    this.createOffer();
-                } else {
-                    this._signalingFromWebsocket = true;
-                    this.createAnswerFromString(msg.data)
+            // console.log(this._websocket)
+            // if (this._websocket && this._websocket!==null) {
+            //     this._websocket.close();
+            //     if (attempt <= 2) {
+            //         await new Promise(r => setTimeout(r, 2000));
+            //         this._createWebsocket(uuid, attempt + 1).then(resolve).catch(reject);
+            //     } else {
+            //         resolve(null)
+            //     }
+            // } else {
+                this._websocket = new WebSocket(this.websocket_configuration.address + uuid)
+
+                this._websocket.onopen = () => {
+                    resolve(uuid);
                 }
-            }
-            websocket.onclose = (msg: CloseEvent) => {
-                websocket = null
-                this._websocket = null;
-            }
-            websocket.onerror = (err: ErrorEvent) => {
-                this._websocket = null;
-                resolve(null)
-            }
+                this._websocket.onmessage = async (msg: MessageEvent<any>) => {
+                    if (msg.data.startsWith("/get")) {
+                        this._signalingFromWebsocket = true;
+                        this.createOffer();
+                    } else {
+                        this._signalingFromWebsocket = true;
+                        this.createAnswerFromString(msg.data)
+                    }
+                }
+                this._websocket.onclose = (msg: CloseEvent) => {
+                    console.log("websocket closed")
+                }
+                this._websocket.onerror = (err: ErrorEvent) => {
+                    this._websocket = null;
+                    resolve(null)
+                }
+            
 
         }.bind(this))
 
@@ -211,15 +214,12 @@ export default class WebRtcConnection {
     async websocketConsumeLink(uuid) {
         let result = await this._createWebsocket(uuid)
         return result;
-
     }
 
 
-    async close(){
-        // this._mediaSourcesHandler.stopAudio()
-        // this._mediaSourcesHandler.stopVideo()
+    async close() {
         this.pc.close();
-        this._websocket.close();
+        this._websocket && this._websocket.close(1000, "close");
     }
 
     async createAnswerFromString(message: string) {
@@ -232,23 +232,22 @@ export default class WebRtcConnection {
         let answerDesc = null
         if (message.sdp) {
             const sdpMessage = message.sdp
+
             try {
                 try {
                     await new Promise((resolve, reject) => { setTimeout(() => resolve(true), 100) })
-                    // if(this.pc.signalingState != "stable") this.pc.setLocalDescription({ type: "rollback" })
                     await this.pc.setRemoteDescription(message.sdp)
                 } catch (err) {
                     console.log(err)
                     await this.pc.setRemoteDescription(message.sdp)
                 }
+
                 if (sdpMessage.type == "offer") {
-                    // this.alfa = false;
                     console.log("create answer")
                     answerDesc = await this.pc.createAnswer();
                     await this.pc.setLocalDescription(answerDesc);
-
-
                 }
+
                 if (message.candidate) {
                     console.log("adding candidate")
                     this._remoteCandidates = message.candidate
@@ -258,6 +257,7 @@ export default class WebRtcConnection {
                 }
                 return answerDesc
             }
+
             catch (e: any) {
                 console.log(e)
                 return null
@@ -267,11 +267,6 @@ export default class WebRtcConnection {
         return answerDesc
     }
 
-    // attachStream(stream: MediaStream) {
-    //     console.log("attach stream:" + stream)
-    //     stream.getTracks().forEach(track => this.pc.addTrack(track, stream));
-    // }
-
     attachVideoChatStream(stream: MediaStream = this._mediaSourcesHandler.currentStream) {
         const videochattracks = stream.getTracks()
         console.log(videochattracks)
@@ -280,7 +275,7 @@ export default class WebRtcConnection {
         Object.entries(this._videoChatSenders).forEach(([key, sender]) => {
             const track = videochattracks.find((track) => track.kind == key)
             console.log(track)
-            if (track && track!=undefined) {
+            if (track && track != undefined) {
                 if (track?.label != sender.track?.label) {
                     sender.replaceTrack(track)
                     console.log("replace" + track.label)
@@ -300,7 +295,6 @@ export default class WebRtcConnection {
     attachDataChannel(dataChannelName: string = "p2p", id: number = 0) {
         console.log("attach datachannel:" + dataChannelName)
         const channel = this.pc.createDataChannel(dataChannelName, { negotiated: false, id: id });
-        // channel.reli
         this._dataChannels[channel.label] = channel
         if (dataChannelName !== "p2p") {
             this._onDataChannel && this._onDataChannel(this, this._dataChannels[channel.label])
@@ -314,16 +308,9 @@ export default class WebRtcConnection {
             console.log("p2p is open!");
             this._connected = true;
             this._videoChatSendStream && this.attachVideoChatStream()
-            this._websocket && this._websocket.close()
+            this._websocket && this._websocket.close(1000, "close")
             if (this._alfa)
                 this.attachDataChannel("chat", 2);
-            // (async () => {
-            //     console.log("aaaaaaaaaaaaaaaaaaaa")
-
-            //     const offer = await this.createOffer();
-            //     this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
-            // })();
-
         };
 
         channel.onclose = () => {

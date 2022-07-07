@@ -2,7 +2,7 @@
   <article>
     <NuxtLink :to="blog._path" class="h-full flex flex-col">
       <header>
-        <img loading="lazy" src="@/assets/img/loading.jpg">
+        <img loading="lazy" :src="getSrc(blog.image)">
       </header>
       <section class="flex-1">
         <div class="title">
@@ -40,6 +40,10 @@ defineProps<{
 }>()
 
 
+const getSrc = (path) => {
+  const modules = import.meta.globEager("/assets/img/blog/*");
+  return modules[path].default;
+};
 </script>
 
 <style>

@@ -11,9 +11,9 @@
         :key="index"
         @click="navegarA($t(`${navigationId}.${navigation_attribute}.path`))"
       >
-        <span>
-          <NuxtLink :to="$t(`${navigationId}.${navigation_attribute}.path`) ">{{ $t(`${navigationId}.${navigation_attribute}.title`) }}</NuxtLink></span>
-              <!-- <span><NuxtLink :to="($route.params.lang?'/'+$route.params.lang:'')+$t(`${navigationId}.${navigation_attribute}.path`) " >{{ $t(`${navigationId}.${navigation_attribute}.title`) }}</NuxtLink></span> -->
+        <!-- <span> -->
+          <!-- <NuxtLink :to="$t(`${navigationId}.${navigation_attribute}.path`) ">{{ $t(`${navigationId}.${navigation_attribute}.title`) }}</NuxtLink></span> -->
+              <span><NuxtLink :to="($route.params.lang?'/'+$route.params.lang:'')+$t(`${navigationId}.${navigation_attribute}.path`) " >{{ $t(`${navigationId}.${navigation_attribute}.title`) }}</NuxtLink></span>
 
       </li>
     </ul>

@@ -69,7 +69,14 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
-const modules = import.meta.globEager("/assets/img/trabajo/*")
+
+const i18n_page = "profile.work.positions"
+
+const title = computed(function () { return t(`profile.navigation.experience.title`) })
+
+function getTrabajoIndex(index: any) {
+  return `${i18n_page}[${String(index)}]`
+}
 
 const getSrcBackground = (path) => {
   const modules = import.meta.globEager("/assets/img/trabajo/*")
@@ -85,16 +92,6 @@ const getSrcHabilidades= (path) => {
   const modules = import.meta.globEager("/assets/img/habilidades/*")
   return modules["/assets/img/habilidades/"+path].default;
 };
-
-
-const i18n_page = "profile.work.positions"
-
-const title = computed(function () { return t(`profile.navigation.experience.title`) })
-
-function getTrabajoIndex(index: any) {
-  return `${i18n_page}[${String(index)}]`
-}
-
 </script>
 
 

@@ -1,10 +1,10 @@
 import url from "url";
 
-// import { useI18n } from "vue-i18n";
+import { useI18n } from "vue-i18n";
 import config from "@/config.json";
 
 
-export default function({
+export default function ({
     title,
     description,
     lang,
@@ -16,8 +16,8 @@ export default function({
     type = `Article`,
     image,
 
-}: SEOProps, site: Partial<SiteMetadata>={})  {
-    site = {...config.siteMetadata,...site };
+}: SEOProps, site: Partial<SiteMetadata> = {}) {
+    site = { ...config.siteMetadata, ...site };
 
     const metadata = site as SiteMetadata;
     const siteTitle = title ? `${title} - ${metadata.title}` : metadata.title;
@@ -29,9 +29,8 @@ export default function({
 
     publishedAt && (publishedAt = new Date(publishedAt).toISOString())
     updatedAt && (updatedAt = new Date(updatedAt).toISOString())
-
-
-    // lang ? null : lang = String(useI18n().locale);
+    const {locale} = useI18n()
+    lang = locale.value;
 
 
     const ldJson = {
@@ -119,7 +118,7 @@ export default function({
             },
             ...(publishedAt ? [{ name: `article:published_time`, content: publishedAt }] : []),
             ...(updatedAt ? [{ name: `article:modified_time`, content: updatedAt }] : []),
-            ...(tags.length > 0 ? [...tags.map((tag)=> {return { name: "article:tag", content: tag }})] : []),
+            ...(tags.length > 0 ? [...tags.map((tag) => { return { name: "article:tag", content: tag } })] : []),
             ...(tags.length > 0 ? [{ name: `twitter:label2`, content: `Filed under`, }, { name: `twitter:data2`, content: tags[0], }] : []),
             ...(metaImage ? [{ property: `og:image`, content: metaImage, }, { name: `twitter:image`, content: metaImage, }] : []),
 

@@ -1,12 +1,8 @@
 @import "setup/typography.scss";
 @import "setup/variables.scss";
-// @import "components/markdown.scss"
-// @import "~github-markdown-css/github-markdown-light.css";
-// @import "~highlight.js/scss/base16/gruvbox-dark-hard.scss";
 
 html {
   font-size: 16px;
-  // text-align: justify;
   line-height: unset;
   overflow-y: auto !important;
 }
@@ -31,9 +27,8 @@ ul{
   padding: 0;
 
 }
-/////////////////////white mode #1b16142b
-ul,p {
-  font-size: 1.15em;
+ul,p,ol {
+  font-size: 1.13em;
   line-height: calc(1.2em * 1.25)!important;
   text-align: left;
 }
@@ -73,7 +68,6 @@ h4 {
 .secciones-navegacion {
   padding-bottom: 2.5rem;
   min-height: 7rem;
-  // margin-bottom: 2.5rem;
   align-items: flex-start;
 }
 
@@ -81,7 +75,6 @@ nav {
   font-weight: 600;
   display: flex;
   justify-content: center;
-  // padding-bottom: 1.25rem;
   color: #f2d492;
   z-index: 2;
 
@@ -102,7 +95,6 @@ nav {
   li {
     text-align: center;
     margin-top: 0.625rem;
-    // font-size: 1.1rem;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -168,8 +160,6 @@ nav {
       }
     }
   }
-
-
 }
 
 .up{
@@ -220,13 +210,6 @@ nav {
   }
 }
 
-
-
-
-
-// }
-
-
 @media (max-width: 1024px) {
   main {
     display: flex;
@@ -248,7 +231,7 @@ nav {
 
   nav {
     span::after {
-      background-color: unset;
+      background-color: unset!important;
     }
   }
 
@@ -263,8 +246,6 @@ nav {
   .up.right{
     right: 30px;
   }
-
-
 }
 
 @media screen and (min-width: 2560px) {

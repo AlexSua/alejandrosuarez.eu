@@ -6,12 +6,21 @@ export default defineEventHandler(async (event) => {
   const sitemap = new SitemapStream({
     hostname: 'https://alejandrosuarez.eu'
   })
+  // Add URLs to the sitemap
+  for (const webpage of ["/", "/blog", "/videochat", "/es", "/es/blog"]) {
+    sitemap.write({
+      url: webpage,
+      changefreq: 'monthly'
+    })
+  }
+  
   for (const doc of docs) {
     sitemap.write({
       url: doc._path,
       changefreq: 'monthly'
     })
   }
+
   sitemap.end()
   return streamToPromise(sitemap)
-})
+}) 

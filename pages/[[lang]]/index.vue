@@ -18,18 +18,10 @@
 
 <script setup lang="ts">
 
-// const { locale, availableLocales } = useI18n()
 const router = useRouter()
 const route = useRoute();
-// if (availableLocales.filter((el)=>el!="en").includes(route.params.language) ){
-//     locale.value = route.params.language
-// }
 
 const Main = defineAsyncComponent(()=>import ("../../components/Profile/Main.vue"))
-// Main. = resolve
-// Main.onVnodeMounted = (vnode) => {
-//   resolve
-// }
 
 const props = defineProps({
   afterEnter: Function,
@@ -47,7 +39,7 @@ const emit = defineEmits(["update:afterEnter"]);
 const el = ref();
 useSeo({
     title: "Profile",
-    description: "Profile of Alejandro Suárez",
+    description: "Hi, I am Alejandro Suárez and this is my personal website.",
     image: "",
     type: "WebSite",
     location: route.path,

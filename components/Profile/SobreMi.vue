@@ -18,14 +18,15 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
+const { t } = useI18n()
 
-const { t} = useI18n()
-
-const title = computed(function () { return t(`profile.navigation.aboutme.title`) })
+const title = computed(function () { 
+  return t(`profile.navigation.aboutme.title`)
+})
 const aboutme = function () { return t(`profile.aboutme`) }
 
 
 </script>
 
 <style>
-</style>
+</style> 

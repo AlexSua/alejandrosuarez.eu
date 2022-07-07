@@ -1,13 +1,57 @@
 ---
-title: 'How to deploy a Nuxt3 app in Github Pages'
+title: 'exapme'
 description: 'Tutorial that will explain briefly how to generate and upload a Nuxt3 application in Github Pages.'
 date: '2022-06-30'
 language: 'en'
 tags: ['Nuxt3',"Vue3"]
+image: "/assets/img/blog/nuxt-github-pages.jpg"
 ---
 
 
 # How to deploy a Nuxt3 app in Github Pages
+
+
+
+## 1. Configure to generate a Static Site
+
+### 1.1 Deploy in a specific github subproject
+
+### 1.2 Images
+
+
+## 2. Avoid Nuxt3 Static Site prefetching
+
+`grep -rnwl "_nuxt" .output/public | xargs sed -i "s,/_nuxt,/VuePaginaPersonalPublic/_nuxt,g"`{lang="bash"}
+
+`code inline`.
+`const codeInline: string = 'highlighted code inline'`{lang="ts"}
+
+
+## 3. Deploy Nuxt3 application with Github and Travis
+
+```yaml
+language: node_js
+node_js:
+  - "12"
+  - "14"
+cache:
+  yarn: true
+  directories:
+    - node_modules
+script:
+  - yarn generate
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $github_token
+  local_dir: .output/public
+  on:
+    branch: gh-pages
+```
+
+
+### 3.1 Nojekyll
+
 
 <!-- > The minimal amount of CSS to replicate the GitHub Markdown style -->
 
@@ -19,14 +63,57 @@ tags: ['Nuxt3',"Vue3"]
 
 ## [Demo](https://sindresorhus.com/github-markdown-css)
 
-## Install
+## 4. Install
 
 Download [manually](https://raw.githubusercontent.com/sindresorhus/github-markdown-css/gh-pages/github-markdown.css), from [CDNJS](https://cdnjs.com/libraries/github-markdown-css), or with npm:
 
 
-### Install3
+### 4.1 Install3
 ```bash
-$ npm install github-markdown-css
+$ npm install github-markdown-css 
+```
+*image_caption*
+
+```ts [nuxt.config.ts]
+import { defineNuxtConfig } from 'nuxt'
+
+export default defineNuxtConfig({
+  modules: [
+    '@nuxt/content'
+  ],
+  content: {
+    // https://content.nuxtjs.org/api/configuration
+  }
+})
+```
+::code-wrapper{note="html" description="asdfsdf"}
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="github-markdown.css">
+<style>
+.markdown-body {
+	box-sizing: border-box;
+	min-width: 200px;
+	max-width: 980px;
+	margin: 0 auto;
+	padding: 45px;
+}
+
+@media (max-width: 767px) {
+	.markdown-body {
+		padding: 15px;
+	}
+}
+</style>
+<article class="markdown-body">
+	<h1>Unicorns</h1>
+	<p>All the things</p>
+</article>
+```
+::
+
+```md [content/index.md]
+# Hello Content
 ```
 
 ## Usage
