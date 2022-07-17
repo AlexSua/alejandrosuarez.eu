@@ -17,16 +17,10 @@ jobs:
         with:
           node-version: "16"
           cache: 'yarn'
-
-      - name: Install
-        uses: Borales/actions-yarn
-        with:
-          cmd: install 
-
-      - name: Generate
-        uses: Borales/actions-yarn
-        with:
-          cmd: generate 
+      
+      - run: |
+          yarn install
+          yarn generate
 
       - name: Init new repo in $BUILD_FOLDER and commit generated files
         run: |
