@@ -17,7 +17,7 @@ jobs:
       
       - run: |
           npm ci
-          npm generate
+          npm run generate
 
       - name: Init new repo in .output/public folder and commit generated files
         run: |
