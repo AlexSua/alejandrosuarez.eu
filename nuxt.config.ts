@@ -1,4 +1,5 @@
 import { defineNuxtConfig } from 'nuxt'
+import viteImagemin from 'vite-plugin-imagemin'
 
 export default defineNuxtConfig({
     components: true,
@@ -8,7 +9,8 @@ export default defineNuxtConfig({
     ],
 
     modules: [
-        '@nuxt/content'
+        '@nuxt/content',
+        "@vueuse/nuxt"
     ],
     intlify: {
         localeDir: 'locales',
@@ -17,6 +19,11 @@ export default defineNuxtConfig({
 
     css: [
         '@/assets/styles/global.scss',
+        '@/assets/styles/components/profile.scss',
+        '@/assets/styles/components/blog.scss',
+        '@/assets/styles/components/markdown.scss',
+        '@/assets/styles/components/markdown.dark.scss',
+        '@/assets/styles/components/comments.scss',
         'primevue/resources/themes/saga-blue/theme.css',
         'primevue/resources/primevue.css',
         'primeicons/primeicons.css'
@@ -35,30 +42,72 @@ export default defineNuxtConfig({
                 },
             },
         },
+        optimizeDeps: {
+
+        },
+
+
+        plugins: [
+            viteImagemin({
+                disable: true,
+                gifsicle: {
+                    optimizationLevel: 2,
+                    interlaced: false,
+                },
+                optipng: {
+                    optimizationLevel: 4,
+                },
+                mozjpeg: {
+                    quality: 90,
+                },
+                pngquant: {
+                    quality: [0.9, 1],
+                    speed: 4,
+                },
+                svgo: {
+                    plugins: [
+                        {
+                            name: 'removeViewBox',
+                        },
+                        {
+                            name: 'removeEmptyAttrs',
+                            active: false,
+                        },
+                    ],
+                },
+            })]
     },
     content: {
+        markdown: {
+            // remarkPlugins: [ ["remark-mermaidjs",{
+            //     theme:"default",
+            //     simple:true
+            // }]],
+
+        },
         highlight: {
             // theme: 'material-darker',
             theme: 'material-darker',
-            preload: ['css', 'scss', 'js', 'ts', "html","bash","json","yaml"]
+            preload: ['css', 'scss', 'js', 'ts', "html", "bash", "json", "yaml"]
         },
-        base: "_content"
+        base: "_content",
+
     },
     nitro: {
         prerender: {
             crawlLinks: true,
-        // routes: ['/sitemap.xml', "/blog", "/", "/videochat", "/blog/example2","/es","/es/blog"],
+            // routes: ['/sitemap.xml', "/blog", "/", "/videochat", "/blog/example2","/es","/es/blog"],
         },
         minify: true,
     },
-    generate:{
+    generate: {
         nojekyll: true,
         fallback: '404.html',
     },
 
     ssr: true,
 
-    target: "static"
+    target: "static",
     // router: {
     //     base: '/VuePaginaPersonalPublic/'
     //   },

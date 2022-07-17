@@ -28,6 +28,13 @@
 <style lang="scss" scooped >
 .pi-video{
   font-size: 1.4rem;
+      height: 4rem;
+    width: 4rem;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    margin-top: -1.3rem;
+    margin-left: -1.8rem;
 }
 
 

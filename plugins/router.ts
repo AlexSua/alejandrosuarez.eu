@@ -4,23 +4,24 @@ export default defineNuxtPlugin((app) => {
     })
 
     app.$router.options.scrollBehavior = (to, from, savedPosition) => {
-
         const { $bus } = useNuxtApp()
-
         if ((from.name == undefined)
             || to.name == "lang" && from.name.includes("lang-blog")
             || to.name.includes("lang-blog") && from.name == "lang"
-            || to.name == "lang-blog-slug" && from.name == "lang-blog-slug"
+            || to.name == from.name
+            || from.name == "lang-privacy"
         ) {
             $bus.off_all("triggerScroll")
+            if (from.name == "lang-privacy") return { x: 0, y: 20000000000 }
             if (savedPosition) return savedPosition
+            if (to.hash) return { el: to.hash }
             return
         }
 
         return new Promise((resolve, reject) => {
             if (savedPosition)
                 return resolve(savedPosition)
-                
+
             $bus.on("triggerScroll", function triggerScroll() {
                 $bus.off_all("triggerScroll")
                 if (savedPosition)

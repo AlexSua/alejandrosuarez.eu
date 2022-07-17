@@ -28,27 +28,16 @@
     font-size: inherit;
   }
 
-  blockquote {
-    border-left: 0.25em solid #a99467;
-    color: #a99467;
-  }
+
 
   h1 {
     margin-top: 1rem;
   }
-
-  h1,
-  h2 {
-    color: $video-dark !important;
-
-    a {
-      color: inherit;
-    }
+  h1,h2,h3,h4{
+    font-weight: 600;
   }
 
-  a {
-    color: #4770a7;
-  }
+
 }
 
 
@@ -63,5 +52,12 @@
       margin-top: unset;
       font-size: 1.7em;
     }
+  }
+}
+
+@media (max-width: 1024px) {
+  .markdown-body {
+    padding-bottom: 70px;
+
   }
 }

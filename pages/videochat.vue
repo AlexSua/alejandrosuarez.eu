@@ -60,7 +60,7 @@
             <Toast position="bottom-left" group="br" />
         </div>
 
-        <VideochatDrawer v-model:open="drawerSettingsOpen" class="w-[400px] disable-rounded" title="Settings">
+        <Drawer v-model:open="drawerSettingsOpen" class="w-[400px] disable-rounded" title="Settings">
             <div class="flex flex-1 min-w-[350px] flex-col">
                 <VideochatRadioList v-model="videoSelected" :items="devices.video" title="Video devices"
                     :disabled="mediaSelectionDisabled">
@@ -77,10 +77,10 @@
                     @click="refreshMediaDevices">
                 </Button>
             </div>
-        </VideochatDrawer>
-        <VideochatDrawer v-model:open="drawerChatOpen" title="Chat" class="w-[470px] disable-rounded">
+        </Drawer>
+        <Drawer v-model:open="drawerChatOpen" title="Chat" class="w-[470px] disable-rounded">
             <VideochatChat v-model="chatMessages" v-on:update:modelValue="sendChatMessage"></VideochatChat>
-        </VideochatDrawer>
+        </Drawer>
 
         <div ref="lowerToolBar"
             class="absolute bottom-10 flex flex-row w-full text-center z-30 transition-all duration-400 bottom-0  align-center items-center lower-toolbar"

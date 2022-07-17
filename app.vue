@@ -20,15 +20,24 @@ setTimeout(() => {
 
 
 const transitionName = computed(() => {
-  let route_path = route.params.lang ? route.path.replace("/" + route.params.lang, '') : route.path;
-  return router.prevRoute && router.prevRoute.meta.transition
-    ? router.prevRoute.meta.transition[route_path ? route_path : ""]
-    : "";
+  let route_name = route.name;
+  if (router.prevRoute && router.prevRoute.meta.transition) {
+    if (route_name && route_name in router.prevRoute.meta.transition) {
+      return router.prevRoute.meta.transition[route_name]
+    }
+    if ("*" in router.prevRoute.meta.transition) {
+      return router.prevRoute.meta.transition["*"]
+    }
+  }
+  return ""
 });
 
 
 const onAfterEnter = computed(() => {
-  window.scrollTo(0, 0);
+  if (router.prevRoute.name == "lang-privacy") {
+    window.scrollTo(0, 1000000000);
+  } else
+    window.scrollTo(0, 0);
   return afterEnter.value;
 });
 
@@ -44,7 +53,7 @@ function onBeforeLeave() {
 
 
 <style lang="scss">
-@mixin transition($slide, $duration) {
+@mixin transition($slide, $duration, $transition_delay) {
 
   .slide-left-enter-active,
   .slide-left-leave-active,
@@ -53,6 +62,10 @@ function onBeforeLeave() {
     position: absolute !important;
     transition: all $duration ease-out;
     width: $slide  !important;
+
+    transition-property: all;
+    transition-duration: $duration;
+    transition-delay: $transition_delay;
   }
 
 
@@ -108,11 +121,78 @@ function onBeforeLeave() {
   .slide-right-leave-from {
     transform: translate3d(0, 0, 0)
   }
+
+  .slide-up-enter-active,
+  .slide-up-leave-active,
+  .slide-down-enter-active,
+  .slide-down-leave-active {
+    // position: fixed !important;
+    transition: all $duration ease-out;
+
+    transition-property: all;
+    transition-duration: 0.4s;
+    transition-delay: $transition_delay;
+  }
+
+
+  .slide-up-enter-to {
+    // position: fixed !important;
+    position: fixed !important;
+    top: 0;
+    transform: translate3d(0, 0, 0)
+  }
+
+  .slide-up-enter-from {
+    position: fixed !important;
+
+    transform: translate3d(0, 99.9vh, 0)
+  }
+
+  .slide-up-leave-to {
+    transform: translate3d(0, -100vh, 0);
+    position: fixed !important;
+    bottom: 0;
+  }
+
+  .slide-up-leave-from {
+    position: fixed !important;
+    bottom: 0;
+    transform: translate3d(0, 0, 0)
+  }
+
+
+
+
+  .slide-down-enter-to {
+    position: fixed !important;
+    bottom: 0;
+    transform: translate3d(0, 0, 0)
+  }
+
+  .slide-down-enter-from {
+    position: fixed !important;
+    bottom: 0;
+    transform: translate3d(0, -100vh, 0)
+  }
+
+  .slide-down-leave-to {
+    position: fixed !important;
+    top: 0;
+    transform: translate3d(0, 99vh, 0)
+  }
+
+  .slide-down-leave-from {
+    transform: translate3d(0, 0, 0)
+  }
+
+
+
+
 }
 
-@include transition($slide: 100vw, $duration: 0.4s);
+@include transition($slide: 100vw, $duration: 0.4s, $transition_delay: 0.05s);
 
 @media (min-width:1024px) {
-  @include transition($slide: 100%, $duration: 0.5s);
+  @include transition($slide: 100%, $duration: 0.4s, $transition_delay: 0.05s);
 }
 </style>

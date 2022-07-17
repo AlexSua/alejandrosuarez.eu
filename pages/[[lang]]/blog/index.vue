@@ -79,7 +79,7 @@ function filterResult() {
                 }
                 if (!firstTime)
                     router.push({
-                        path: '/blog',
+                        path: '/blog/',
                         query: {
                             ...filter.tags.length && { tags: filter.tags },
                             ...filter.search.length && { search: filter.search }

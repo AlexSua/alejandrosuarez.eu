@@ -92,21 +92,6 @@
     background-size: cover;
     height: 100%;
     display: flex;
-
-    >div {
-      width: 100%;
-      display: flex;
-      height: 100%;
-      background: #17424f;
-    }
-
-    div.creador {
-      margin: auto;
-      color: #f2d492;
-      font-size: 1.2em;
-      padding-left: 0.625rem;
-      text-align: center;
-    }
   }
 
   .background {
@@ -138,7 +123,7 @@
 
     >h3 {
       font-style: italic;
-      font-weight: 100;
+      font-weight: 300;
       font-size: 1.1rem;
       max-width: 25rem;
       margin: 0.8rem;
@@ -857,31 +842,7 @@
     }
   }
 
-  .arriba {
-    height: 100%;
-    width: 12.5rem;
-    background: #fbf6ec;
-    display: flex;
-    justify-content: center;
 
-    >img {
-      width: 6.25rem;
-      transform: rotateZ(180deg);
-      position: absolute;
-      bottom: 0;
-      height: 6.25rem;
-      border-radius: 6.25rem;
-      margin-bottom: 2.5rem;
-      cursor: pointer;
-      transform: translate3d(0, 6.25rem, 0);
-      transition: 1s transform;
-    }
-  }
-
-  .creador h3 {
-    display: flex;
-    justify-content: center;
-  }
 
   .siguiente {
     position: absolute;
@@ -1227,9 +1188,6 @@
       background-attachment: unset;
     }
 
-    .arriba {
-      display: none;
-    }
   }
 
 }

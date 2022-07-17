@@ -1,32 +1,34 @@
 <template>
     <div class="blog-wrapper" :class="{ 'dark': darkMode }">
         <header>
-            <DarkModeSwitcher />
-            <LanguageSwitcher />
-            <div class="title">
-                <template v-if="routePathNoLanguage == '/blog'">
-                    <h1>
-                        {{ $t("blog.header.title") }}
-                    </h1>
-                    <h2 class="<msd:hidden">{{ $t("blog.header.subtitle") }}</h2>
-                </template>
-                <template v-else>
-                    <div class="header-title ">
-                        <nuxt-link to="/blog">
+            <div class="header-wrapper">
+                <DarkModeSwitcher />
+                <LanguageSwitcher />
+                <div class="title">
+                    <template v-if="routePathNoLanguage == '/blog/'">
+                        <h1>
                             {{ $t("blog.header.title") }}
-                        </nuxt-link>
-                    </div>
-                    <div class="header-subtitle <msd:hidden">
-                        {{ $t("blog.header.subtitle") }}
-                    </div>
-                </template>
+                        </h1>
+                        <h2 class="<msd:hidden">{{ $t("blog.header.subtitle") }}</h2>
+                    </template>
+                    <template v-else>
+                        <div class="header-title ">
+                            <nuxt-link to="/blog/">
+                                {{ $t("blog.header.title") }}
+                            </nuxt-link>
+                        </div>
+                        <div class="header-subtitle <msd:hidden">
+                            {{ $t("blog.header.subtitle") }}
+                        </div>
+                    </template>
+                </div>
+                <Navegacion navigation-id="blog.navigation" :blacklist="nav_blacklist" />
             </div>
-            <Navegacion navigation-id="blog.navigation" :blacklist="nav_blacklist" />
         </header>
-        <main class="grid grid-cols-[auto,minmax(0,58rem),1fr] <2xl:grid-cols-[1fr,minmax(0,56rem),1fr]">
+        <main class="grid grid-cols-[auto,minmax(0,58rem),1fr]  <2xl:grid-cols-[1fr,minmax(0,56rem),1fr]">
 
             <router-view v-slot="{ Component }">
-                <transition @before-enter="after_enter">
+                <transition>
                     <!-- <keep-alive> -->
                     <div
                         class="row-start-2 row-end-3 col-start-1 col-end-4 grid grid-cols-[auto,minmax(0,58rem),1fr] <2xl:grid-cols-[1fr,minmax(0,56rem),1fr] ">
@@ -45,6 +47,10 @@
                 </transition>
             </router-view>
         </main>
+        <footer class="h-[60vh] flex-1 col-start-1 col-end-3 mt-10 z-30 ">
+            <Footer :text-class="!darkMode?'!text-black':''" :svg-props="!darkMode?{fill:'black'}:{}" ></Footer>
+        </footer>
+
         <!-- <footer /> -->
     </div>
 </template>
@@ -64,30 +70,34 @@ const pending = ref(false)
 const { $bus } = useNuxtApp()
 
 
-const routePathNoLanguage = computed(() => route.params.lang ? route.path.replace("/" + route.params.lang, "") : route.path)
-
+const routePathNoLanguage = useRouteNoLanguage()
 const props = defineProps({
     siteData: Object,
+    // afterEnter: Function
 });
+// const emit = defineEmits(["update:afterEnter"]);
+
+// emit("update:afterEnter", function () {
+//     if (router.prevRoute && router.prevRoute.name=="lang-privacy")
+// 	    window.scrollTo(0, 10000000);
+// });
 
 definePageMeta({
     transition: {
-        "/": "slide-right",
+        "lang": "slide-right",
+        "lang-privacy":"slide-up"
     }
 })
 
 const nav_blacklist = computed(function () {
-    if (routePathNoLanguage.value != "/blog") return [];
+    if (route.name != "lang-blog") return [];
     else return ["home"];
 });
 
 function change_to_resolved() {
     pending.value = false
     resolved.value = true
-    console.log(router.prevRoute)
-    // if (router.prevRoute)
     $bus.emit('triggerScroll', '');
-    // setTimeout(() => { $bus.emit('triggerScroll', '') }, 0)
     setTimeout(() => {
         resolved.value = false
         pending.value = false
@@ -96,11 +106,6 @@ function change_to_resolved() {
 function change_to_pending() {
     setTimeout(() => { pending.value = true }, 0)
 }
-function after_enter() {
-    // $bus.emit('triggerScroll', '')
-    // setTimeout(() => { $bus.emit('triggerScroll', '') }, 0)
-}
-
 
 watch(darkMode, (value) => {
     useLocalStorage('dark-mode', `${value}`)
@@ -111,10 +116,10 @@ watch(darkMode, (value) => {
 </script>
 
 <style lang="scss">
-@import "@/assets/styles/components/blog.scss";
-
+// @import "@/assets/styles/components/blog.scss";
 :not(.dark) .white-bar {
     background-color: #fff;
     min-height: 3px;
 }
+
 </style>

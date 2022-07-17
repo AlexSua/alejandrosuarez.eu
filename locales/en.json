@@ -2,16 +2,16 @@
   "profile": {
     "header": {
       "title": "Software Engineer",
-      "subtitle": "Always getting better"
+      "subtitle": "\"The goal is to automate life itself\""
     },
-    "aboutme": "<h3>\n          I am a spanish software engineer who currently lives in Santiago de\n          Compostela.\n        </h3>\n        <p>\n          With a master’s degree in Web Engineering, 2 years of experience as\n          FullStack Developer and the ability to speak English, Spanish and\n          Galician, I am looking to learn and participate in the development of\n          new projects that allow me to grow professionally.\n        </p>\n        <h4>Versatile</h4>\n        <p>\n          Where I have more experience is in FullStack development but I also\n          have knowledge in low level development, system administration, as\n          well as video and audio transcoding. I like to experiment and discover\n          new fields in computer science.\n        </p>\n        <h4>Looking for ways to automate tasks</h4>\n        <p>\n          Repetitive tasks are my worst enemy and when I have to deal with them\n          I will always look for a way to automate or avoid doing them by hand.\n        </p>\n        <h4>Aware of technological news</h4>\n        <p>\n          I usually get informed about new technologies and I always wonder in\n          which project I could use these new things to have the opportunity to\n          learn about them or solve a specific type of scenario.\n        </p>\n        <h4>Finding a way to do it better</h4>\n        <p>\n          I don't settle just solving the problem and I am always trying to find\n          a better way to do so.\n        </p>\n        <h3>Motivations</h3>\n        <ul>\n          <li>\n            A challenge that makes me raise many possibilities in order to solve\n            it.\n          </li>\n          <li>A variable environment where I can learn new technologies.</li>\n          <li>\n            Freedom. Having the freedom to set my work environment and not\n            having restrictions when I solve a problem helps me maximize\n            productivity.\n          </li>\n        </ul>\n\n        <h3>Hobbies</h3>\n\n        <ul>\n          <li>Thinking</li>\n          <li>Music</li>\n          <li>Fixing electronic devices</li>\n          <li>Getting away from the routine</li>\n        </ul>",
+    "aboutme": "<h3>\n          I am a spanish software engineer who currently lives in Galicia.\n        </h3>\n        <p>\n          With a master’s degree in Web Engineering, over 2 years of experience as\n          System administrator and Backend developer, I am looking to learn and participate in the development of\n          new projects that allow me to grow professionally.\n        </p>\n        <h4>Versatile</h4>\n        <p>\n          Where I have more experience is in Backend development and System administration, but I know what are the latest trends in other\n          fields such as Frontend development, and I use my free time to keep up to date.\n        </p>\n        <h4>Looking for ways to automate tasks</h4>\n        <p>\n          Always trying to have everything automated. I don't like repetitive tasks so my software designs normally come with the idea of minimizing the number of tasks needed\n          to maintain or add new functionalities. For me is important to invest time to improve the quality of your future work and optimize to the maximum resources.\n        </p>\n        <h4>Aware of technological news</h4>\n        <p>\n          Up to date in last technologies, and always seeking to learn and use them in a real-world scenario.\n        </p>\n        <h4>Finding a way to do it better</h4>\n        <p>\n          I won't settle just by solving the problem and I am always struggling to find\n          a better way to do it.\n        </p>\n        <h3>Motivations</h3>\n        <ul>\n          <li>\n            A challenge.\n          </li>\n          <li>A variable environment where I can learn and switch between technologies.</li>\n          <li>\n            Freedom. I actively do research to have my work environment as optimized\n            as possible so having the freedom to configure it and not\n            having restrictions when I solve a problem helps me maximize\n            productivity. \n          </li>\n        </ul>\n\n        <h3>Hobbies</h3>\n\n        <ul>\n          <li>Thinking</li>\n          <li>Software</li>\n          <li>Music</li>\n          <li>Fixing devices</li>\n          <li>Getting away from the routine</li>\n        </ul>",
     "navigation": {
       "aboutme": {"title": "About me", "path":"#info"},
       "education": {"title": "Education", "path":"#seccion-estudios"},
       "experience": {"title": "Experience", "path":"#seccion-trabajo"},
       "abilities":{"title": "Abilities", "path":"#habilidades"}, 
       "contact": {"title": "Contact", "path":"#contacto"},
-      "blog": {"title": "Blog", "path":"/blog"}
+      "blog": {"title": "Blog", "path":"/blog/"}
     },
     "education": [
       {
@@ -273,7 +273,9 @@
     },
     "footer":{
       "title": "Created by Alejandro Suárez",
-      "subtitle": "Made with Vue3 and Nuxt3."
+      "subtitle": "Made with Vue 3 and Nuxt 3.",
+      "donate":"",
+      "privacy":"Privacy policy"
     }
   },
   "blog": {
@@ -282,7 +284,7 @@
       "subtitle": "Computer science blog"
     },
     "navigation": {
-      "home": {"title":"Blog home","path":"/blog"},
+      "home": {"title":"Blog home","path":"/blog/"},
       "profile":{"title": "Go to my profile","path":"/"}
     },
     "home":{
