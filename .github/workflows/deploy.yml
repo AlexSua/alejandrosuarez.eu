@@ -19,12 +19,12 @@ jobs:
           cache: 'yarn'
 
       - name: Install
-        uses: Borales/actions-yarn@v3
+        uses: Borales/actions-yarn@v2
         with:
           cmd: install 
 
       - name: Generate
-        uses: Borales/actions-yarn@v3
+        uses: Borales/actions-yarn@v2
         with:
           cmd: generate 
 
