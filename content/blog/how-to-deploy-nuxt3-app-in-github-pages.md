@@ -266,25 +266,46 @@ After push, you will need to configure Github Pages from your repository setting
 
 To deploy on github automatically using github actions you need to create the following file in your nuxt project:
 
-::code-wrapper{note="YAML" description="/nuxt-project-folder/travis.yml"}
+::code-wrapper{note="YAML" description=".github/workflows/deploy.yml"}
 ```yaml
-language: node_js
-node_js:
-  - "14"
-cache:
-  yarn: true
-  directories:
-    - node_modules
-script:
-  - yarn generate
-  - touch .output/public/.nojekyll
-deploy:
-  provider: pages
-  skip_cleanup: true
-  github_token: $github_token
-  local_dir: .output/public
-  on:
-    branch: gh-pages
+name: Deploy to GitHub pages
+on:
+  push:
+    branches: [nuxt]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      BUILD_FOLDER: .output/public # or .output/public/yourrepositoryname/
+      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Generate static Nuxt 3 files
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16"
+      
+      - run: |
+          npm ci
+          npm run generate
+
+      - name: Init new repo in $BUILD_FOLDER and commit generated files
+        run: |
+          grep -rnwl "<link rel=\"prefetch\"" $BUILD_FOLDER | xargs sed -i 's$<link rel="prefetch" href="[^"]*\.\(jpg\|png\|webm\|jpeg\|ttg\|svg\|gif\)">$$g'
+          cd $BUILD_FOLDER
+          touch .nojekyll
+          git init
+          git add -A
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m 'deploy'
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: $BUILD_FOLDER
 ```
 ::
 
