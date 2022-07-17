@@ -286,10 +286,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16"
+          cache: 'yarn'
       
       - run: |
-          npm ci
-          npm run generate
+          yarn install
+          yarn generate
 
       - name: Init new repo in $BUILD_FOLDER and commit generated files
         run: |
@@ -310,8 +311,6 @@ jobs:
 ::
 
 When you push the commit your static site will be deployed on the branch gh-pages.
-
-> You need to create a travis account here and set your repository and the private variable $github_token.
 
 
 
