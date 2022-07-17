@@ -14,9 +14,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: "16"
-        run: |
-          yarn install
-          yarn generate
+      
+      - run: |
+          npm ci
+          npm generate
 
       - name: Init new repo in .output/public folder and commit generated files
         run: |
