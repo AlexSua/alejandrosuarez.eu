@@ -272,12 +272,12 @@ name: Deploy to GitHub pages
 on:
   push:
     branches: [nuxt]
+env:
+  BUILD_FOLDER: .output/public # or .output/public/yourrepositoryname/
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      BUILD_FOLDER: .output/public # or .output/public/yourrepositoryname/
-      
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -305,7 +305,7 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: $BUILD_FOLDER
+          folder: ${{env.BUILD_FOLDER}}
 ```
 ::
 
