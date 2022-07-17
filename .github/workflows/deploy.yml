@@ -2,12 +2,12 @@ name: Deploy to GitHub pages
 on:
   push:
     branches: [nuxt]
+env:
+  BUILD_FOLDER: .output/public # or .output/public/yourrepositoryname/
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      BUILD_FOLDER: .output/public # or .output/public/yourrepositoryname/
-      
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
