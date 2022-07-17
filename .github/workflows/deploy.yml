@@ -12,14 +12,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Generate static Nuxt 3 files
-        uses: actions/setup-node@v3
+      - name: Install
+        uses: Borales/actions-yarn@v3
         with:
-          node-version: "16"
+          cmd: install
       
-      - run: |
-          npm ci
-          npm run generate
+      - name: Generate
+        uses: Borales/actions-yarn@v3
+        with:
+          cmd: generate
 
       - name: Init new repo in $BUILD_FOLDER and commit generated files
         run: |
