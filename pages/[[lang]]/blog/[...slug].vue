@@ -49,8 +49,8 @@
                     </template>
                 </ContentRenderer>
             </div>
-            <div>
-                <div ref="comments" id="comments" name="comments"></div>
+            <div id="comments" name="comments">
+               <Commento :page-id="routeNoLanguage"></Commento>
             </div>
         </article>
 
@@ -168,58 +168,23 @@ function tocDrawerOpenFunc() {
 }
 
 
-function initializeCommento() {
-    if (typeof window !== 'undefined' && !window.commento) {
-        // init empty object so commento.js script extends this with global functions
-        window.commento = {}
-        const script = document.createElement('script')
-        // Replace this with the url to your commento instance's commento.js script
-        script.src = `https://skynet.sytes.net:3479/js/commento.js`
-        script.defer = true
-        // Set default attributes for first load
-        script.setAttribute('data-auto-init', "false")
-        script.setAttribute('data-page-id', routeNoLanguage.value)
-        script.setAttribute('data-id-root', 'comments')
-        script.onload = () => {
-            window.commento.main()
-        }
-        document.getElementsByTagName('head')[0].appendChild(script)
-    } else if (typeof window !== 'undefined' && window.commento) {
-        // In-case the commento.js script has already been loaded reInit the widget with a new pageId
-        window.commento.reInit({
-            pageId: routeNoLanguage.value
-        })
-    }
-}
-
-function loadIntersectionObserverCommento() {
-    useIntersectionObserver(comments, (entries, observer) => {
-        if (entries[0].isIntersecting) {
-            // window.commento.main()
-            initializeCommento()
-            observer.disconnect()
-        }
-    })
-}
-
 
 onMounted(() => {
     window.addEventListener('scroll', handleScroll);
     handleScroll()
     // initializeCommento()
-    loadIntersectionObserverCommento()
 })
+
 
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll);
 })
 
 
-
 const getSrc = (path) => {
     const modules = import.meta.globEager("/assets/img/blog/*");
     return modules[path].default;
-}; 
+};
 
 </script>
 

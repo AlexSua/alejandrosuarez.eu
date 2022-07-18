@@ -25,7 +25,7 @@ jobs:
       - name: Init new repo in $BUILD_FOLDER and commit generated files
         run: |
           for i in $(find .output/public/* -type d -name \&\*); do rm -rf "$i"; done;
-          grep -rnwl "<link rel=\"prefetch\"" $BUILD_FOLDER | xargs sed -i 's$<link rel="prefetch" href="[^"]*\.\(jpg\|png\|webm\|jpeg\|ttg\|svg\|gif\)">$$g'
+          grep -rnwl "<link rel=\"prefetch" .output/public | xargs sed -i 's$<link rel="prefetch[^>]*href="[^"]*">$$g'
           cd $BUILD_FOLDER
           touch .nojekyll
           git init

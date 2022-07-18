@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     },
 
     css: [
+        '@/assets/styles/setup/typography.scss',
         '@/assets/styles/global.scss',
         '@/assets/styles/components/profile.scss',
         '@/assets/styles/components/blog.scss',
