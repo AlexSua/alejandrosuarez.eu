@@ -50,7 +50,7 @@
                 </ContentRenderer>
             </div>
             <div id="comments" name="comments">
-               <Commento :page-id="routeNoLanguage"></Commento>
+               <Commento v-if="pageId" :page-id="routeNoLanguage"></Commento>
             </div>
         </article>
 
@@ -98,9 +98,9 @@ const article = ref()
 let routeNoLanguage = useRouteNoLanguage()
 
 const { data } = await useAsyncData(routeNoLanguage.value, () => queryContent(routeNoLanguage.value).findOne())
-
 const { locale } = useI18n()
 const comments = ref()
+const pageId = ref(false)
 
 if (data && data.value) {
     useSeo({
@@ -113,6 +113,7 @@ if (data && data.value) {
         publishedAt: data.value.date,
         tags: data.value.tags
     });
+    pageId.value = data.value.title
 } else {
     useSeo({
         title: "Not found",

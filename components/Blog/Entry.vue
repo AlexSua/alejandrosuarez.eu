@@ -1,6 +1,6 @@
 <template>
   <article>
-    <NuxtLink :to="blog._path" class="h-full flex flex-col">
+    <NuxtLink :to="blog._path+'/'" class="h-full flex flex-col">
       <header>
         <img loading="lazy" :src="getSrc(blog.image)">
       </header>
