@@ -63,9 +63,9 @@
                 <!-- <ul class="mt-4 top-4 sticky ml-2rem "> -->
                 <li :name="'toc/' + link.id" v-for="link, index of data.body.toc.links" :key="index + link.text">
                     <a @click="tocDrawerClose" :href="`#${link.id}`">{{ link.text }}</a>
-                    <ul v-if="link.children" class="">
+                    <ul v-if="link.children">
                         <li :name="'toc/' + link2.id" v-for="link2, index2 of link.children" :key="index2 + link2.text"
-                            class="ml-4 tet-siz">
+                            class="ml-4">
                             <a @click="tocDrawerClose" :href="`#${link2.id}`">{{ link2.text }}</a>
                         </li>
                     </ul>
@@ -179,6 +179,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll);
+    window.stop()
 })
 
 
