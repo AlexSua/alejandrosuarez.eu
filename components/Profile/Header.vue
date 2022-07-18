@@ -25,7 +25,7 @@
 </script>
 
 
-<style lang="scss" scooped >
+<style lang="scss" scoped >
 .pi-video{
   font-size: 1.4rem;
       height: 4rem;
