@@ -90,9 +90,7 @@ export default defineNuxtConfig({
             // theme: 'material-darker',
             theme: 'material-darker',
             preload: ['css', 'scss', 'js', 'ts', "html", "bash", "json", "yaml"]
-        },
-        base: "_content",
-
+        }
     },
     nitro: {
         prerender: {
