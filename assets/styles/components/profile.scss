@@ -674,6 +674,7 @@
   .estudios .cronograma-fecha {
     left: -16.9375rem;
     top: -0.3125rem;
+    font-weight: 600;
   }
 
   .cronograma-descripcion {
@@ -685,7 +686,7 @@
 
   .cronograma-ubicacion {
     display: flex;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 1.13rem;
     margin-top: 0.2rem;
     margin-bottom: 0.2rem;

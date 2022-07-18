@@ -174,7 +174,7 @@ function initializeCommento() {
         window.commento = {}
         const script = document.createElement('script')
         // Replace this with the url to your commento instance's commento.js script
-        script.src = `https://skynet.sytes.net:8080/js/commento.js`
+        script.src = `https://skynet.sytes.net:3479/js/commento.js`
         script.defer = true
         // Set default attributes for first load
         script.setAttribute('data-auto-init', "false")
