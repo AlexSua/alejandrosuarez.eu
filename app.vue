@@ -33,13 +33,14 @@ const transitionName = computed(() => {
 });
 
 
-const onAfterEnter = computed(() => {
-  if (router.prevRoute.name == "lang-privacy") {
+const onAfterEnter = () => {
+  if (router.prevRoute.name === "lang-privacy") {
     window.scrollTo(0, 1000000000);
   } else
-    window.scrollTo(0, 0);
-  return afterEnter.value;
-});
+    window.scrollTo(0, 0)
+  afterEnter.value()
+
+};
 
 function onBeforeLeave() {
   afterEnter.value = () => { }
@@ -60,18 +61,25 @@ function onBeforeLeave() {
   .slide-right-enter-active,
   .slide-right-leave-active {
     position: absolute !important;
-    transition: all $duration ease-out;
-    width: $slide  !important;
+    // position: fixed !important;
 
+    transition: all $duration ease-out;
+    width: 100vw !important;
+    // max-width: 100vw!important;
     transition-property: all;
     transition-duration: $duration;
     transition-delay: $transition_delay;
   }
 
+  .slide-left-leave-active,
+  .slide-right-leave-active {
+    z-index: -20;
+  }
 
 
   .slide-left-enter-to {
     position: fixed !important;
+    transition-duration: 0.4s;
     top: 0;
     right: 0;
     bottom: 0;
@@ -89,7 +97,7 @@ function onBeforeLeave() {
   }
 
   .slide-left-leave-to {
-    transform: translate3d(-$slide, 0, 0)
+    transform: translate3d(-50vw, 0, 0)
   }
 
   .slide-left-leave-from {
@@ -98,8 +106,10 @@ function onBeforeLeave() {
 
   .slide-right-enter-to {
     position: fixed !important;
+    transition-duration: 0.4s;
+
     top: 0;
-    right: 0;
+    // right: 0;
     bottom: 0;
     left: 0;
     transform: translate3d(0, 0, 0)
@@ -108,14 +118,14 @@ function onBeforeLeave() {
   .slide-right-enter-from {
     position: fixed !important;
     top: 0;
-    right: 0;
+    // right: 0;
     bottom: 0;
     left: 0;
     transform: translate3d(-$slide, 0, 0)
   }
 
   .slide-right-leave-to {
-    transform: translate3d($slide, 0, 0)
+    transform: translate3d(50vw, 0, 0)
   }
 
   .slide-right-leave-from {
@@ -130,8 +140,13 @@ function onBeforeLeave() {
     transition: all $duration ease-out;
 
     transition-property: all;
-    transition-duration: 0.4s;
+    transition-duration: 0.8s;
     transition-delay: $transition_delay;
+  }
+
+  .slide-up-leave-active,
+  .slide-down-leave-active {
+    z-index: -20;
   }
 
 
@@ -139,13 +154,15 @@ function onBeforeLeave() {
     // position: fixed !important;
     position: fixed !important;
     top: 0;
+    transition-duration: 0.4s;
+
     transform: translate3d(0, 0, 0)
   }
 
   .slide-up-enter-from {
     position: fixed !important;
 
-    transform: translate3d(0, 99.9vh, 0)
+    transform: translate3d(0, 100vh, 0)
   }
 
   .slide-up-leave-to {
@@ -166,6 +183,8 @@ function onBeforeLeave() {
   .slide-down-enter-to {
     position: fixed !important;
     bottom: 0;
+    transition-duration: 0.4s;
+
     transform: translate3d(0, 0, 0)
   }
 
@@ -178,7 +197,7 @@ function onBeforeLeave() {
   .slide-down-leave-to {
     position: fixed !important;
     top: 0;
-    transform: translate3d(0, 99vh, 0)
+    transform: translate3d(0, 100vh, 0)
   }
 
   .slide-down-leave-from {
@@ -190,9 +209,9 @@ function onBeforeLeave() {
 
 }
 
-@include transition($slide: 100vw, $duration: 0.4s, $transition_delay: 0.05s);
+@include transition($slide: 100vw, $duration: 0.6s, $transition_delay: 0.05s);
 
 @media (min-width:1024px) {
-  @include transition($slide: 100%, $duration: 0.4s, $transition_delay: 0.05s);
+  @include transition($slide: 100%, $duration: 0.6s, $transition_delay: 0.05s);
 }
 </style>

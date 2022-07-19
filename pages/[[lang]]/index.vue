@@ -1,5 +1,5 @@
 <template>
-	<div ref="el" class="profile-wrapper">
+	<div ref="el" class="profile-wrapper" :class="{'loaded':loaded_privacy}">
 		<header>
 			<ProfileHeader />
 			<LanguageSwitcher />
@@ -20,6 +20,7 @@
 
 const router = useRouter()
 const route = useRoute();
+const loaded_privacy = router.prevRoute.path.includes("/privacy")
 
 const el = ref();
 
@@ -50,20 +51,35 @@ useSeo({
 	location: route.path,
 });
 let transitionFinished = false;
-
+let mounted = false;
+let resolved = false;
 emit("update:afterEnter", function () {
 	transitionFinished = true;
 });
 
 function resolve() {
+
 	if (transitionFinished || !router.prevRoute.path.includes("/blog")) {
-		initialize()
+		if (mounted) {
+			initialize()
+		}
+
 	} else {
 		emit("update:afterEnter", function () {
-			initialize()
+			if (mounted) {
+				initialize()
+			}
 		})
 	}
+	resolved = true
 };
+
+onMounted(() => {
+	if ((resolved && !initialized) || loaded_privacy){
+		initialize()
+	}
+	mounted = true;
+})
 
 onBeforeUnmount(() => {
 	removeEventListeners();
@@ -170,7 +186,7 @@ function initializeEventListeners() {
 }
 
 function removeEventListeners() {
-		if (!videoIntro.paused) videoIntro.pause();
+	if (!videoIntro.paused) videoIntro.pause();
 
 	videoIntro.removeEventListener("playing", function () {
 		wrapper.classList.add("loaded");
