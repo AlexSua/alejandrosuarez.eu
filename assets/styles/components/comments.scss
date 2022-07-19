@@ -152,7 +152,7 @@
     text-align: right;
     margin-right: 16px;
     height: 38px;
-    color: #868e96;
+    // color: #868e96;
     font-weight: 700;
     cursor: pointer;
     display: block;
@@ -172,6 +172,9 @@
     color: #868e96;
     margin: 8px 12px;
     font-size: 13px;
+}
+.dark .commento-root .commento-logged-container .commento-profile-button svg{
+    fill:#ced4da
 }
 
 .commento-root .commento-logged-container .commento-logged-in-as {
@@ -394,7 +397,7 @@
     font-size: 12px;
     text-transform: uppercase;
     font-weight: 700;
-    color: #495057;
+    // color: #495057;
 }
 
 .commento-root .commento-anonymous-checkbox-container input[type="checkbox"] + label:before {
@@ -422,7 +425,7 @@
 }
 
 .commento-root .commento-markdown-button {
-    color: #868e96;
+    // color: #868e96;
     margin: 0 16px;
     font-size: 12px;
     text-transform: uppercase;
@@ -432,6 +435,9 @@
     cursor: pointer;
     display: block;
     clear: both;
+}
+.dark .commento-root .commento-markdown-button {
+    color: $vanilla-yellow;
 }
 
 .commento-root .commento-markdown-button b {
