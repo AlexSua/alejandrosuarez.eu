@@ -3,7 +3,7 @@
   <img src='@/assets/img/loading.jpg'>
 
   <video id="videoIntro" autoplay muted loop>
-    <source src="@/assets/img/intro.webm" type="video/webm">
+    <source src="@/assets/img/intro.mp4">
   </video>
 
   <div class="titulo">
