@@ -6,7 +6,7 @@
         <div>{{ $t(`profile.footer.subtitle`) }}</div>
       </div>
       <div class="footer-nav">
-        <NuxtLink to="/privacy">
+        <NuxtLink to="/privacy/">
           {{ $t(`profile.footer.privacy`) }}
         </NuxtLink>
       </div>
