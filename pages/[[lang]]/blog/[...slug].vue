@@ -90,7 +90,7 @@ import { useI18n } from 'vue-i18n';
 
 
 const route = useRoute()
-const toc = ref(null)
+const toc = ref()
 const tocDrawerOpen = ref(false);
 const markdownBody = ref()
 const article = ref()
@@ -159,6 +159,8 @@ function handleScroll() {
     }
 
 }
+
+onClickOutside(toc,()=>tocDrawerClose())
 
 function tocDrawerClose() {
     tocDrawerOpen.value = false
