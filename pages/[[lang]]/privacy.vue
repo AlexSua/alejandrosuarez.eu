@@ -8,7 +8,7 @@
                     <path d="M0 0h24v24H0z" fill="none" />
                 </svg></NuxtLink>
         </div>
-        <div class="markdown-body" v-if="data">
+        <div class="markdown-body w-full min-h-screen" v-if="data">
             <ContentRenderer :value="data">
                 <template #default>
                     <MarkdownRenderer :value="data" />

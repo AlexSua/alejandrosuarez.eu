@@ -146,7 +146,9 @@ const drawerChatOpen = ref(false)
 const drawerSettingsOpen = ref(false)
 const dialogServerLessOpen = ref(false)
 const dialogLinkOpen = ref(false)
+const generatingLink = ref<boolean>(false)
 const link = ref("")
+
 
 const devices = reactive({
     video: [],
@@ -166,6 +168,8 @@ const sdpMessageInput = ref("")
 const offerTextArea = ref("")
 
 useDraggable(videoLocalContainer)
+const { copy } = useClipboard();
+
 
 const drawerChatOpenFun = () => {
     if (drawerChatOpen.value)
@@ -281,8 +285,9 @@ function sendChatMessage(message: ChatMessage[]) {
 }
 
 async function generateLink() {
+    if (!link.value && !generatingLink.value) {
+        generatingLink.value = true
 
-    if (!link.value) {
         console.log(link.value)
         router.push({
             path: '/videochat',
@@ -301,12 +306,14 @@ async function generateLink() {
                 room: roomid
             }
         });
+        generatingLink.value = false
+
     }
     dialogLinkOpen.value = true;
 }
 
 function copyLinkToClipboard() {
-    navigator.clipboard.writeText(link.value)
+    copy(link.value)
     dialogLinkOpen.value = false;
 }
 
