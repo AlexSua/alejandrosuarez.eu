@@ -1,7 +1,7 @@
 <template>
   <router-view v-slot="{ Component }">
     <transition :name="transitionName" @before-leave="onBeforeLeave" @after-enter="() => onAfterEnter()">
-      <component :is="Component" v-model:afterEnter="afterEnter" />
+        <component :is="Component" v-model:afterEnter="afterEnter" />
     </transition>
   </router-view>
 </template>

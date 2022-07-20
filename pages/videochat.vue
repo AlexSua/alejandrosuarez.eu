@@ -47,7 +47,7 @@
 
             <div ref="videoLocalContainer"
                 class="absolute flex m-auto h-screen w-full items-center right-4 bottom-4 transition-all duration-500"
-                :class="{ 'w-1/4': call, 'h-1/4': call }">
+                :class="{ 'w-[unset]': call, 'h-1/4': call }">
                 <video autoplay ref="videoLocal"
                     class=" flex-1  w-full max-h-screen max-h-full max-w-full <lg:object-cover"
                     :class="{ 'transform  rotate-y-180': frontCamera }"></video>
@@ -165,6 +165,7 @@ const mediaSelectionDisabled = ref(false)
 const sdpMessageInput = ref("")
 const offerTextArea = ref("")
 
+useDraggable(videoLocalContainer)
 
 const drawerChatOpenFun = () => {
     if (drawerChatOpen.value)

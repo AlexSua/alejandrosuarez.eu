@@ -1,6 +1,5 @@
 <template>
     <div class="privacy-wrapper">
-
         <div class="up right text-light-50 !fixed">
             <NuxtLink :to="closeLink"><svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin slice"
                     fill="#FFFFFF" viewBox="0 0 24 24">
@@ -9,16 +8,25 @@
                     <path d="M0 0h24v24H0z" fill="none" />
                 </svg></NuxtLink>
         </div>
-        <div class="markdown-body">
-            <ContentDoc />
+        <div class="markdown-body" v-if="data">
+            <ContentRenderer :value="data">
+                <template #default>
+                    <MarkdownRenderer :value="data" />
+                </template>
+            </ContentRenderer>
         </div>
     </div>
-
 </template>
 
 <script setup lang="ts">
 const router = useRouter()
 const route = useRoute()
+const data = ref(null)
+
+useAsyncData('privacy', () => queryContent('/privacy').findOne()).then(value => {
+    data.value = value.data.value
+})
+
 const closeLink = computed(() => {
     if (router.prevRoute && router.prevRoute.name != route.name) {
         return router.prevRoute.path
