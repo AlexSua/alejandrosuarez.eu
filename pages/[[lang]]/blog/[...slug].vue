@@ -75,7 +75,7 @@
                 </li>
             </ul>
         </aside>
-        <AbsoluteButton @click="tocDrawerOpenFunc" :icon="tocDrawerOpen ? 'pi-times' : 'pi-list'"
+        <AbsoluteButton ref="tocButton" @click="tocDrawerOpenFunc" :icon="tocDrawerOpen ? 'pi-times' : 'pi-list'"
             class="!fixed !right-1 !bottom-1 !sxl:hidden z-40" />
 
     </template>
@@ -91,6 +91,7 @@ import { useI18n } from 'vue-i18n';
 
 const route = useRoute()
 const toc = ref()
+const tocButton = ref()
 const tocDrawerOpen = ref(false);
 const markdownBody = ref()
 const article = ref()
@@ -160,7 +161,9 @@ function handleScroll() {
 
 }
 
-onClickOutside(toc,()=>tocDrawerClose())
+onClickOutside(toc,()=>tocDrawerClose(),{
+    ignore:[tocButton]
+})
 
 function tocDrawerClose() {
     tocDrawerOpen.value = false
