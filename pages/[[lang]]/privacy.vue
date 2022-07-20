@@ -8,8 +8,8 @@
                     <path d="M0 0h24v24H0z" fill="none" />
                 </svg></NuxtLink>
         </div>
-        <div class="markdown-body w-full min-h-screen" v-if="data">
-            <ContentRenderer :value="data">
+        <div class="markdown-body w-full min-h-screen">
+            <ContentRenderer :value="data" v-if="!pending"> 
                 <template #default>
                     <MarkdownRenderer :value="data" />
                 </template>
@@ -21,11 +21,8 @@
 <script setup lang="ts">
 const router = useRouter()
 const route = useRoute()
-const data = ref(null)
 
-useAsyncData('privacy', () => queryContent('/privacy').findOne()).then(value => {
-    data.value = value.data.value
-})
+const { pending, data } = useLazyAsyncData('privacy', () => queryContent('/privacy').findOne())
 
 const closeLink = computed(() => {
     if (router.prevRoute && router.prevRoute.name != route.name) {
