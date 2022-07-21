@@ -79,23 +79,14 @@ export default defineNuxtConfig({
             })]
     },
     content: {
-        markdown: {
-            // remarkPlugins: [ ["remark-mermaidjs",{
-            //     theme:"default",
-            //     simple:true
-            // }]],
-
-        },
         highlight: {
-            // theme: 'material-darker',
             theme: 'material-darker',
             preload: ['css', 'scss', 'js', 'ts', "html", "bash", "json", "yaml"]
         }
     },
     nitro: {
         prerender: {
-            crawlLinks: true,
-            // routes: ['/sitemap.xml', "/blog", "/", "/videochat", "/blog/example2","/es","/es/blog"],
+            crawlLinks: true
         },
         minify: true,
     },
@@ -107,20 +98,6 @@ export default defineNuxtConfig({
     ssr: true,
 
     target: "static",
-    // router: {
-    //     base: '/VuePaginaPersonalPublic/'
-    //   },
-    // app:{
-    //     baseURL: '/VuePaginaPersonalPublic/'
-    // },
-    // dev: false
-    //  _legacyGenerate:true,
+    dev: false
 
 })
-//grep -rnwl "_nuxt" .output/public |xargs sed -i "s,/_nuxt,/VuePaginaPersonalPublic/_nuxt,g"
-// git init;
-// git add .;
-// git checkout -b "nuxt";
-// git commit -m "Initial commit";
-// git remote add origin "https://github.com/AlexSua/VuePaginaPersonalPublic.git"; 
-// git push -u origin nuxt;
