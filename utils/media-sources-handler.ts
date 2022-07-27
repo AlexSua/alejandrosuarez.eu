@@ -66,12 +66,38 @@ export default class MediaSourcesHandler {
     }
 
 
-    public async getMediaDevicesStream(constraints: MediaStreamConstraints = { video: true, audio: true }) {
+    public async getMediaDevicesStream(constraints: MediaStreamConstraints = { video: true, audio: true }, defaultParamsFromLocalStorage: boolean = true) {
         if (navigator && navigator.mediaDevices) {
             try {
                 await this.getMediaDevices();
                 this.audioDevices.length <= 0 && (constraints.audio = false)
                 this.videoDevices.length <= 0 && (constraints.video = false)
+
+                if (defaultParamsFromLocalStorage) {
+                    const defaultLocalStorage = this.getMediaSourcesInfoFromLocalStorage()
+
+
+                    const audioDevice = this.getMediaDeviceByName(defaultLocalStorage.audio)
+                    const videoDevice = this.getMediaDeviceByName(defaultLocalStorage.video)
+
+                    if (audioDevice) {
+                        if (typeof constraints.audio === "boolean") {
+                            constraints.audio = { deviceId: audioDevice.deviceId }
+                        } else {
+                            constraints.audio = (constraints.audio as MediaTrackConstraints)
+                            !constraints.audio.deviceId && (constraints.audio.deviceId = audioDevice.deviceId)
+                        }
+                    }
+                    if (videoDevice) {
+                        if (typeof constraints.video === "boolean") {
+                            constraints.video = { deviceId: videoDevice.deviceId }
+                        } else {
+                            constraints.video = (constraints.video as MediaTrackConstraints)
+                            !constraints.video.deviceId && (constraints.video.deviceId = videoDevice.deviceId)
+                        }
+                    }
+                }
+
                 this._currentStream = await navigator.mediaDevices.getUserMedia(constraints)
                 return this._currentStream
             } catch (e: any) {
@@ -124,6 +150,7 @@ export default class MediaSourcesHandler {
             await this.stopAndRemoveVideo()
             stream = await this.startVideo(videoSelected)
         }
+        this.setMediaSourcesInfoFromLocalStorage(audioSelected, videoSelected)
         // this.attachStreamToLocalVideo(stream)
     }
 
@@ -168,6 +195,20 @@ export default class MediaSourcesHandler {
         this.currentAudioTracks[0] && this.currentStream.removeTrack(this.currentAudioTracks[0])
         this.currentStream.addTrack(stream.getAudioTracks()[0])
         return stream
+    }
+
+    getMediaSourcesInfoFromLocalStorage() {
+        return JSON.parse(localStorage.getItem("mediaSources") || "{audio:null,video:null}");
+
+    }
+
+    setMediaSourcesInfoFromLocalStorage(audioSelected?: string, videoSelected?: string) {
+        let mediaSourcesInfo = this.getMediaSourcesInfoFromLocalStorage()
+        let newMediaSourcesInfo = {}
+        audioSelected && (newMediaSourcesInfo["audio"] = audioSelected)
+        videoSelected && (newMediaSourcesInfo["video"] = videoSelected)
+        localStorage.setItem("mediaSources", JSON.stringify({ ...mediaSourcesInfo, ...newMediaSourcesInfo }));
+
     }
 
     public disableVideo() {
