@@ -322,7 +322,8 @@ function ontrack(connection: WebRtcConnection, track: MediaStreamTrack, stream: 
     if (videoRemote.value) {
         videoRemote.value.srcObject = stream[0];
         stream[0].addTrack(track);
-        videoRemote.value.play();
+        console.log("aaa",track)
+        track.kind === "video" && (videoRemote.value.play())
     }
 };
 
