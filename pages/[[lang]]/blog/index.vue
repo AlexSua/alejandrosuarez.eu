@@ -55,7 +55,11 @@ useSeo({
 });
 
 
-let result = await useAsyncData('blog-content', () => queryContent('/blog/').find())
+let result = await useAsyncData('blog-content', () => queryContent('/blog/')
+    .where({ published: true })
+    .sort({ date: -1 })
+    .find())
+
 const blogList = ref<ParsedContent[] | null>(result.data.value);
 
 filter.search = route.query.search as string || "";

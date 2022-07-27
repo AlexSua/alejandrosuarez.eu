@@ -62,7 +62,6 @@ function onBeforeLeave() {
   .slide-right-leave-active {
     position: absolute !important;
     // position: fixed !important;
-
     transition: all $duration ease-out;
     width: 100vw !important;
     // max-width: 100vw!important;
@@ -203,8 +202,6 @@ function onBeforeLeave() {
   .slide-down-leave-from {
     transform: translate3d(0, 0, 0)
   }
-
-
 
 
 }

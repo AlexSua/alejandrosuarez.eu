@@ -5,6 +5,7 @@ date: '2022-06-30'
 language: 'en'
 tags: ['Nuxt 3',"Vue 3"]
 image: "/assets/img/blog/nuxt-github-pages.jpg"
+published: true
 ---
 
 
