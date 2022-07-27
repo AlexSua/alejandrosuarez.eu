@@ -198,7 +198,7 @@ export default class MediaSourcesHandler {
     }
 
     getMediaSourcesInfoFromLocalStorage() {
-        return JSON.parse(localStorage.getItem("mediaSources") || "{audio:null,video:null}");
+        return JSON.parse(localStorage.getItem("mediaSources") || "{\"audio\":null,\"video\":null}");
 
     }
 
