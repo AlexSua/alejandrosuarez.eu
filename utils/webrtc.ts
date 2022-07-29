@@ -113,8 +113,8 @@ export default class WebRtcConnection {
 
         this.pc.onnegotiationneeded = async event => {
             if (this.pc.signalingState != "stable") return;
-            await this.createOffer();
-            this._dataChannels["p2p"].send(JSON.stringify({ sdp: this.pc.localDescription }));
+            const offer = await this.createOffer();
+            this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
         }
 
         this.pc.onsignalingstatechange = event => {
@@ -136,6 +136,7 @@ export default class WebRtcConnection {
             this._alfa = true;
             this.attachDataChannel();
         }
+        
         let offer = await this.createOffer();
         return offer
     }
@@ -297,7 +298,7 @@ export default class WebRtcConnection {
         channel.onmessage = async event => {
             const message = JSON.parse(event.data);
             const answer = await this.createAnswer(message)
-            answer && channel.send(JSON.stringify({ sdp: this.pc.localDescription }))
+            answer && channel.send(JSON.stringify({ sdp: answer }))
 
         };
     }

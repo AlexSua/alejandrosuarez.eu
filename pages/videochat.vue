@@ -23,12 +23,12 @@
             </div>
         </Dialog>
         <div ref="superiorToolBar"
-            class="absolute flex flex-row w-full text-right z-30 transition-all duration-400 disable-rounded"
+            class="absolute flex flex-row w-full text-right transition-all duration-400 disable-rounded"
             :class="{ 'lg:pr-[400px]': drawerSettingsOpen }">
             <SpeedDial :radius="140" :model="items" showIcon="pi pi-bars text-vanilla-yellow"
                 :tooltipOptions="{ event: null, position: 'right' }" hideIcon="pi pi-times text-vanilla-yellow"
                 direction="down-right" type="quarter-circle" buttonClass="p-button-text"
-                class="up left transform !-translate-x-5 !-translate-y-5 disable-rounded" />
+                class="up left transform !-translate-x-5 !-translate-y-5 disable-rounded !z-50" />
 
             <!-- <div class="flex-1">sdf</div> -->
             <div class="flex-1">
@@ -45,9 +45,10 @@
             <video autoplay ref="videoRemote" class=" flex-1 max-h-screen w-full"
                 :class="{ '!object-cover': videoRemoteFullSize }"></video>
 
-            <div ref="videoLocalContainer"
-                class="absolute flex m-auto h-screen w-full items-center right-4 bottom-4 transition-all duration-500"
-                :class="{ 'w-[unset]': call, 'h-1/4': call }">
+            <div ref="videoLocalContainer" class="absolute flex m-auto h-screen w-full items-center z-30"
+                :class="{ 'w-[unset]': call, 'h-1/4': call, 
+                'transition-all duration-600': draggable && !draggable.isDragging }"
+                :style="call ? videoLocalContainerDraggableStyle && videoLocalContainerDraggableStyle.style : ''">
                 <video autoplay ref="videoLocal"
                     class=" flex-1  w-full max-h-screen max-h-full max-w-full <lg:object-cover"
                     :class="{ 'transform  rotate-y-180': frontCamera }"></video>
@@ -83,8 +84,8 @@
         </Drawer>
 
         <div ref="lowerToolBar"
-            class="absolute bottom-10 flex flex-row w-full text-center z-30 transition-all duration-400 bottom-0  align-center items-center lower-toolbar"
-            :class="{ 'lg:pr-[400px]': (drawerSettingsOpen || drawerChatOpen) }">
+            class="absolute bottom-10 flex flex-row w-full text-center transition-all duration-400 bottom-0  align-center items-center lower-toolbar"
+            :class="{ 'lg:pr-[400px]': (drawerSettingsOpen || drawerChatOpen), 'hidden': lowerToolBarHidden }">
             <!-- <div class="flex-1">sdf</div> -->
 
             <div class="flex flex-1 items-center justify-start ml-5">
@@ -123,6 +124,8 @@ let webRtcConnection: WebRtcConnection;
 const toast = useToast();
 const router = useRouter()
 const route = useRoute()
+const mouse = reactive([useMouse(), useMousePressed()])
+const windowSize = reactive(useWindowSize())
 
 useSeo({
     title: "VideoChat",
@@ -160,6 +163,8 @@ const audioSelected = ref<string>()
 const videoSelected = ref<string>()
 const audioEnabled = ref<boolean>(true)
 const videoEnabled = ref<boolean>(true)
+const lowerToolBarHidden = ref<boolean>(false)
+
 const videoRemoteFullSize = ref<boolean>(false)
 const call = ref(false)
 const mediaSelectionDisabled = ref(false)
@@ -167,7 +172,14 @@ const mediaSelectionDisabled = ref(false)
 const sdpMessageInput = ref("")
 const offerTextArea = ref("")
 
-useDraggable(videoLocalContainer)
+let draggable = ref()
+let videoLocalContainerDraggableStyle = ref({
+    style: "",
+    x: 0,
+    y: 0,
+}
+)
+
 const { copy } = useClipboard();
 
 
@@ -232,6 +244,11 @@ const enableAudioFunc = async () => {
     mediaSelectionDisabled.value = false;
 };
 
+const enableVideoLocalDraggable = () => {
+    draggable.value = useDraggable(videoLocalContainer, {
+        initialValue: { x: window.innerWidth - videoLocalContainer.value.offsetWidth, y: window.innerHeight - videoLocalContainer.value.offsetWidth }
+    });
+}
 
 const linkDialogOpenFunc = async () => {
     dialogLinkOpen.value ? dialogLinkOpen.value = false : dialogLinkOpen.value = true
@@ -318,10 +335,10 @@ function copyLinkToClipboard() {
 }
 
 function ontrack(connection: WebRtcConnection, track: MediaStreamTrack, stream: readonly MediaStream[]) {
-    console.log("ontrack", connection, track, stream)
     if (videoRemote.value) {
         videoRemoteStream = stream[0];
         videoRemote.value.srcObject = videoRemoteStream;
+        videoRemote.value.play();
     }
 };
 
@@ -331,7 +348,7 @@ function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
         dialogServerLessOpen.value = false;
         channel.send("hello");
         call.value = true;
-
+        setTimeout(() =>  !draggable.value &&enableVideoLocalDraggable(), 0)
     };
 
     channel.onclose = () => {
@@ -460,6 +477,75 @@ const onSourceChange = (type: string) => async (value: string | undefined, oldVa
 
 watch(audioSelected, onSourceChange("audio"))
 watch(videoSelected, onSourceChange("video"))
+watch(call, async (value: boolean) => {
+    if (value === true) {
+        setTimeout(() => {
+            lowerToolBarHidden.value = true;
+        }, 5000)
+    } else {
+        lowerToolBarHidden.value = false;
+    }
+})
+let lastTimeoutId = null;
+watch(mouse, () => {
+    if (call.value === true) {
+        lowerToolBarHidden.value = false;
+        clearTimeout(lastTimeoutId)
+        lastTimeoutId = setTimeout(() => {
+            lowerToolBarHidden.value = true;
+        }, 5000)
+    } else {
+        lowerToolBarHidden.value = false;
+        clearTimeout(lastTimeoutId)
+    }
+})
+
+function videoLocalContainerDrag(x: number = videoLocalContainerDraggableStyle.value.x, y: number = videoLocalContainerDraggableStyle.value.y) {
+    const xmaxbound = (windowSize.width - videoLocalContainer.value.offsetWidth)
+    const ymaxbound = (windowSize.height - videoLocalContainer.value.offsetHeight)
+    const xminbound = 0
+    const yminbound = 0
+
+    if (x > xmaxbound) {
+        x = xmaxbound
+    }
+    if (y > ymaxbound) {
+        y = ymaxbound
+    }
+    if (x < xminbound) {
+        x = xminbound
+    }
+    if (y < yminbound) {
+        y = yminbound
+    }
+    if (x <= xmaxbound &&
+        y <= ymaxbound &&
+        x >= 0 && y >= 0
+    ) {
+        videoLocalContainerDraggableStyle.value = {
+            style: "transform: translate3d(" + x + "px, " + y + "px, 0px);",
+            x: x,
+            y: y,
+        }
+    }
+
+
+
+}
+
+watch(draggable, () => {
+    videoLocalContainerDrag(draggable.value.x, draggable.value.y)
+
+}, { deep: true })
+
+watch(windowSize, () => {
+
+
+    if ((videoLocalContainerDraggableStyle.value.x + videoLocalContainer.value.offsetWidth) >= windowSize.width) {
+
+        videoLocalContainerDrag(windowSize.width - videoLocalContainer.value.offsetWidth)
+    }
+}, { deep: true })
 
 onMounted(() => {
     (async () => {
@@ -490,6 +576,7 @@ button {
     // border: unset !important;
     border: unset !important;
     box-shadow: unset !important;
+    z-index: 40;
 }
 
 .button-disabled {
