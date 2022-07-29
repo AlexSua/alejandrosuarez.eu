@@ -972,14 +972,15 @@
       }
     }
 
-    h3 {
-      color: white !important;
+    h3,h4 {
+      color: $vanilla-yellow !important;
       // font-weight: 300;
 
       a {
         color: inherit;
       }
     }
+    
 
     a {
       color: $vanilla-yellow;

@@ -13,12 +13,13 @@ export default defineEventHandler(async (event) => {
       changefreq: 'monthly'
     })
   }
-  
+
   for (const doc of docs) {
-    sitemap.write({
-      url: doc._path,
-      changefreq: 'monthly'
-    })
+    if (doc.published)
+      sitemap.write({
+        url: doc._path,
+        changefreq: 'monthly'
+      })
   }
 
   sitemap.end()

@@ -112,21 +112,9 @@ export default class WebRtcConnection {
         }
 
         this.pc.onnegotiationneeded = async event => {
-            if (this._alfa || this._temporary_alfa) {
-                this._temporary_alfa = false;
-                console.log("create offer")
-                if (this.pc.signalingState != "stable") return;
-                const offer = await this.pc.createOffer();
-                await this.pc.setLocalDescription(offer);
-                this._dataChannels["p2p"].send(JSON.stringify({ sdp: this.pc.localDescription }));
-            } else {
-                setTimeout(() => {
-                    if (this.pc.signalingState == "stable") {
-                        this._temporary_alfa = true;
-                        this.pc.onnegotiationneeded && this.pc.onnegotiationneeded(event)
-                    }
-                }, 1000)
-            }
+            if (this.pc.signalingState != "stable") return;
+            await this.createOffer();
+            this._dataChannels["p2p"].send(JSON.stringify({ sdp: this.pc.localDescription }));
         }
 
         this.pc.onsignalingstatechange = event => {
@@ -137,14 +125,19 @@ export default class WebRtcConnection {
 
     async createOffer() {
         console.log("create offer")
+        const offer = await this.pc.createOffer();
+        await this.pc.setLocalDescription(offer);
+        return offer;
+    }
+
+    async createInitialOffer() {
         this._localCandidates = []
         if (!("p2p" in this._dataChannels)) {
             this._alfa = true;
             this.attachDataChannel();
         }
-        const offerDesc = await this.pc.createOffer();
-        await this.pc.setLocalDescription(offerDesc);
-        return offerDesc
+        let offer = await this.createOffer();
+        return offer
     }
 
 
@@ -169,40 +162,27 @@ export default class WebRtcConnection {
             if (!uuid) {
                 uuid = this._generateUUID()
             }
+            this._websocket = new WebSocket(this.websocket_configuration.address + uuid)
 
-            // console.log(this._websocket)
-            // if (this._websocket && this._websocket!==null) {
-            //     this._websocket.close();
-            //     if (attempt <= 2) {
-            //         await new Promise(r => setTimeout(r, 2000));
-            //         this._createWebsocket(uuid, attempt + 1).then(resolve).catch(reject);
-            //     } else {
-            //         resolve(null)
-            //     }
-            // } else {
-                this._websocket = new WebSocket(this.websocket_configuration.address + uuid)
-
-                this._websocket.onopen = () => {
-                    resolve(uuid);
+            this._websocket.onopen = () => {
+                resolve(uuid);
+            }
+            this._websocket.onmessage = async (msg: MessageEvent<any>) => {
+                if (msg.data.startsWith("/get")) {
+                    this._signalingFromWebsocket = true;
+                    this.createInitialOffer();
+                } else {
+                    this._signalingFromWebsocket = true;
+                    this.createAnswerFromString(msg.data)
                 }
-                this._websocket.onmessage = async (msg: MessageEvent<any>) => {
-                    if (msg.data.startsWith("/get")) {
-                        this._signalingFromWebsocket = true;
-                        this.createOffer();
-                    } else {
-                        this._signalingFromWebsocket = true;
-                        this.createAnswerFromString(msg.data)
-                    }
-                }
-                this._websocket.onclose = (msg: CloseEvent) => {
-                    console.log("websocket closed")
-                }
-                this._websocket.onerror = (err: ErrorEvent) => {
-                    this._websocket = null;
-                    resolve(null)
-                }
-            
-
+            }
+            this._websocket.onclose = (msg: CloseEvent) => {
+                console.log("websocket closed")
+            }
+            this._websocket.onerror = (err: ErrorEvent) => {
+                this._websocket = null;
+                resolve(null)
+            }
         }.bind(this))
 
     }
@@ -225,30 +205,28 @@ export default class WebRtcConnection {
     async createAnswerFromString(message: string) {
         const decompressedMessage = LZString.decompressFromEncodedURIComponent(message)
         decompressedMessage && (message = decompressedMessage)
-        await this.createAnswer(JSON.parse(message))
+        await this.createAnswer(JSON.parse(message), true)
     }
 
-    async createAnswer(message: Message): Promise<RTCSessionDescriptionInit | null> {
+    async createAnswer(message: Message,firstTime:boolean = false): Promise<RTCSessionDescriptionInit | null> {
         let answerDesc = null
         if (message.sdp) {
             const sdpMessage = message.sdp
-
             try {
-                try {
-                    await new Promise((resolve, reject) => { setTimeout(() => resolve(true), 100) })
-                    await this.pc.setRemoteDescription(message.sdp)
-                } catch (err) {
-                    console.log(err)
-                    await this.pc.setRemoteDescription(message.sdp)
-                }
-
                 if (sdpMessage.type == "offer") {
-                    console.log("create answer")
-                    answerDesc = await this.pc.createAnswer();
-                    await this.pc.setLocalDescription(answerDesc);
+                        console.log("create answer")
+                        await this.pc.setRemoteDescription(message.sdp)
+                        answerDesc = await this.pc.createAnswer();
+                        await this.pc.setLocalDescription(answerDesc);
+                } else {
+                    if (this.pc.signalingState == "have-local-offer") {
+                        await this.pc.setRemoteDescription(message.sdp)
+                    } else {
+                        answerDesc = await this.createAnswer(message)
+                    }
                 }
-
                 if (message.candidate) {
+                    await this.pc.setRemoteDescription(message.sdp)
                     console.log("adding candidate")
                     this._remoteCandidates = message.candidate
                     for (const element of message.candidate) {
@@ -259,7 +237,7 @@ export default class WebRtcConnection {
             }
 
             catch (e: any) {
-                console.log(e)
+                console.log("----------------------",e)
                 return null
             }
 
@@ -269,7 +247,7 @@ export default class WebRtcConnection {
 
     attachVideoChatStream(stream: MediaStream = this._mediaSourcesHandler.currentStream) {
         const videochattracks = stream.getTracks()
-        console.log(videochattracks)
+        console.log("attach-video-chat-stream",videochattracks)
         console.log(this._mediaSourcesHandler)
 
         Object.entries(this._videoChatSenders).forEach(([key, sender]) => {
@@ -304,11 +282,11 @@ export default class WebRtcConnection {
     }
 
     p2pDataChannelInitialization(channel: RTCDataChannel) {
-        channel.onopen = async (event) => {
+        channel.onopen = (event) => {
             console.log("p2p is open!");
+            this._websocket && this._websocket.close(1000, "close")
             this._connected = true;
             this._videoChatSendStream && this.attachVideoChatStream()
-            this._websocket && this._websocket.close(1000, "close")
             if (this._alfa)
                 this.attachDataChannel("chat", 2);
         };
@@ -321,11 +299,10 @@ export default class WebRtcConnection {
         channel.onmessage = async event => {
             const message = JSON.parse(event.data);
             const answer = await this.createAnswer(message)
-            answer && channel.send(JSON.stringify({ sdp: answer }))
+            answer && channel.send(JSON.stringify({ sdp: this.pc.localDescription }))
 
         };
     }
-
 
 
     public get dataChannels() {
@@ -351,8 +328,5 @@ export default class WebRtcConnection {
     public get state() {
         return this._state
     }
-
-
-
 
 }

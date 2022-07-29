@@ -320,10 +320,8 @@ function copyLinkToClipboard() {
 function ontrack(connection: WebRtcConnection, track: MediaStreamTrack, stream: readonly MediaStream[]) {
     console.log("ontrack", connection, track, stream)
     if (videoRemote.value) {
-        videoRemote.value.srcObject = stream[0];
-        stream[0].addTrack(track);
-        console.log("aaa",track)
-        // track.kind === "video" && (videoRemote.value.play())
+        videoRemoteStream = stream[0];
+        videoRemote.value.srcObject = videoRemoteStream;
     }
 };
 
@@ -371,7 +369,7 @@ function writeOnOffer(message: string) {
 
 async function createOffer() {
     webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnChat, writeOnOffer)
-    await webRtcConnection.createOffer()
+    await webRtcConnection.createInitialOffer()
 }
 
 async function createOrRecibeAnswer() {
@@ -390,26 +388,25 @@ async function refreshMediaDevices() {
 
 }
 
-function initializeLocalStream() {
+async function initializeLocalStream() {
     if (process.client) {
         mediaSourcesHandler = new MediaSourcesHandler(videoLocal);
-        mediaSourcesHandler.initializeLocalStream().then(async (value) => {
-            if (!value) {
-                videoEnabled.value = false;
-                audioEnabled.value = false;
-                toast.add({ severity: 'error', summary: 'Error', detail: 'Error while trying to get the camera. Check the permissions for the camera.', group: 'br', life: 3000 });
-                getMediaDevices.value = true
-                return null
-            }
-            getMediaDevices.value = false
-            await mediaSourcesHandler.getMediaDevices()
-            mediaSourcesHandler.currentAudioTracks.length > 0 && (audioEnabled.value = true)
-            mediaSourcesHandler.currentVideoTracks.length > 0 && (videoEnabled.value = true)
-            devices.audio = mediaSourcesHandler.audioDevices;
-            devices.video = mediaSourcesHandler.videoDevices;
-            audioSelected.value = mediaSourcesHandler.currentDevices.audio;
-            videoSelected.value = mediaSourcesHandler.currentDevices.video;
-        })
+        const value = await mediaSourcesHandler.initializeLocalStream()
+        if (!value) {
+            videoEnabled.value = false;
+            audioEnabled.value = false;
+            toast.add({ severity: 'error', summary: 'Error', detail: 'Error while trying to get the camera. Check the permissions for the camera.', group: 'br', life: 3000 });
+            getMediaDevices.value = true
+            return null
+        }
+        getMediaDevices.value = false
+        await mediaSourcesHandler.getMediaDevices()
+        mediaSourcesHandler.currentAudioTracks.length > 0 && (audioEnabled.value = true)
+        mediaSourcesHandler.currentVideoTracks.length > 0 && (videoEnabled.value = true)
+        devices.audio = mediaSourcesHandler.audioDevices;
+        devices.video = mediaSourcesHandler.videoDevices;
+        audioSelected.value = mediaSourcesHandler.currentDevices.audio;
+        videoSelected.value = mediaSourcesHandler.currentDevices.video;
     }
 }
 
@@ -465,11 +462,13 @@ watch(audioSelected, onSourceChange("audio"))
 watch(videoSelected, onSourceChange("video"))
 
 onMounted(() => {
-    initializeLocalStream()
-    if (route.query.room && route.query.room.length > 0) {
-        link.value = document.location.href;
-        initalizeWebRTCfromCurrentRoomParam()
-    }
+    (async () => {
+        await initializeLocalStream()
+        if (route.query.room && route.query.room.length > 0) {
+            link.value = document.location.href;
+            initalizeWebRTCfromCurrentRoomParam()
+        }
+    })();
 })
 onBeforeUnmount(() => {
     if (process.client) {

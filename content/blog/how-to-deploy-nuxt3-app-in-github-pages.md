@@ -218,7 +218,7 @@ Prefetching is a feature of Nuxt 3 that allows the application during the hydrat
 I tried with some configuration parameters in `nuxt.config.ts` but the option for controlling the prefetching is not implemented or not working properly yet. The best and fastest option I came up with is executing the following command over the build to remove prefetching totally.
 
 ```bash
-grep -rnwl "<link rel=\"prefetch\"" .output/public | xargs sed -i 's$<link rel="prefetch" href="[^"]*\.\(jpg\|png\|webm\|jpeg\|ttg\|svg\|gif\)">$$g'
+grep -rwl "<link rel=\"prefetch\"" .output/public | xargs sed -i 's$<link rel="prefetch" href="[^"]*\.\(jpg\|png\|webm\|jpeg\|ttg\|svg\|gif\)">$$g'
 
 ```
 

@@ -50,16 +50,16 @@
                 </ContentRenderer>
             </div>
             <div id="comments" name="comments">
-               <Commento v-if="pageId" :page-id="routeNoLanguage"></Commento>
+                <Commento v-if="pageId" :page-id="routeNoLanguage"></Commento>
             </div>
         </article>
 
         <aside ref="toc"
-            class="col-start-3 col-end-4 row-start-2 row-end-3 
-        <sxl:(z-40 fixed -bottom-[100vh] left-0 justify-self-center w-full bg-white dark:bg-black flex justify-center transition transition-all transform)"
-            :class="{ '<sxl:-translate-y-[100vh]': tocDrawerOpen }">
+            class="col-start-3 col-end-4 row-start-2 row-end-3
+        <sxl:(z-40 fixed -bottom-[120vh] left-0 justify-self-center w-full bg-white dark:bg-black flex justify-center transition transition-all transform)"
+            :class="{ '<sxl:-translate-y-[120vh]': tocDrawerOpen }">
 
-            <ul class="m-12 top-12 sticky mx-2rem min-w-44 ">
+            <ul class="m-12 top-12 sticky mx-2rem min-w-44  max-h-[85vh] overflow-y-auto">
                 <!-- <ul class="mt-4 top-4 sticky ml-2rem "> -->
                 <li :name="'toc/' + link.id" v-for="link, index of data.body.toc.links" :key="index + link.text">
                     <a @click="tocDrawerClose" :href="`#${link.id}`">{{ link.text }}</a>
@@ -161,8 +161,8 @@ function handleScroll() {
 
 }
 
-onClickOutside(toc,()=>tocDrawerClose(),{
-    ignore:[tocButton]
+onClickOutside(toc, () => tocDrawerClose(), {
+    ignore: [tocButton]
 })
 
 function tocDrawerClose() {
@@ -210,6 +210,14 @@ aside {
         // color: #737373 !important;
         color: #8383839c !important;
         font-weight: 600;
+    }
+
+    ul {
+        scrollbar-width: none;
+    }
+
+    ul::-webkit-scrollbar {
+        display: none;
     }
 }
 

@@ -947,7 +947,7 @@
 
     h1,
     h2,
-    h3 {
+    h3,h4 {
       color: $video-dark !important;
 
       a {
@@ -958,5 +958,12 @@
     a {
       color: #4770a7;
     }
+    pre code{
+      color:white;
+    }
+    code.colored{
+      background-color: $video-dark;
+    }
+  
   }
 }
