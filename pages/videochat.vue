@@ -48,6 +48,7 @@
             <div ref="videoLocalContainer" class="absolute flex m-auto h-screen w-full items-center z-30"
                 :class="{ 'w-[unset]': call, 'h-1/4': call, 
                 'transition-all duration-600': draggable && !draggable.isDragging }"
+                style="touch-action:none;"
                 :style="call ? videoLocalContainerDraggableStyle && videoLocalContainerDraggableStyle.style : ''">
                 <video autoplay ref="videoLocal"
                     class=" flex-1  w-full max-h-screen max-h-full max-w-full <lg:object-cover"
@@ -84,7 +85,7 @@
         </Drawer>
 
         <div ref="lowerToolBar"
-            class="absolute bottom-10 flex flex-row w-full text-center transition-all duration-400 bottom-0  align-center items-center lower-toolbar"
+            class="absolute bottom-10 <sxl:bottom-3 flex flex-row w-full text-center transition-all duration-400 bottom-0  align-center items-center lower-toolbar"
             :class="{ 'lg:pr-[400px]': (drawerSettingsOpen || drawerChatOpen), 'hidden': lowerToolBarHidden }">
             <!-- <div class="flex-1">sdf</div> -->
 
