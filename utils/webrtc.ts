@@ -205,10 +205,10 @@ export default class WebRtcConnection {
     async createAnswerFromString(message: string) {
         const decompressedMessage = LZString.decompressFromEncodedURIComponent(message)
         decompressedMessage && (message = decompressedMessage)
-        await this.createAnswer(JSON.parse(message), true)
+        await this.createAnswer(JSON.parse(message))
     }
 
-    async createAnswer(message: Message,firstTime:boolean = false): Promise<RTCSessionDescriptionInit | null> {
+    async createAnswer(message: Message): Promise<RTCSessionDescriptionInit | null> {
         let answerDesc = null
         if (message.sdp) {
             const sdpMessage = message.sdp
@@ -221,8 +221,6 @@ export default class WebRtcConnection {
                 } else {
                     if (this.pc.signalingState == "have-local-offer") {
                         await this.pc.setRemoteDescription(message.sdp)
-                    } else {
-                        answerDesc = await this.createAnswer(message)
                     }
                 }
                 if (message.candidate) {
