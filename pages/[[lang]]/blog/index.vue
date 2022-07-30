@@ -35,7 +35,6 @@ import { useI18n } from "vue-i18n";
 
 const { t, locale, availableLocales } = useI18n()
 
-
 const route = useRoute()
 const router = useRouter()
 const filter = reactive({
@@ -81,15 +80,7 @@ function filterResult() {
                 if (blog.language != locale.value) {
                     return false;
                 }
-                if (!firstTime)
-                    router.push({
-                        path: '/blog/',
-                        query: {
-                            ...filter.tags.length && { tags: filter.tags },
-                            ...filter.search.length && { search: filter.search }
-                        }
 
-                    });
                 if (filter.search.length > 0) {
 
                     return (JSON.stringify(blog).toLowerCase().includes(filter.search.toLowerCase()));
@@ -102,9 +93,6 @@ filterResult();
 
 
 const getBlogList = computed(() => {
-    if (!firstTime) {
-        window.scrollTo(0, 0);
-    }
     if (blogList.value)
         firstTime = false;
     return filteredBlogList.value.filter((blog: ParsedContent) => {
@@ -143,10 +131,24 @@ function isSelected(section: string) {
     return { selected: filter.tags.includes(section) }
 }
 
+let localeChange = false;
 watch(locale, (value) => {
     filter.tags = []
+    localeChange = true;
 })
 watch(filter, (value) => {
+    router.push({
+        query: {
+            ...filter.tags.length && { tags: filter.tags },
+            ...filter.search.length && { search: filter.search }
+        }
+    });
+    if (!localeChange) {
+        const main = document.querySelector("main");
+        if(main.getBoundingClientRect().y<0)
+            main.scrollIntoView();
+    }
+    localeChange = false;
     filterResult()
 })
 watch(blogList, (value) => {
