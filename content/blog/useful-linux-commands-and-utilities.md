@@ -170,33 +170,53 @@ If you want to sort by  -->
 
 
 ### Find | Du | Get a sorted list of all directories in a hierarchy ordered by their size
-The following command searches recursively for all directories that exist in a path and obtains their size on disk. When the process finishes the result is piped into the sort command to sort the result based on the folder size output.
+The following command searches recursively for all directories that exist in a path and obtains their size on disk. When the process finishes the result is piped into the `sort` command to sort the result based on the folder size output.
 ```bash
 echo "$(for i in $(find /home/aegos/Descargas -type d); do du -hs $i 2>/dev/null; done;)" | sort -h
 ```
 
 Translated to human language the command above means the following: For each folder found by the find command execute `du` to check the space of each `i` directory on disk and pass the entire result of the query to the command `sort` to organize the result based on the space.
 
-- • ```find ./folder -type d```{lang="bash"} : Search for all directories in a path.
-- • ```du -hs```{lang="bash"} : Prints the size of a folder in a human readable way, together with the directory path name.
-- • ```sort -h```{lang="bash"} : Sort the entire result by the size obtained with du. The `-h` argument indicates the command that you want to sort using the size information that was printed in a human readable way. In this way data such as: `21G`, `10M`, `100K` is sorted accordingly.
+• ```find "./folder" -type d```{lang="bash"} : Search for all directories in a path.
+
+• ```du -hs```{lang="bash"} : Prints the size of a folder in a human readable way, together with the directory path name.
+
+• ```sort -h```{lang="bash"} : Sort the entire result by the size obtained with du. The `-h` argument indicates the command that you want to sort using the size information that was printed in a human readable way. In this way data such as: `21G`, `10M`, `100K` is sorted accordingly.
 
 ### Find | Wc | Get the number of files inside all directories in a hierarchy
+The following command searches recursively for all directories that exist in a path and obtains the number of elements inside. When the process finishes the result is piped into the `sort` command to sort the result based on the number of elements inside. Useful for cluster clients with resource limits such as a maximum number of files, the command allows you to identify which is the folder with more files inside.
 ```bash
-echo "$(for i in $(find /folder -type d); do echo "$( ls "$i" 2>/dev/null| wc -l) $i\n"; done;)"| sort -n
+echo "$(for i in $(find /folder -type d); do echo "$( ls -la "$i" 2>/dev/null| grep "^[-]"| wc -l) $i"; done;)"| sort -n
 ```
 
-### Setsid | Run a command in background in a new session
+Translated to human language the command above means the following: For each folder found by the find command execute `ls` to get the elements inside each folder `i`, filter the result to get only file elements and pass its result to the command `wc -l` to count them. When all directories have been visited, pass the entire result to the `sort` command to organize the directories based on their ammount of elements.
+
+• ```find ./folder -type d```{lang="bash"} : Search for all directories in a path.
+
+• ```echo "$( ls -la "$i" 2>/dev/null| grep "^[-]"| wc -l) $i"; done;)"```{lang="bash"} : Prints the result of executing the command that counts the number of files inside a directory together with the path of `i`.
+- \- ```ls -la "$i" 2>/dev/null```{lang="bash"} : Get all elements of a directory and if there is any error output to /dev/null to prevent it from getting piped into the next command. `2>/dev/null` redirects stderr to `/dev/null`. 
+- \- ```grep "^[-]"```{lang="bash"} : Print only lines that start with `-` from the output of `ls` that will match with those lines that refer to a file, filtering in this way every directory or symbolic link.
+- \- `wc -l`{lang="bash"} : From the filtered result obtained with `grep` print the number of lines.
+
+• ```sort -n```{lang="bash"} : Sort the entire result by the count result obtained with `wc`. The `-n` argument indicates the command that you want to sort by number.
+
+
+### Setsid | Run a command in background
+Setsid allows you to run a command with no controlling terminal. Normally if you execute a program inside the terminal, the shell you are using is the parent process of the new process. When you close the shell a SIGHUP (**Sig**nal **h**ang **up**) signal is sent to all its child processes, which by default its response to this behavior is terminate. Setsid makes the new process a session and process group leader, whose father would be directly systemd (or init depending of the linux distribution you are on), which means that it will not receive the SIGHUP signal when the controlling terminal is closed since the program does not hang from it.
+
 ```bash
-
+setsid firefox &>/dev/null
 ```
-### Nohup | Run a command in background ignoring sighup signal
-Nohup when you exit inside a bash shell. Bash exit orphan adopted by systemd and creating a new session... check group
+
+> It is important to mention that by default the program output is still attached to the terminal from where setsid is executed, so if you don't want your terminal to be polluted with the output or errors coming from the new program executed (`firefox` in the case of the command above), you can redirect its output to the null device: `&>/dev/null`{lang="bash"}. `1>`{lang="bash"} to redirect the output (stdout), `2>`{lang="bash"} to redirect errors (stderr) and `&>`{lang="bash"} to redirect both of them.
+
+### Nohup | Run a command in background by making it ignore the sighup signal
+Nohup allows you to run a command that will ignore any SIGHUP signal received. When the shell closes, the process started with nohup ignores the SIGHUP signal, becoming, in this way, an orphan. The orphan process will then be adopted by systemd or init, allowing its execution continuity in background.
 
 ```bash
-
+nohup firefox &>/dev/null &
 ```
-> zsh shell &!
+> If you are using `zsh` instead of `bash` you can run a program in background just by putting `&!` at the end of command such as `firefox &!`{lang="bash"}
 
 
 ### Tee | Redirect the output of a command to multiple outputs

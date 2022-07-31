@@ -339,7 +339,7 @@ function ontrack(connection: WebRtcConnection, track: MediaStreamTrack, stream: 
     if (videoRemote.value) {
         videoRemoteStream = stream[0];
         videoRemote.value.srcObject = videoRemoteStream;
-        videoRemote.value.play();
+        // videoRemote.value.play();
     }
 };
 

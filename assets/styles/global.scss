@@ -29,7 +29,7 @@ ul{
 
 }
 ul,p,ol {
-  font-size: 1.13em;
+  font-size: 1.13rem;
   line-height: calc(1.2em * 1.25)!important;
   text-align: left;
 }
@@ -249,17 +249,17 @@ nav {
   }
 }
 
-@media screen and (min-width: 2560px) {
-  html {
-    font-size: 23px;
-  }
-}
+// @media screen and (min-width: 2000px) {
+//   html {
+//     font-size: 20px;
+//   }
+// }
 
-@media screen and (min-width: 3000px) {
-  html {
-    font-size: 28px;
-  }
-}
+// @media screen and (min-width: 3000px) {
+//   html {
+//     font-size: 28px;
+//   }
+// }
 
 .text-vanilla-yellow {
   color: $vanilla-yellow !important;
