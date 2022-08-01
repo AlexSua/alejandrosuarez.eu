@@ -90,11 +90,14 @@ export default class WebRtcConnection {
             }
         };
         this.pc.ontrack = event => {
-            console.log("got track",event)
+            console.log("got track", event)
             event.streams.forEach((stream) => {
-                if (!(stream.id in this._receiveStreams))
+                if (!(stream.id in this._receiveStreams)){
                     this._receiveStreams[stream.id] = stream
+                }
             })
+            console.log("got track settings",event.streams[0].getTracks()[0].getSettings())
+
             this._onTrack && this._onTrack(this, event.track, event.streams)
         };
 
@@ -220,6 +223,20 @@ export default class WebRtcConnection {
                     if (this.pc.signalingState == "have-local-offer") {
                         await this.pc.setRemoteDescription(message.sdp)
                     }
+                    if (this._videoChatSenders["video"]) {
+                        console.log("video transport state: ", this._videoChatSenders["video"])
+                        if ("connected" == this._videoChatSenders["video"].transport.state) {
+                            let params = this._videoChatSenders["video"].getParameters()
+                            console.log(params)
+                            // params.encodings = [{}]
+                            params.encodings[0].maxBitrate = 120000000;
+                            params.encodings[0].scaleResolutionDownBy = 1.0;
+                            // params.encodings[0].
+                            this._videoChatSenders["video"].setParameters(params)
+                            console.log("videochatsenders params",this._videoChatSenders["video"].getParameters())
+                            console.log("videochatsenders track settings",this._videoChatSenders["video"].track.getSettings())
+                        }
+                    }
                 }
                 if (message.candidate) {
                     await this.pc.setRemoteDescription(message.sdp)
@@ -242,7 +259,7 @@ export default class WebRtcConnection {
     }
 
     attachVideoChatStream(stream: MediaStream = this._mediaSourcesHandler.currentStream) {
-        console.log("attach video chat stream",stream.getTracks())
+        console.log("attach video chat stream", stream.getTracks())
         const videochattracks = stream.getTracks()
         console.log(this._mediaSourcesHandler)
 
@@ -261,10 +278,11 @@ export default class WebRtcConnection {
         })
 
         videochattracks.forEach((track) => {
-            if (!this._videoChatSenders[track.kind])
+            if (!this._videoChatSenders[track.kind]) {
                 this._videoChatSenders[track.kind] = this.pc.addTrack(track, stream)
+            }
         })
-        console.log(this._videoChatSenders)
+        console.log(this._videoChatSenders["video"])
     }
 
     attachDataChannel(dataChannelName: string = "p2p", id: number = 0) {
@@ -288,14 +306,14 @@ export default class WebRtcConnection {
             this.attachDataChannel("chat", 2);
             if (this._videoChatSendStream) {
                 this.attachVideoChatStream()
-                let videochatstream = ()=>{
-                    if(this.pc.signalingState!="stable") setTimeout(()=>videochatstream(),100)
-                    else this.createOffer().then((offer) => { 
+                let videochatstream = () => {
+                    if (this.pc.signalingState != "stable") setTimeout(() => videochatstream(), 100)
+                    else this.createOffer().then((offer) => {
                         this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
                     });
                 }
                 videochatstream()
-                
+
             }
 
         };
@@ -327,7 +345,7 @@ export default class WebRtcConnection {
     }
 
 
-    public get remoteStreams() {
+    public get remoteStreams():Record<string, MediaStream> {
         return this._receiveStreams
     }
     public get connected() {

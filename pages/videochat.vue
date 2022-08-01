@@ -46,7 +46,7 @@
                 class="absolute flex justify-center items-center flex-1 h-screen w-screen text-white text-center">
                 <div class="w-80">
                     Some browsers require you to interact with the webpage before reproduce video.
-                    <br/><br/>
+                    <br /><br />
                     Please click or tap anywhere on this screen to reproduce remote video.
                 </div>
             </div>
@@ -331,7 +331,7 @@ async function generateLink() {
         router.push({
             path: '/videochat',
             query: {
-                room: roomid
+                room: roomid as string
             }
         });
         generatingLink.value = false
@@ -354,7 +354,10 @@ function ontrack(connection: WebRtcConnection, track: MediaStreamTrack, stream: 
                 isUserInteractionRequiredForVideoRemoteReproduction.value = true;
             })
         }
+
     }
+    if (track.kind == "video")
+        setTimeout(() => adjustRemoteVideoAspectRatio(), 100);
 };
 
 function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
@@ -464,6 +467,25 @@ async function initializeScreenStream() {
     mediaDevicesAllowed.value = true;
 }
 
+function adjustRemoteVideoAspectRatio() {
+    if (webRtcConnection) {
+        const aspectRatio = windowSize.width / windowSize.height;
+        for (const key in webRtcConnection.remoteStreams) {
+            webRtcConnection.remoteStreams[key].getVideoTracks().forEach(track => {
+                if (aspectRatio < 0.7)
+                    track.applyConstraints({
+                        aspectRatio: { ideal: 0.9 }
+                    })
+                else
+                    track.applyConstraints({
+                        aspectRatio: { ideal: null }
+                    })
+            }
+            )
+        }
+    }
+}
+
 async function initalizeWebRTCfromCurrentRoomParam() {
     if (link.value) {
         webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnChat, writeOnOffer);
@@ -565,6 +587,8 @@ watch(windowSize, () => {
     if ((videoLocalContainerDraggableStyle.value.x + videoLocalContainer.value.offsetWidth) >= windowSize.width) {
         videoLocalContainerDrag(windowSize.width - videoLocalContainer.value.offsetWidth)
     }
+    adjustRemoteVideoAspectRatio()
+
 }, { deep: true })
 
 onMounted(() => {
