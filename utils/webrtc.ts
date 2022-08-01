@@ -90,6 +90,7 @@ export default class WebRtcConnection {
             }
         };
         this.pc.ontrack = event => {
+            console.log("got track",event)
             event.streams.forEach((stream) => {
                 if (!(stream.id in this._receiveStreams))
                     this._receiveStreams[stream.id] = stream
@@ -111,6 +112,7 @@ export default class WebRtcConnection {
 
         this.pc.onnegotiationneeded = event => {
             console.log("negotiation needed")
+            // if (this.pc.signalingState != "stable") return; 
             this.createOffer().then(offer => {
                 this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
             });
@@ -240,8 +242,8 @@ export default class WebRtcConnection {
     }
 
     attachVideoChatStream(stream: MediaStream = this._mediaSourcesHandler.currentStream) {
+        console.log("attach video chat stream",stream.getTracks())
         const videochattracks = stream.getTracks()
-        console.log("attach-video-chat-stream", videochattracks)
         console.log(this._mediaSourcesHandler)
 
         Object.entries(this._videoChatSenders).forEach(([key, sender]) => {
@@ -268,7 +270,7 @@ export default class WebRtcConnection {
     attachDataChannel(dataChannelName: string = "p2p", id: number = 0) {
         if (!(dataChannelName in this._dataChannels)) {
             console.log("attach datachannel:" + dataChannelName)
-            const channel = this.pc.createDataChannel(dataChannelName, { negotiated: dataChannelName!="p2p", id: id });
+            const channel = this.pc.createDataChannel(dataChannelName, { negotiated: dataChannelName != "p2p", id: id });
             this._dataChannels[channel.label] = channel
             if (dataChannelName !== "p2p") {
                 this._onDataChannel && this._onDataChannel(this, this._dataChannels[channel.label])
@@ -283,13 +285,19 @@ export default class WebRtcConnection {
             console.log("p2p is open!");
             this._websocket && this._websocket.close(1000, "close")
             this._connected = true;
-            if(this._videoChatSendStream){
-                this.attachVideoChatStream()
-                this.createOffer().then(offer=>{
-                    this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
-                })
-            }
             this.attachDataChannel("chat", 2);
+            if (this._videoChatSendStream) {
+                this.attachVideoChatStream()
+                let videochatstream = ()=>{
+                    if(this.pc.signalingState!="stable") setTimeout(()=>videochatstream(),100)
+                    else this.createOffer().then((offer) => { 
+                        this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+                    });
+                }
+                videochatstream()
+                
+            }
+
         };
 
         channel.onclose = () => {

@@ -42,13 +42,21 @@
             </div>
         </div>
         <div class="flex-1 h-screen flex relative bg-black ">
+            <div v-if="isUserInteractionRequiredForVideoRemoteReproduction"
+                class="absolute flex justify-center items-center flex-1 h-screen w-screen text-white text-center">
+                <div class="w-80">
+                    Some browsers require you to interact with the webpage before reproduce video.
+                    <br/><br/>
+                    Please click or tap anywhere on this screen to reproduce remote video.
+                </div>
+            </div>
             <video autoplay ref="videoRemote" class=" flex-1 max-h-screen w-full"
                 :class="{ '!object-cover': videoRemoteFullSize }"></video>
 
-            <div ref="videoLocalContainer" class="absolute flex m-auto h-screen w-full items-center z-30"
-                :class="{ 'w-[unset]': call, 'h-1/4': call, 
-                'transition-all duration-600': draggable && !draggable.isDragging }"
-                style="touch-action:none;"
+            <div ref="videoLocalContainer" class="absolute flex m-auto h-screen w-full items-center z-30" :class="{
+                'w-[unset]': call, 'h-1/4': call,
+                'transition-all duration-600': draggable && !draggable.isDragging
+            }" style="touch-action:none;"
                 :style="call ? videoLocalContainerDraggableStyle && videoLocalContainerDraggableStyle.style : ''">
                 <video autoplay ref="videoLocal"
                     class=" flex-1  w-full max-h-screen max-h-full max-w-full <lg:object-cover"
@@ -139,6 +147,8 @@ useSeo({
 const videoLocal = ref<HTMLVideoElement>(null)
 const videoLocalContainer = ref<HTMLElement>(null)
 const videoRemote = ref<HTMLVideoElement>(null)
+const isUserInteractionRequiredForVideoRemoteReproduction = ref<boolean>(false)
+
 let videoRemoteStream: MediaStream;
 
 const frontCamera = ref<boolean>(true)
@@ -339,7 +349,11 @@ function ontrack(connection: WebRtcConnection, track: MediaStreamTrack, stream: 
     if (videoRemote.value) {
         videoRemoteStream = stream[0];
         videoRemote.value.srcObject = videoRemoteStream;
-        // videoRemote.value.play();
+        videoRemote.value.oncanplay = (event) => {
+            videoRemote.value.play().catch(() => {
+                isUserInteractionRequiredForVideoRemoteReproduction.value = true;
+            })
+        }
     }
 };
 
@@ -349,7 +363,7 @@ function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
         dialogServerLessOpen.value = false;
         channel.send("hello");
         call.value = true;
-        setTimeout(() =>  !draggable.value &&enableVideoLocalDraggable(), 0)
+        setTimeout(() => !draggable.value && enableVideoLocalDraggable(), 0)
     };
 
     channel.onclose = () => {
@@ -501,6 +515,14 @@ watch(mouse, () => {
     }
 })
 
+watch(mouse[1], () => {
+    if (isUserInteractionRequiredForVideoRemoteReproduction.value === true) {
+        videoRemote.value.play().then(() => {
+            isUserInteractionRequiredForVideoRemoteReproduction.value = false
+        })
+    }
+})
+
 function videoLocalContainerDrag(x: number = videoLocalContainerDraggableStyle.value.x, y: number = videoLocalContainerDraggableStyle.value.y) {
     const xmaxbound = (windowSize.width - videoLocalContainer.value.offsetWidth)
     const ymaxbound = (windowSize.height - videoLocalContainer.value.offsetHeight)
@@ -540,10 +562,7 @@ watch(draggable, () => {
 }, { deep: true })
 
 watch(windowSize, () => {
-
-
     if ((videoLocalContainerDraggableStyle.value.x + videoLocalContainer.value.offsetWidth) >= windowSize.width) {
-
         videoLocalContainerDrag(windowSize.width - videoLocalContainer.value.offsetWidth)
     }
 }, { deep: true })
