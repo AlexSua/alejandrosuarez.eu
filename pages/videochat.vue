@@ -472,7 +472,8 @@ function adjustRemoteVideoAspectRatio() {
         const aspectRatio = windowSize.width / windowSize.height;
         for (const key in webRtcConnection.remoteStreams) {
             webRtcConnection.remoteStreams[key].getVideoTracks().forEach(track => {
-                if (aspectRatio < 0.7)
+                const tracksettings = track.getSettings();
+                if (aspectRatio < 0.7 && tracksettings.width/tracksettings.height > 0.9)
                     track.applyConstraints({
                         aspectRatio: { ideal: 0.9 }
                     })
