@@ -30,8 +30,6 @@ export default class WebRtcConnection {
     private _writeOnChat?: (message: ChatMessage) => void
     private _writeOnOffer?: (message: string) => void
 
-    private _alfa: boolean = false
-    private _temporary_alfa: boolean = false
     private _connected: boolean = false
     private _state: string = ""
 
@@ -111,10 +109,11 @@ export default class WebRtcConnection {
             console.log(this.pc.iceConnectionState)
         }
 
-        this.pc.onnegotiationneeded = async event => {
-            if (this.pc.signalingState != "stable") return;
-            const offer = await this.createOffer();
-            this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+        this.pc.onnegotiationneeded = event => {
+            console.log("negotiation needed")
+            this.createOffer().then(offer => {
+                this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+            });
         }
 
         this.pc.onsignalingstatechange = event => {
@@ -132,11 +131,7 @@ export default class WebRtcConnection {
 
     async createInitialOffer() {
         this._localCandidates = []
-        if (!("p2p" in this._dataChannels)) {
-            this._alfa = true;
-            this.attachDataChannel();
-        }
-        
+        this.attachDataChannel();
         let offer = await this.createOffer();
         return offer
     }
@@ -215,10 +210,10 @@ export default class WebRtcConnection {
             const sdpMessage = message.sdp
             try {
                 if (sdpMessage.type == "offer") {
-                        console.log("create answer")
-                        await this.pc.setRemoteDescription(message.sdp)
-                        answerDesc = await this.pc.createAnswer();
-                        await this.pc.setLocalDescription(answerDesc);
+                    console.log("create answer")
+                    await this.pc.setRemoteDescription(message.sdp)
+                    answerDesc = await this.pc.createAnswer();
+                    await this.pc.setLocalDescription(answerDesc);
                 } else {
                     if (this.pc.signalingState == "have-local-offer") {
                         await this.pc.setRemoteDescription(message.sdp)
@@ -236,7 +231,7 @@ export default class WebRtcConnection {
             }
 
             catch (e: any) {
-                console.log("----------------------",e)
+                console.log("----------------------", e)
                 return null
             }
 
@@ -246,7 +241,7 @@ export default class WebRtcConnection {
 
     attachVideoChatStream(stream: MediaStream = this._mediaSourcesHandler.currentStream) {
         const videochattracks = stream.getTracks()
-        console.log("attach-video-chat-stream",videochattracks)
+        console.log("attach-video-chat-stream", videochattracks)
         console.log(this._mediaSourcesHandler)
 
         Object.entries(this._videoChatSenders).forEach(([key, sender]) => {
@@ -267,16 +262,19 @@ export default class WebRtcConnection {
             if (!this._videoChatSenders[track.kind])
                 this._videoChatSenders[track.kind] = this.pc.addTrack(track, stream)
         })
+        console.log(this._videoChatSenders)
     }
 
     attachDataChannel(dataChannelName: string = "p2p", id: number = 0) {
-        console.log("attach datachannel:" + dataChannelName)
-        const channel = this.pc.createDataChannel(dataChannelName, { negotiated: false, id: id });
-        this._dataChannels[channel.label] = channel
-        if (dataChannelName !== "p2p") {
-            this._onDataChannel && this._onDataChannel(this, this._dataChannels[channel.label])
-        } else {
-            this.p2pDataChannelInitialization(this._dataChannels[channel.label])
+        if (!(dataChannelName in this._dataChannels)) {
+            console.log("attach datachannel:" + dataChannelName)
+            const channel = this.pc.createDataChannel(dataChannelName, { negotiated: dataChannelName!="p2p", id: id });
+            this._dataChannels[channel.label] = channel
+            if (dataChannelName !== "p2p") {
+                this._onDataChannel && this._onDataChannel(this, this._dataChannels[channel.label])
+            } else {
+                this.p2pDataChannelInitialization(this._dataChannels[channel.label])
+            }
         }
     }
 
@@ -285,9 +283,13 @@ export default class WebRtcConnection {
             console.log("p2p is open!");
             this._websocket && this._websocket.close(1000, "close")
             this._connected = true;
-            this._videoChatSendStream && this.attachVideoChatStream()
-            if (this._alfa)
-                this.attachDataChannel("chat", 2);
+            if(this._videoChatSendStream){
+                this.attachVideoChatStream()
+                this.createOffer().then(offer=>{
+                    this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+                })
+            }
+            this.attachDataChannel("chat", 2);
         };
 
         channel.onclose = () => {
