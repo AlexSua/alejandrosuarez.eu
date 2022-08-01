@@ -1,16 +1,16 @@
 ---
 title: 'Useful Linux commands and Utilities'
 description: 'A compilation of useful Linux commands and utilities. This compilation will grow and be upgraded with time.'
-date: '2022-07-21'
+date: '2022-08-01'
 language: 'en'
 tags: ['Linux']
 image: "/assets/img/blog/linux-commands-and-utilities.jpg"
-published: false
+published: true
 ---
 
 
 # Useful Linux commands and Utilities
-The following article shows a list of Linux Bash commands and utilities good to know if you are working on a Linux environment.
+The following article shows a list of Linux Bash commands and utilities good to know if you are working on a Linux environment. This article will be updated regularly with more content.
 
 
 ## Bash commands
@@ -220,15 +220,42 @@ nohup firefox &>/dev/null &
 
 
 ### Tee | Redirect the output of a command to multiple outputs
+Tee is a command that allows you to redirect stdin to multiple commands, output files or/and standard output, which allows you to duplicate and/or process this information simultaneously using different tools or commands.
 ```bash
-
+echo "a a"| tee $(tty) >(wc -w) file_last_output -a file_all_outputs | sed "s/a/b/g" 
 ```
+Translated to human language the command above takes the result of echo and pipes its result into the tee command which duplicates the input received to write into `$(tty)` (which is the file connected to the current terminal) to print into the current terminal, to pass stdin to `wc -w` in order to count the number of words that are received from the echo command, to write stdin into `file_last_output`, to append it into `file_all_outputs`, to be finally piped into `sed` to replace each "a" into "b", result that will be printed into the terminal. 
+
+• ```$(tty)```{lang="bash"} : Command substitution. Takes the output of the command `tty` to be used as argument in `tee`.
+
+• ```>(wc -w)```{lang="bash"} : Duplicates the input received by tee and feeds the `wc` command to count the number of words.
+
+• ```file_last_output```{lang="bash"} : Duplicates the input received by tee and outputs into the file file_las_output.
+
+• ```-a file_last_output```{lang="bash"} : Duplicates the input received by tee and appends into the file file_all_outputs.
+
+• ```| sed "s/a/b/g"```{lang="bash"} : Pipes stdout of tee which has the same content as its input into sed to turn every "a" into "b".
+
+> Notice that this example is a little bit awkward and it will be replaced by a better use case when it is found. The purpose of the command above is to show the use of tee with command substitution, with a command as receiver, a normal file as output, appending into an ouput file and piping at the end.
 
 ### Python | Using Python directly from the terminal
+You can make use of bash pipes together with python by using the stdin library. The `-c` allows you to pass code to python as argument without the need of using files. This is interesting if you want to simplify inline commands that would be complex in case they are written entirely with bash.  
+
+The following command pipes the result of ls into python3 -c, and then the python program loops over the lines received as stdin, result of the ls piping, printing them using the standard output.
+
+> Python syntax is highly dependant of breaklines, so in order to use them inside inline bash commands you need to make use of echo as shown in the command below:
 ```bash
+ls | python3 -c "$(echo "from sys import stdin\nfor line in stdin: print(line)")"
+```
+or making use of a non-POSIX compliant method such as [ANSI-C quoted string](https://www.gnu.org/software/bash/manual/bash.html#ANSI_002dC-Quoting) shown below:
+
+```bash
+ls | python3 -c $'from sys import stdin\nfor line in stdin: print(line)'
 
 ```
+<!-- 
 
+More commands will be added in this article... Under construction.
 ### Email | Send an email through the terminal
 ```bash
 
@@ -292,4 +319,4 @@ nohup firefox &>/dev/null &
 ### Scan devices in a network
 ```bash
 
-```
+``` -->
