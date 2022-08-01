@@ -19,7 +19,7 @@ export default class MediaSourcesHandler {
         video: {
             width: { min: 640, max: 1920 },
             height: { min: 400, max: 1920},
-            aspectRatio: {min:1,ideal:16/9},
+            aspectRatio: {min:0.2,ideal:16/9},
             frameRate: {min:10, ideal:60, max: 240 },
         },
     };
