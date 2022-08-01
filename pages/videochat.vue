@@ -357,7 +357,7 @@ function ontrack(connection: WebRtcConnection, track: MediaStreamTrack, stream: 
 
     }
     if (track.kind == "video")
-        setTimeout(() => adjustRemoteVideoAspectRatio(), 100);
+        setTimeout(() => adjustRemoteVideoAspectRatio(), 3000);
 };
 
 function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
