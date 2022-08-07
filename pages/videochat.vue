@@ -100,8 +100,8 @@
             <div class="flex flex-1 items-center justify-start ml-5">
                 <Button v-if="!call" :icon="`pi pi-user-plus ${link ? 'pi-spin pi-spinner' : ''} `"
                     @click="generateLink" class=" p-button-rounded p-button-warning lower-toolbar-button" />
-                <Button v-if="!call" :icon="`pi pi-user-plus ${link ? 'pi-spin pi-spinner' : ''} `"
-                    @click="generateLink" class=" p-button-rounded p-button-warning lower-toolbar-button" />
+                <!-- <Button v-if="!call" :icon="`pi pi-user-plus ${link ? 'pi-spin pi-spinner' : ''} `"
+                    @click="generateLink" class=" p-button-rounded p-button-warning lower-toolbar-button" /> -->
             </div>
             <div class="flex flex-1 items-center justify-center">
                 <Button icon="pi pi-desktop" class=" p-button-rounded lower-toolbar-button"
