@@ -100,6 +100,8 @@
             <div class="flex flex-1 items-center justify-start ml-5">
                 <Button v-if="!call" :icon="`pi pi-user-plus ${link ? 'pi-spin pi-spinner' : ''} `"
                     @click="generateLink" class=" p-button-rounded p-button-warning lower-toolbar-button" />
+                <Button v-if="!call" :icon="`pi pi-user-plus ${link ? 'pi-spin pi-spinner' : ''} `"
+                    @click="generateLink" class=" p-button-rounded p-button-warning lower-toolbar-button" />
             </div>
             <div class="flex flex-1 items-center justify-center">
                 <Button icon="pi pi-desktop" class=" p-button-rounded lower-toolbar-button"
@@ -123,8 +125,11 @@
 </template>
 
 <script setup lang="ts">
+import { MediaPipeHandsMediaPipeModelConfig } from "@tensorflow-models/hand-pose-detection/dist/mediapipe/types.js";
+import { MediaPipeHandsTfjsModelConfig } from "@tensorflow-models/hand-pose-detection/dist/tfjs/types.js";
 import { useToast } from "primevue/usetoast";
 import MediaSourcesHandler from "~~/utils/media-sources-handler";
+import VideoBoard from "~~/utils/videoboard.js";
 import WebRtcConnection from "~~/utils/webrtc";
 
 let mediaSourcesHandler: MediaSourcesHandler;
@@ -442,6 +447,117 @@ async function initializeLocalStream() {
         devices.video = mediaSourcesHandler.videoDevices;
         audioSelected.value = mediaSourcesHandler.currentDevices.audio;
         videoSelected.value = mediaSourcesHandler.currentDevices.video;
+
+        // if (videoEnabled.value) {
+
+        //     // 
+        //     setTimeout(() => {
+        //         const videoBoard = new VideoBoard(videoLocal.value)
+        //         videoBoard.start()
+        //     }, 3000);
+            // const handPoseDetection = await import("@tensorflow-models/hand-pose-detection")
+            // const model = handPoseDetection.SupportedModels.MediaPipeHands;
+            // const detectorConfig: MediaPipeHandsMediaPipeModelConfig | MediaPipeHandsTfjsModelConfig = {
+            //     runtime: 'mediapipe', // or 'tfjs',
+            //     solutionPath: 'https://cdn.jsdelivr.net/npm/@mediapipe/hands',
+            //     modelType: 'full',
+            //     maxHands: 1,
+            // }
+            // const detector = await handPoseDetection.createDetector(model, detectorConfig);
+
+
+            // let trainingdataset = [[], []]
+            // let tranining = async () => {
+            //     const tf = await import("@tensorflow/tfjs/dist/tf")
+            //     const model = tf.sequential();
+            //     model.add(
+            //         tf.layers.dense({
+            //             units: 200,
+            //             inputShape: [21, 3],
+            //             activation:"relu",
+            //             bias: true
+            //         })
+            //     );
+            //     model.add(
+            //         tf.layers.flatten()
+            //     );
+            //     model.add(
+            //         tf.layers.dense({
+            //             units: 1,
+            //             activation:"relu",
+            //             bias: true
+            //         })
+            //     );
+            //     model.compile({
+            //         loss: 'meanSquaredError',
+            //         optimizer: 'sgd',
+            //         metrics: ['mse']
+            //     });
+
+            //     let min = trainingdataset[0].length
+            //     if (trainingdataset[1].length < min) {
+            //         min = trainingdataset[1].length
+            //     }
+            //     trainingdataset[0] = trainingdataset[0].slice(0, min)
+            //     trainingdataset[1] = trainingdataset[1].slice(0, min)
+
+            //     console.log(trainingdataset[0])
+            //     console.log(trainingdataset[1])
+
+            //     const xs = tf.tensor3d([...trainingdataset[0], ...trainingdataset[1]], [min * 2, 21, 3]);
+            //     const ys = tf.tensor1d([...trainingdataset[0].map((el) => false), ...trainingdataset[1].map(el => true)]);
+
+            //     await model.fit(xs, ys, { epochs: 1000, });
+            //     // console.log(model.predict(tf.tensor1d([100])).dataSync());
+            //     estimationFunction(0, model, tf)
+
+            // }
+
+            // let estimationFunction = (together = 0, model = null, tf = null) => detector.estimateHands(videoLocal.value).then(value => {
+            //     console.log("hand", value)
+            //     // estimationFunction()
+
+            //     if (value.length > 0) {
+            //         if (value[0].keypoints3D[3] && value[0].keypoints3D[8]) {
+            //             let x = value[0].keypoints3D[4].x - value[0].keypoints3D[8].x
+            //             let y = value[0].keypoints3D[4].y - value[0].keypoints3D[8].y
+            //             let z = value[0].keypoints3D[4].z - value[0].keypoints3D[8].z
+            //             let distance = Math.sqrt(x * x + y * y)
+            //             // let distancexz = Math.sqrt(x * x + z * z)
+            //             // let distanceyz = Math.sqrt(y * y + z * z)
+            //             // console.log( distance)
+            //             // console.log((value[0].keypoints3D[4].x + value[0].keypoints3D[8].x) / 2, (value[0].keypoints3D[4].y + value[0].keypoints3D[8].y) / 2, (value[0].keypoints3D[4].z + value[0].keypoints3D[8].z) / 2)
+            //             trainingdataset[together].push(value[0].keypoints3D.map((el) => [el.x, el.y, el.z]))
+            //             if (model) {
+            //                 console.log("model", model.predict(tf.tensor3d([value[0].keypoints3D.map((el) => [el.x, el.y, el.z])], [1, 21, 3])).dataSync());
+            //             } else {
+            //                 console.log("thing:", together, distance)
+
+            //             }
+            //             // if (distance < 0.01) {
+            //             //     console.log(distance, (value[0].keypoints[4].x + value[0].keypoints[8].x) / 2, (value[0].keypoints[4].y + value[0].keypoints[8].y) / 2, (value[0].keypoints[4].z + value[0].keypoints[8].z) / 2)
+            //             //     // toast.add({ severity: 'error', summary: 'Error', detail: 'Distance between thumb and index finger is too big. Please, put your hand in the right position.', group: 'br', life: 3000 });
+            //             // }
+            //         }
+            //         estimationFunction(together, model, tf)
+            //     } else {
+            //         if (together) {
+            //             console.log("training result")
+            //             tranining()
+            //         }
+            //         else {
+
+
+            //             console.log("waiting 3 seconds and passing to yes")
+            //             setTimeout(() => estimationFunction(1), 3000)
+            //         }
+            //     }
+
+            // });
+            // console.log("waiting 3 seconds and passing to no")
+            // setTimeout(() => estimationFunction(0), 3000)
+        // }
+
     }
 }
 
@@ -473,7 +589,7 @@ function adjustRemoteVideoAspectRatio() {
         for (const key in webRtcConnection.remoteStreams) {
             webRtcConnection.remoteStreams[key].getVideoTracks().forEach(track => {
                 const tracksettings = track.getSettings();
-                if (aspectRatio < 0.7 && tracksettings.width/tracksettings.height > 0.9)
+                if (aspectRatio < 0.7 && tracksettings.width / tracksettings.height > 0.9)
                     track.applyConstraints({
                         aspectRatio: { ideal: 0.9 }
                     })

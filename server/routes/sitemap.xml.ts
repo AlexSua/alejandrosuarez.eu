@@ -7,18 +7,24 @@ export default defineEventHandler(async (event) => {
     hostname: 'https://alejandrosuarez.eu'
   })
   // Add URLs to the sitemap
-  for (const webpage of ["/", "/blog", "/videochat", "/es", "/es/blog"]) {
+
+  const sitemapCommon = {
+    changefreq: 'daily',
+    lastmod: new Date().toISOString(),
+    priority: 0.8
+  }
+  for (const webpage of ["/", "/blog/", "/videochat/", "/es/", "/es/blog/"]) {
     sitemap.write({
       url: webpage,
-      changefreq: 'monthly'
+      ...sitemapCommon
     })
   }
 
   for (const doc of docs) {
     if (doc.published)
       sitemap.write({
-        url: doc._path,
-        changefreq: 'monthly'
+        url: doc._path+"/",
+        ...sitemapCommon
       })
   }
 
