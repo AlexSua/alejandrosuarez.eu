@@ -19,7 +19,7 @@ export default class MediaSourcesHandler {
         video: {
             width: { min: 640, max: 1920 },
             height: { min: 400, max: 1920},
-            aspectRatio: {min:0.2,ideal:16/9},
+            aspectRatio: {min:0, ideal:16/9},
             frameRate: {min:10, ideal:60, max: 240 },
         },
     };
@@ -117,7 +117,13 @@ export default class MediaSourcesHandler {
                     }
                 }
                 console.log("constraints", constraints)
-                this._currentStream = await navigator.mediaDevices.getUserMedia(constraints)
+                try{
+                    this._currentStream = await navigator.mediaDevices.getUserMedia(constraints)
+                }catch(e:any){
+                    this.defaultConstraints.video = true
+                    constraints.video = { deviceId: constraints.video["deviceId"] }
+                    this._currentStream = await navigator.mediaDevices.getUserMedia(constraints)
+                }
                 // await this._currentStream.getVideoTracks()[0].applyConstraints(constraints.video)
                 console.log("current stream", this._currentStream.getVideoTracks()[0].getSettings())
 

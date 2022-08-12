@@ -3,7 +3,7 @@ on:
   push:
     branches: [nuxt]
 env:
-  BUILD_FOLDER: .output/public # or .output/public/yourrepositoryname/
+  BUILD_FOLDER: .output/public
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -37,4 +37,6 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
+          token: ${{secrets.DEPLOY_TOKEN}}
+          repository-name: AlexSua/PaginaPersonal
           folder: ${{env.BUILD_FOLDER}}

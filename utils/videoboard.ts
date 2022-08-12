@@ -26,7 +26,7 @@ export default class VideoBoard {
     constructor(videoSource, canvas) {
         this.videoSource = videoSource;
         this.canvas = canvas;
-        this.trainingState = -1;
+        this.trainingState = 0;
 
         this._trainingdataset = [[], []]
         this._handDetector = null
@@ -93,19 +93,18 @@ export default class VideoBoard {
                     console.log("distance", distance)
                     // console.log(midpoint.x, midpoint.y)
 
-                    value[0].keypoints3D[21] = { x: distance, y: distance, z: distance }
+                    // value[0].keypoints3D[21] = { x: distance, y: distance, z: distance }
                     const input = []
 
                     // for (let i of [4, 8, 21,7,6,5,3,2,1,0]) {
-                    for (let i of [4, 8, 21]) {
-                    // for (let i in value[0].keypoints3D) {
+                    // for (let i of [4, 8, 21]) {
+                    for (let i in value[0].keypoints3D) {
                         // for (let i of [4,8]) {
                         input.push(value[0].keypoints3D[i])
                     }
 
-                    https://image.nuxtjs.org/getting-started/installation
                     if (this._drawingModel) {
-                        let prediction = this.predictDrawing(this._tf.tensor3d([input.map((el) => [el.x, el.y, el.z])], [1, 3, 3]))
+                        let prediction = this.predictDrawing(this._tf.tensor3d([input.map((el) => [el.x, el.y, el.z])], [1, 21, 3]))
                         // console.log("model", prediction);
 
 
@@ -155,17 +154,17 @@ export default class VideoBoard {
         a.click();
     }
 
-    async trainDrawingModel(newModel: boolean = false) {
+    async trainDrawingModel(newModel: boolean = true) {
         const learningRate = .01;
-        const numberOfEpochs = 200;
+        const numberOfEpochs = 50;
         const optimizer = this._tf.train.adam(learningRate);
 
         if (newModel) {
             this._drawingModel = this._tf.sequential();
             this._drawingModel.add(
                 this._tf.layers.dense({
-                    units: 10,
-                    inputShape: [22, 3],
+                    units: 20,
+                    inputShape: [21, 3],
                     activation: "relu",
                 })
             );
@@ -183,14 +182,22 @@ export default class VideoBoard {
 
 
         } else {
-            const path = "/models/v9/"
+            const path = "/models/v14/"
             this._drawingModel = await this._tf.loadLayersModel(path+"drawing-model.json")
-            // let uploadDataset =  await fetch(path+"training-dataset.json")
-            // uploadDataset = JSON.parse(await uploadDataset.text())
-            // console.log(uploadDataset)
-            // this._trainingdataset[0] = [...uploadDataset[0],...this._trainingdataset[0]]
-            // this._trainingdataset[1] = [...uploadDataset[1],...this._trainingdataset[1]]
+            let uploadDataset =  await fetch(path+"training-dataset.json")
+            uploadDataset = JSON.parse(await uploadDataset.text())
+            console.log(uploadDataset)
+            this._trainingdataset[0] = [...uploadDataset[0],...this._trainingdataset[0]]
+            this._trainingdataset[1] = [...uploadDataset[1],...this._trainingdataset[1]]
         }
+        // const path = "/models/v15/"
+        // let uploadDataset =  await fetch(path+"training-dataset.json")
+        // uploadDataset = JSON.parse(await uploadDataset.text())
+        // console.log(uploadDataset)
+        // this._trainingdataset[0] = [...uploadDataset[0],...this._trainingdataset[0]]
+        // this._trainingdataset[1] = [...uploadDataset[1],...this._trainingdataset[1]]
+
+
 
 
         this._drawingModel.compile({
@@ -251,9 +258,9 @@ export default class VideoBoard {
 
     async start() {
         this._past_prediction_time = Date.now()
-        this.predictTrainHandPositions()
+        // this.predictTrainHandPositions()
         // const worker = new Worker(new URL('../workers/hands-detection/hands-prediction.worker.ts', import.meta.url))
-        this.configureCanvas()
+        // this.configureCanvas()
 
         // const img = this.getImgFromSourceVideo()
         // worker.postMessage(img)
