@@ -20,13 +20,14 @@ export default class VideoBoard {
     private _canvas_ctx: CanvasRenderingContext2D
     private _drawing_position = {
         x: 0,
-        y: 0
+        y: 0,
+        timestamp:0
     }
 
     constructor(videoSource, canvas) {
         this.videoSource = videoSource;
         this.canvas = canvas;
-        this.trainingState = 0;
+        this.trainingState = -1;
 
         this._trainingdataset = [[], []]
         this._handDetector = null
@@ -36,8 +37,6 @@ export default class VideoBoard {
 
         this._prediction_frame_rate = 200
         this._past_prediction_time = 0
-
-
 
     }
 
@@ -78,38 +77,43 @@ export default class VideoBoard {
             }
 
             const value = await this._handDetector.estimateHands(this.videoSource)
-            console.log("hand", value)
-            if (value.length > 0) {
+            // console.log("hand", value)
+            if (value.length > 0 && value[0].score>0.94) {
                 this._emptyHand = 0;
                 if (value[0].keypoints3D[3] && value[0].keypoints3D[8]) {
                     let x = value[0].keypoints3D[4].x - value[0].keypoints3D[8].x
                     let y = value[0].keypoints3D[4].y - value[0].keypoints3D[8].y
                     let z = value[0].keypoints3D[4].z - value[0].keypoints3D[8].z
                     let distance = Math.sqrt(x * x + y * y)
+                    let distance3d = Math.sqrt(x*x+y*y+z*z)
                     let midpoint = {
                         x: (value[0].keypoints[4].x + value[0].keypoints[8].x) / 2,
                         y: (value[0].keypoints[4].y + value[0].keypoints[8].y) / 2,
                     }
-                    console.log("distance", distance)
+                    // console.log("distance", distance)
                     // console.log(midpoint.x, midpoint.y)
 
-                    // value[0].keypoints3D[21] = { x: distance, y: distance, z: distance }
+                    value[0].keypoints3D[21] = { x: distance, y: distance, z: distance }
+                    value[0].keypoints3D[22] = { x: distance3d, y: distance3d, z: distance3d }
                     const input = []
 
                     // for (let i of [4, 8, 21,7,6,5,3,2,1,0]) {
-                    // for (let i of [4, 8, 21]) {
-                    for (let i in value[0].keypoints3D) {
+                    for (let i of [4, 8, 21]) {
+                    // for (let i in value[0].keypoints3D) {
                         // for (let i of [4,8]) {
                         input.push(value[0].keypoints3D[i])
                     }
 
                     if (this._drawingModel) {
-                        let prediction = this.predictDrawing(this._tf.tensor3d([input.map((el) => [el.x, el.y, el.z])], [1, 21, 3]))
+                        let prediction = null;
+                        if(distance<0.03){
+                            prediction = this.predictDrawing(this._tf.tensor3d([input.map((el) => [el.x, el.y, el.z])], [1, 3, 3]))
+                        }
                         // console.log("model", prediction);
 
 
 
-                        if (prediction[0] > 0.5) {
+                        if (prediction && prediction[0] > 0.5) {
                             // if (distance < 0.02) {
                             this.draw(midpoint.x, midpoint.y)
                         } else {
@@ -154,7 +158,7 @@ export default class VideoBoard {
         a.click();
     }
 
-    async trainDrawingModel(newModel: boolean = true) {
+    async trainDrawingModel(newModel: boolean = false) {
         const learningRate = .01;
         const numberOfEpochs = 50;
         const optimizer = this._tf.train.adam(learningRate);
@@ -163,11 +167,19 @@ export default class VideoBoard {
             this._drawingModel = this._tf.sequential();
             this._drawingModel.add(
                 this._tf.layers.dense({
-                    units: 20,
-                    inputShape: [21, 3],
+                    units: 1,
+                    inputShape: [3, 3],
                     activation: "relu",
                 })
             );
+
+            // this._drawingModel.add(
+            //     this._tf.layers.dense({
+            //         units: 1,
+            //         inputShape: [23, 3],
+            //         activation: "relu",
+            //     })
+            // );
 
             this._drawingModel.add(
                 this._tf.layers.flatten()
@@ -182,15 +194,15 @@ export default class VideoBoard {
 
 
         } else {
-            const path = "/models/v14/"
+            const path = "/models/v19/"
             this._drawingModel = await this._tf.loadLayersModel(path+"drawing-model.json")
-            let uploadDataset =  await fetch(path+"training-dataset.json")
-            uploadDataset = JSON.parse(await uploadDataset.text())
-            console.log(uploadDataset)
-            this._trainingdataset[0] = [...uploadDataset[0],...this._trainingdataset[0]]
-            this._trainingdataset[1] = [...uploadDataset[1],...this._trainingdataset[1]]
+            // let uploadDataset =  await fetch(path+"training-dataset.json")
+            // uploadDataset = JSON.parse(await uploadDataset.text())
+            // console.log(uploadDataset)
+            // this._trainingdataset[0] = [...uploadDataset[0],...this._trainingdataset[0]]
+            // this._trainingdataset[1] = [...uploadDataset[1],...this._trainingdataset[1]]
         }
-        // const path = "/models/v15/"
+        // const path = "/models/v18/"
         // let uploadDataset =  await fetch(path+"training-dataset.json")
         // uploadDataset = JSON.parse(await uploadDataset.text())
         // console.log(uploadDataset)
@@ -258,9 +270,9 @@ export default class VideoBoard {
 
     async start() {
         this._past_prediction_time = Date.now()
-        // this.predictTrainHandPositions()
+        this.predictTrainHandPositions()
         // const worker = new Worker(new URL('../workers/hands-detection/hands-prediction.worker.ts', import.meta.url))
-        // this.configureCanvas()
+        this.configureCanvas()
 
         // const img = this.getImgFromSourceVideo()
         // worker.postMessage(img)
@@ -281,26 +293,29 @@ export default class VideoBoard {
     setDrawingPosition(x, y) {
         this._drawing_position.x = x;
         this._drawing_position.y = y;
+        this._drawing_position.timestamp = Date.now()
     }
 
     counter = 0;
 
     draw(x, y) {
-        this._canvas_ctx.beginPath();
+        if(Date.now() - this._drawing_position.timestamp>1000){
+            this.setDrawingPosition(x,y)
+        }else{
+            this._canvas_ctx.beginPath();
 
-        this._canvas_ctx.strokeStyle = '#c0392b';
-        this._canvas_ctx.lineWidth = 5;
-        this._canvas_ctx.lineCap = "round";
-
-        this._canvas_ctx.moveTo(this._drawing_position.x, this._drawing_position.y);
-        this.setDrawingPosition(x, y)
-        this._canvas_ctx.lineTo(this._drawing_position.x, this._drawing_position.y);
-
-        this._canvas_ctx.stroke();
-        console.log("draw", x, y)
-        this.counter += 1;
-
-
+            this._canvas_ctx.strokeStyle = '#c0392b';
+            this._canvas_ctx.lineWidth = 5;
+            this._canvas_ctx.lineCap = "round";
+    
+            this._canvas_ctx.moveTo(this._drawing_position.x, this._drawing_position.y);
+            this.setDrawingPosition(x, y)
+            this._canvas_ctx.lineTo(this._drawing_position.x, this._drawing_position.y);
+    
+            this._canvas_ctx.stroke();
+            // console.log("draw", x, y)
+            this.counter += 1;
+        }
     }
 
 }
