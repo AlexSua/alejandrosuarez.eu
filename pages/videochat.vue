@@ -28,7 +28,10 @@
             <SpeedDial :radius="140" :model="items" showIcon="pi pi-bars text-vanilla-yellow"
                 :tooltipOptions="{ event: null, position: 'right' }" hideIcon="pi pi-times text-vanilla-yellow"
                 direction="down-right" type="quarter-circle" buttonClass="p-button-text"
-                class="up left transform !-translate-x-5 !-translate-y-5 disable-rounded !z-50" />
+                class="video-options-dial up left transform !-translate-x-5 !-translate-y-5 disable-rounded !z-50"
+                :class="{
+                    'pencil-active': pencilEnabled
+                }" />
 
             <!-- <div class="flex-1">sdf</div> -->
             <div class="flex-1">
@@ -52,6 +55,8 @@
             </div>
             <video autoplay ref="videoRemote" class=" flex-1 max-h-screen w-full"
                 :class="{ '!object-cover': videoRemoteFullSize }"></video>
+            
+            <canvas ref="canvasRemote" class="fixed z-29  w-full bg-transparent transform self-center"></canvas>
 
             <div ref="videoLocalContainer" class="absolute flex m-auto h-screen w-full items-center z-30" :class="{
                 'w-[unset]': call, 'h-1/4': call,
@@ -61,7 +66,8 @@
                 <video autoplay ref="videoLocal"
                     class=" flex-1  w-full max-h-screen max-h-full max-w-full <lg:object-cover"
                     :class="{ 'transform  rotate-y-180': frontCamera }"></video>
-                <canvas ref="canvasLocal" class="fixed z-50  w-full bg-transparent transform  rotate-y-180 "></canvas>
+                <canvas ref="canvasLocal" class="fixed z-31  w-full bg-transparent transform self-center rotate-y-180"></canvas>
+
             </div>
             <div class="absolute flex m-auto h-screen w-full items-center justify-center">
                 <Button v-if="getMediaDevices && !call" icon="pi pi-camera" label="Get media devices"
@@ -116,7 +122,8 @@
             </div>
 
             <div class="flex flex-1 items-center justify-center">
-
+                <!-- <Button v-if="!call" :icon="`pi pi-user-plus ${link ? 'pi-spin pi-spinner' : ''} `"
+                    @click="generateLink" class=" p-button-rounded p-button-warning lower-toolbar-button" /> -->
             </div>
         </div>
 
@@ -124,8 +131,6 @@
 </template>
 
 <script setup lang="ts">
-import { MediaPipeHandsMediaPipeModelConfig } from "@tensorflow-models/hand-pose-detection/dist/mediapipe/types.js";
-import { MediaPipeHandsTfjsModelConfig } from "@tensorflow-models/hand-pose-detection/dist/tfjs/types.js";
 import { useToast } from "primevue/usetoast";
 import MediaSourcesHandler from "~~/utils/media-sources-handler";
 import VideoBoard from "~~/utils/videoboard.js";
@@ -133,6 +138,8 @@ import WebRtcConnection from "~~/utils/webrtc";
 
 let mediaSourcesHandler: MediaSourcesHandler;
 let webRtcConnection: WebRtcConnection;
+let videoBoard: VideoBoard;
+let videoBoardRemote: VideoBoard;
 
 const toast = useToast();
 const router = useRouter()
@@ -142,7 +149,7 @@ const windowSize = reactive(useWindowSize())
 
 useSeo({
     title: "VideoChat",
-    description: "One click videochat",
+    description: "A videochat with one link",
     image: "",
     type: "WebSite",
     location: route.path,
@@ -152,6 +159,7 @@ const videoLocal = ref<HTMLVideoElement>(null)
 const videoLocalContainer = ref<HTMLElement>(null)
 const videoRemote = ref<HTMLVideoElement>(null)
 const canvasLocal = ref<HTMLCanvasElement>(null)
+const canvasRemote= ref<HTMLCanvasElement>(null)
 const isUserInteractionRequiredForVideoRemoteReproduction = ref<boolean>(false)
 
 let videoRemoteStream: MediaStream;
@@ -179,6 +187,7 @@ const audioSelected = ref<string>()
 const videoSelected = ref<string>()
 const audioEnabled = ref<boolean>(true)
 const videoEnabled = ref<boolean>(true)
+const pencilEnabled = ref<boolean>(false)
 const lowerToolBarHidden = ref<boolean>(false)
 
 const videoRemoteFullSize = ref<boolean>(false)
@@ -260,6 +269,16 @@ const enableAudioFunc = async () => {
     mediaSelectionDisabled.value = false;
 };
 
+const enablePencilFunc = async () => {
+    if (pencilEnabled.value) {
+        await videoBoard.stop()
+        pencilEnabled.value = false
+    } else {
+        await videoBoard.start()
+        pencilEnabled.value = true
+    }
+}
+
 const enableVideoLocalDraggable = () => {
     draggable.value = useDraggable(videoLocalContainer, {
         initialValue: { x: window.innerWidth - videoLocalContainer.value.offsetWidth, y: window.innerHeight - videoLocalContainer.value.offsetWidth }
@@ -289,6 +308,13 @@ const items = ref([
         }
     },
     {
+        label: 'Painting mode',
+        icon: 'pi pi-pencil active',
+        command: () => {
+            enablePencilFunc()
+        }
+    },
+    {
         label: 'Maximize',
         icon: 'pi pi-window-maximize',
         command: () => {
@@ -302,7 +328,6 @@ const items = ref([
     {
         label: 'Settings',
         icon: 'pi pi-cog',
-        class: 'p-button-raised',
         command: () => {
             drawerSettingsOpenFun()
         }
@@ -325,7 +350,7 @@ async function generateLink() {
         router.push({
             path: '/videochat',
         });
-        webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnChat, writeOnOffer)
+        webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer)
         let result = await webRtcConnection.websocketGenerateLink()
         if (!result) {
             toast.add({ severity: 'error', summary: 'Error', detail: 'Error generating link. Contact the signaling server system administrator.', group: 'br', life: 3000 });
@@ -361,34 +386,69 @@ function ontrack(connection: WebRtcConnection, track: MediaStreamTrack, stream: 
         }
 
     }
-    if (track.kind == "video")
-        setTimeout(() => adjustRemoteVideoAspectRatio(), 3000);
+    // if (track.kind == "video")
+    //     setTimeout(() => adjustRemoteVideoAspectRatio(), 3000);
 };
 
 function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
-    channel.onopen = async function (event) {
-        console.log(this.label + " is open!");
-        dialogServerLessOpen.value = false;
-        channel.send("hello");
-        call.value = true;
-        setTimeout(() => !draggable.value && enableVideoLocalDraggable(), 0)
-    };
+    switch (channel.label) {
+        case "chat":
+            channel.onopen = async function (event) {
+                console.log(this.label + " is open!");
+                dialogServerLessOpen.value = false;
+                channel.send("hello");
+                call.value = true;
+                setTimeout(() => !draggable.value && enableVideoLocalDraggable(), 0)
+            };
 
-    channel.onclose = () => {
-        console.log("channel close");
-        videoRemote.value.srcObject = null;
-        call.value = false;
-        closeWebRTCConnection()
-        initalizeWebRTCfromCurrentRoomParam()
-    };
+            channel.onclose = () => {
+                console.log("channel close");
+                videoRemote.value.srcObject = null;
+                call.value = false;
+                closeWebRTCConnection()
+                initalizeWebRTCfromCurrentRoomParam()
+            };
 
-    channel.onmessage = event => {
-        console.log(event.data);
-        writeOnChat({ data: event.data, own: false })
-        if (!drawerChatOpen.value) {
-            nonReadedMessages.value++
+            channel.onmessage = event => {
+                console.log(event.data);
+                writeOnChat({ data: event.data, own: false })
+                if (!drawerChatOpen.value) {
+                    nonReadedMessages.value++
+                }
+            };
+            break;
+        case "video-board":
+            channel.onopen = async function (event) {
+                console.log(this.label + " is open!");
+
+            };
+
+            channel.onclose = () => {
+                console.log("channel " + this.label + "close");
+            };
+
+            channel.onmessage = event => {
+                const parsedData = JSON.parse(event.data)
+                videoBoardRemote.canvasPencilAction(parsedData.x, parsedData.y, parsedData.px, parsedData.py, parsedData.mode, parsedData.radius, true, null, parsedData.canvasSize.width,parsedData.canvasSize.height)
+            };
+            break;
+    }
+}
+
+function onDraw(x, y, px, py, mode, radius, canvasSize) {
+
+    if (webRtcConnection) {
+
+        const videoBoardDatachannel = webRtcConnection.dataChannels["video-board"];
+        if (videoBoardDatachannel) {
+            videoBoardDatachannel.send(JSON.stringify({
+                x, y, px, py, mode, radius, canvasSize
+            }))
+        } else {
+            console.log("no video board datachannel")
+            webRtcConnection.attachDataChannel("video-board", 3, false)
         }
-    };
+    }
 }
 
 function closeConnection() {
@@ -408,13 +468,13 @@ function writeOnOffer(message: string) {
 }
 
 async function createOffer() {
-    webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnChat, writeOnOffer)
+    webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer)
     await webRtcConnection.createInitialOffer()
 }
 
 async function createOrRecibeAnswer() {
     if (!webRtcConnection || webRtcConnection.state != "have-local-offer") {
-        webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnChat, writeOnOffer)
+        webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer)
     }
     await webRtcConnection.createAnswerFromString(sdpMessageInput.value)
 }
@@ -449,14 +509,12 @@ async function initializeLocalStream() {
         videoSelected.value = mediaSourcesHandler.currentDevices.video;
 
         if (videoEnabled.value) {
-            setTimeout(() => {
-                const videoBoard = new VideoBoard(videoLocal.value,canvasLocal.value)
-                videoBoard.start()
-            }, 3000);
+            videoBoard = new VideoBoard(videoLocal.value, canvasLocal.value, onDraw)
         }
-
     }
 }
+
+
 
 async function initializeScreenStream() {
     if (process.client) {
@@ -502,7 +560,7 @@ function adjustRemoteVideoAspectRatio() {
 
 async function initalizeWebRTCfromCurrentRoomParam() {
     if (link.value) {
-        webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnChat, writeOnOffer);
+        webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer);
         let result = await webRtcConnection.websocketConsumeLink(route.query.room)
         if (!result) {
             toast.add({ severity: 'error', summary: 'Error', detail: 'Error while trying to connnect to the signaling server', group: 'br', life: 3000 });
@@ -530,6 +588,7 @@ watch(audioSelected, onSourceChange("audio"))
 watch(videoSelected, onSourceChange("video"))
 watch(call, async (value: boolean) => {
     if (value === true) {
+        videoBoardRemote = new VideoBoard(videoRemote.value, canvasRemote.value, null);
         setTimeout(() => {
             lowerToolBarHidden.value = true;
         }, 5000)
@@ -560,6 +619,9 @@ watch(mouse[1], () => {
 })
 
 function videoLocalContainerDrag(x: number = videoLocalContainerDraggableStyle.value.x, y: number = videoLocalContainerDraggableStyle.value.y) {
+    
+    
+    
     const xmaxbound = (windowSize.width - videoLocalContainer.value.offsetWidth)
     const ymaxbound = (windowSize.height - videoLocalContainer.value.offsetHeight)
     const xminbound = 0
@@ -601,7 +663,10 @@ watch(windowSize, () => {
     if ((videoLocalContainerDraggableStyle.value.x + videoLocalContainer.value.offsetWidth) >= windowSize.width) {
         videoLocalContainerDrag(windowSize.width - videoLocalContainer.value.offsetWidth)
     }
-    adjustRemoteVideoAspectRatio()
+    if ((videoLocalContainerDraggableStyle.value.y + videoLocalContainer.value.offsetHeight) >= windowSize.height) {
+        videoLocalContainerDrag(windowSize.height - videoLocalContainer.value.offsetHeight)
+    }
+    // adjustRemoteVideoAspectRatio()
 
 }, { deep: true })
 
@@ -660,6 +725,14 @@ button {
     .p-badge {
         @apply text-dark-50;
         transform: scale(0.00002) !important;
+    }
+}
+
+.pencil-active {
+    .p-speeddial-item:nth-child(3) {
+        .p-speeddial-action {
+            background: #2196F3 !important;
+        }
     }
 }
 

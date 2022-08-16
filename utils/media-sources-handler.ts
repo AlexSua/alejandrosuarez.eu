@@ -6,7 +6,7 @@ export default class MediaSourcesHandler {
     private _devices: MediaDeviceInfo[] = []
     private _currentStream: MediaStream = new MediaStream()
     private _currentScreenStream: MediaStream = new MediaStream()
-    private defaultConstraints : MediaStreamConstraints= {
+    private defaultConstraints: MediaStreamConstraints = {
         audio: {
             autoGainControl: false,
             channelCount: 1,
@@ -16,11 +16,12 @@ export default class MediaSourcesHandler {
             sampleRate: 48000,
             sampleSize: 16
         },
+
         video: {
-            width: { min: 640, max: 1920 },
-            height: { min: 400, max: 1920},
-            aspectRatio: {min:0, ideal:16/9},
-            frameRate: {min:10, ideal:60, max: 240 },
+            width: { min: 640 },
+            height: { min: 400 },
+            aspectRatio: { min: 0, ideal: 16 / 9 },
+            frameRate: { min: 10, ideal: 60, max: 240 },
         },
     };
 
@@ -69,10 +70,6 @@ export default class MediaSourcesHandler {
         return this._currentStream.getAudioTracks()
     };
 
-
-
-
-
     public async getMediaDevices() {
         this._devices = await navigator.mediaDevices.enumerateDevices()
         console.log(this._devices)
@@ -117,9 +114,9 @@ export default class MediaSourcesHandler {
                     }
                 }
                 console.log("constraints", constraints)
-                try{
+                try {
                     this._currentStream = await navigator.mediaDevices.getUserMedia(constraints)
-                }catch(e:any){
+                } catch (e: any) {
                     this.defaultConstraints.video = true
                     constraints.video = { deviceId: constraints.video["deviceId"] }
                     this._currentStream = await navigator.mediaDevices.getUserMedia(constraints)
@@ -214,10 +211,10 @@ export default class MediaSourcesHandler {
         const videoDevice = this.getMediaDeviceByName(videoDeviceStr)
         let videoConstraint: boolean | MediaTrackConstraints = false;
         if (videoDevice) {
-            videoConstraint = {...this.defaultConstraints.video as MediaTrackConstraints,...{deviceId: videoDevice.deviceId} }
+            videoConstraint = { ...this.defaultConstraints.video as MediaTrackConstraints, ...{ deviceId: videoDevice.deviceId } }
         }
-        console.log("videoConstraint startvideo",videoDeviceStr, videoConstraint)
-        let stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraint})
+        console.log("videoConstraint startvideo", videoDeviceStr, videoConstraint)
+        let stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraint })
         this.currentVideoTracks[0] && this.currentStream.removeTrack(this.currentVideoTracks[0])
         this.currentStream.addTrack(stream.getVideoTracks()[0])
         return stream
@@ -226,9 +223,9 @@ export default class MediaSourcesHandler {
         const audioDevice = this.getMediaDeviceByName(audioDeviceStr)
         let audioConstraint: boolean | MediaTrackConstraints = false;
         if (audioDevice) {
-            audioConstraint = {...this.defaultConstraints.audio as MediaTrackConstraints,...{deviceId: audioDevice.deviceId} }
+            audioConstraint = { ...this.defaultConstraints.audio as MediaTrackConstraints, ...{ deviceId: audioDevice.deviceId } }
         }
-        let stream = await navigator.mediaDevices.getUserMedia({audio:audioConstraint})
+        let stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraint })
         this.currentAudioTracks[0] && this.currentStream.removeTrack(this.currentAudioTracks[0])
         this.currentStream.addTrack(stream.getAudioTracks()[0])
         return stream

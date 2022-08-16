@@ -55,7 +55,6 @@ export default class WebRtcConnection {
         mediaSourcesHandler?: MediaSourcesHandler,
         onTrack?: (connection: WebRtcConnection, track: MediaStreamTrack, stream: readonly MediaStream[]) => void,
         onDataChannel?: (connection: WebRtcConnection, channel: RTCDataChannel) => void,
-        writeOnChat?: (message: ChatMessage) => void,
         writeOnOffer?: (message: string) => void,
 
     ) {
@@ -64,7 +63,6 @@ export default class WebRtcConnection {
 
         this._onTrack = onTrack
         this._onDataChannel = onDataChannel
-        this._writeOnChat = writeOnChat
         this._writeOnOffer = writeOnOffer
         this._mediaSourcesHandler = mediaSourcesHandler;
 
@@ -92,11 +90,11 @@ export default class WebRtcConnection {
         this.pc.ontrack = event => {
             console.log("got track", event)
             event.streams.forEach((stream) => {
-                if (!(stream.id in this._receiveStreams)){
+                if (!(stream.id in this._receiveStreams)) {
                     this._receiveStreams[stream.id] = stream
                 }
             })
-            console.log("got track settings",event.streams[0].getTracks()[0].getSettings())
+            console.log("got track settings", event.streams[0].getTracks()[0].getSettings())
 
             this._onTrack && this._onTrack(this, event.track, event.streams)
         };
@@ -136,7 +134,7 @@ export default class WebRtcConnection {
 
     async createInitialOffer() {
         this._localCandidates = []
-        this.attachDataChannel();
+        this.attachDataChannel("p2p", 0, false);
         let offer = await this.createOffer();
         return offer
     }
@@ -233,8 +231,8 @@ export default class WebRtcConnection {
                             params.encodings[0].scaleResolutionDownBy = 1.0;
                             // params.encodings[0].
                             this._videoChatSenders["video"].setParameters(params)
-                            console.log("videochatsenders params",this._videoChatSenders["video"].getParameters())
-                            console.log("videochatsenders track settings",this._videoChatSenders["video"].track.getSettings())
+                            console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
+                            console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
                         }
                     }
                 }
@@ -285,10 +283,10 @@ export default class WebRtcConnection {
         console.log(this._videoChatSenders["video"])
     }
 
-    attachDataChannel(dataChannelName: string = "p2p", id: number = 0) {
+    attachDataChannel(dataChannelName: string = "p2p", id: number = 0, negotiated = true) {
         if (!(dataChannelName in this._dataChannels)) {
             console.log("attach datachannel:" + dataChannelName)
-            const channel = this.pc.createDataChannel(dataChannelName, { negotiated: dataChannelName != "p2p", id: id });
+            const channel = this.pc.createDataChannel(dataChannelName, { negotiated: negotiated, id: id });
             this._dataChannels[channel.label] = channel
             if (dataChannelName !== "p2p") {
                 this._onDataChannel && this._onDataChannel(this, this._dataChannels[channel.label])
@@ -303,7 +301,7 @@ export default class WebRtcConnection {
             console.log("p2p is open!");
             this._websocket && this._websocket.close(1000, "close")
             this._connected = true;
-            this.attachDataChannel("chat", 2);
+            this.attachDataChannel("chat", 2, true);
             if (this._videoChatSendStream) {
                 this.attachVideoChatStream()
                 let videochatstream = () => {
@@ -345,7 +343,7 @@ export default class WebRtcConnection {
     }
 
 
-    public get remoteStreams():Record<string, MediaStream> {
+    public get remoteStreams(): Record<string, MediaStream> {
         return this._receiveStreams
     }
     public get connected() {
