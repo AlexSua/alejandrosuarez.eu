@@ -26,10 +26,8 @@ jobs:
         run: |
           for i in $(find .output/public/* -type d -name \&\*); do rm -rf "$i"; done;
           grep -rnwl "<link rel=\"prefetch" .output/public | xargs sed -i 's$<link rel="prefetch[^>]*href="[^"]*">$$g'
-
           grep -rl "hand-pose-detection.*mjs" .output/public/_nuxt/videochat* | xargs sed -i "s/hand-pose-detection[^\"]*/hand-pose-detection\.js/g"
           cp -r patches/hand-recognition/* .output/public/_nuxt/
-
           cd $BUILD_FOLDER
           touch .nojekyll
           git init
