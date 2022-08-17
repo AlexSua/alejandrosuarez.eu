@@ -43,4 +43,4 @@ jobs:
         with:
           token: ${{secrets.DEPLOY_TOKEN}}
           repository-name: AlexSua/PaginaPersonal
-          folder: ${{env.BUILD_FOLDER}}
+          folder: ${{env.BUILD_FOLDER}dd}
