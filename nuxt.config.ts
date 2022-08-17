@@ -42,11 +42,16 @@ export default defineNuxtConfig({
                     additionalData: '@import "@/assets/styles/setup/variables.scss";',
                 },
             },
+            
         },
         optimizeDeps: {
-
+            include: ["@mediapipe/hands","@tensorflow-models/hand-pose-detection"],
         },
 
+        esbuild:{
+            treeShaking: true,
+            exclude:["@mediapipe/hands","@tensorflow-models/hand-pose-detection"],
+        },
 
         plugins: [
             viteImagemin({
@@ -76,7 +81,18 @@ export default defineNuxtConfig({
                         },
                     ],
                 },
-            })]
+            }),
+            // {
+            //     name: 'static-js',
+            //     apply: 'serve',
+            //     enforce: 'pre',
+            //     resolveId(source, importer) {
+            //         if (source.includes('hand-pose-detection')) {
+            //             return '\ufeff' + source;
+            //         }
+            //     }
+            // }
+        ]
     },
     content: {
         highlight: {
@@ -87,7 +103,7 @@ export default defineNuxtConfig({
     nitro: {
         prerender: {
             crawlLinks: true,
-            routes:["/sitemap.xml"]
+            routes: ["/sitemap.xml"]
         },
         minify: true,
     },

@@ -55,7 +55,7 @@
             </div>
             <video autoplay ref="videoRemote" class=" flex-1 max-h-screen w-full"
                 :class="{ '!object-cover': videoRemoteFullSize }"></video>
-            
+
             <canvas ref="canvasRemote" class="fixed z-29  w-full bg-transparent transform self-center"></canvas>
 
             <div ref="videoLocalContainer" class="absolute flex m-auto h-screen w-full items-center z-30" :class="{
@@ -66,7 +66,8 @@
                 <video autoplay ref="videoLocal"
                     class=" flex-1  w-full max-h-screen max-h-full max-w-full <lg:object-cover"
                     :class="{ 'transform  rotate-y-180': frontCamera }"></video>
-                <canvas ref="canvasLocal" class="fixed z-31  w-full bg-transparent transform self-center rotate-y-180"></canvas>
+                <canvas ref="canvasLocal"
+                    class="fixed z-31  w-full bg-transparent transform self-center rotate-y-180"></canvas>
 
             </div>
             <div class="absolute flex m-auto h-screen w-full items-center justify-center">
@@ -155,11 +156,28 @@ useSeo({
     location: route.path,
 });
 
+// useHead({
+//     script: [
+//         {
+//             src: "https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection"
+//         },
+//         {
+//             src: "https://cdn.jsdelivr.net/npm/@mediapipe/hands"
+//         },
+//         {
+//             src: "https://unpkg.com/@tensorflow/tfjs-core@2.1.0/dist/tf-core.js"
+//         },
+//         {
+//             src: "https://unpkg.com/@tensorflow/tfjs-backend-webgl@2.1.0/dist/tf-backend-webgl.js"
+//         }
+//     ]
+// })
+
 const videoLocal = ref<HTMLVideoElement>(null)
 const videoLocalContainer = ref<HTMLElement>(null)
 const videoRemote = ref<HTMLVideoElement>(null)
 const canvasLocal = ref<HTMLCanvasElement>(null)
-const canvasRemote= ref<HTMLCanvasElement>(null)
+const canvasRemote = ref<HTMLCanvasElement>(null)
 const isUserInteractionRequiredForVideoRemoteReproduction = ref<boolean>(false)
 
 let videoRemoteStream: MediaStream;
@@ -429,7 +447,7 @@ function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
 
             channel.onmessage = event => {
                 const parsedData = JSON.parse(event.data)
-                videoBoardRemote.canvasPencilAction(parsedData.x, parsedData.y, parsedData.px, parsedData.py, parsedData.mode, parsedData.radius, true, null, parsedData.canvasSize.width,parsedData.canvasSize.height)
+                videoBoardRemote.canvasPencilAction(parsedData.x, parsedData.y, parsedData.px, parsedData.py, parsedData.mode, parsedData.radius, true, null, parsedData.canvasSize.width, parsedData.canvasSize.height)
             };
             break;
     }
@@ -619,9 +637,9 @@ watch(mouse[1], () => {
 })
 
 function videoLocalContainerDrag(x: number = videoLocalContainerDraggableStyle.value.x, y: number = videoLocalContainerDraggableStyle.value.y) {
-    
-    
-    
+
+
+
     const xmaxbound = (windowSize.width - videoLocalContainer.value.offsetWidth)
     const ymaxbound = (windowSize.height - videoLocalContainer.value.offsetHeight)
     const xminbound = 0

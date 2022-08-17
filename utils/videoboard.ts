@@ -57,7 +57,7 @@ export default class VideoBoard {
         const model = handPoseDetection.SupportedModels.MediaPipeHands;
         const detectorConfig: MediaPipeHandsMediaPipeModelConfig | MediaPipeHandsTfjsModelConfig = {
             runtime: 'mediapipe',
-            solutionPath: '@mediapipe/hands',
+            solutionPath: '/@mediapipe/hands',
             modelType: 'full',
             maxHands: 1,
         }
