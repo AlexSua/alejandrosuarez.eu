@@ -2,16 +2,20 @@ import { MediaPipeHandsMediaPipeModelConfig, MediaPipeHandsTfjsModelConfig } fro
 import MLHandGestureModel from "./ml-hand-gesture-model"
 
 export default class VideoBoard {
+    private ITERATIONS_NUMBER_DRAWING_STATE_CHANGE = 10
+
 
     private _tf
     private _handDetector
     private _emptyHand: number = 0
+    private _nonEmptyHand: number = 0
     private _prediction_frame_rate: number
     private _past_prediction_time: number
     private _trainingState: number
     private _numberOfTrainingStates = 2
-    public onDraw: (x: number, y: number, px: number, py: number, mode: string, radius: number, canvasSize) => void
     private _stopSignal: boolean = false;
+    public onDraw: (x: number, y: number, px: number, py: number, mode: string, radius: number, canvasSize) => void
+    public onDrawingStateChange: (state: boolean) => void
 
     private _gestureModels: {
         drawing: MLHandGestureModel,
@@ -31,14 +35,15 @@ export default class VideoBoard {
         timestamp: 0
     }
 
-    constructor(videoSource: HTMLVideoElement, canvas: HTMLCanvasElement, onDraw: (x: number, y: number, px: number, py: number, mode: string, radius: number, canvasSize) => void = null) {
+    constructor(videoSource: HTMLVideoElement, canvas: HTMLCanvasElement, onDraw: (x: number, y: number, px: number, py: number, mode: string, radius: number, canvasSize) => void = null, onDrawingStateChange: (state: boolean) => void = null) {
         this.videoSource = videoSource;
         this.canvas = canvas;
         this.onDraw = onDraw
+        this.onDrawingStateChange = onDrawingStateChange
     }
 
 
-    configureCanvas( width = this.videoSource.videoWidth,height = this.videoSource.videoHeight) {
+    configureCanvas(width = this.videoSource.videoWidth, height = this.videoSource.videoHeight) {
         this._canvas_ctx = this.canvas.getContext('2d')
         this._canvas_ctx.canvas.width = width;
         this._canvas_ctx.canvas.height = height;
@@ -82,6 +87,11 @@ export default class VideoBoard {
             const value = await this._handDetector.estimateHands(this.videoSource)
             if (value.length > 0 && value[0].score > 0.94) {
                 this._emptyHand = 0;
+                if (this._nonEmptyHand > this.ITERATIONS_NUMBER_DRAWING_STATE_CHANGE) {
+                    this.onDrawingStateChange && this.onDrawingStateChange(true)
+                } else
+                    this._nonEmptyHand += 1;
+
                 if (value[0].keypoints3D[3] && value[0].keypoints3D[8]) {
                     let x = value[0].keypoints3D[4].x - value[0].keypoints3D[8].x
                     let y = value[0].keypoints3D[4].y - value[0].keypoints3D[8].y
@@ -190,14 +200,20 @@ export default class VideoBoard {
                     }
                 }
             } else {
+
+                if (this._emptyHand > this.ITERATIONS_NUMBER_DRAWING_STATE_CHANGE) {
+                    this.onDrawingStateChange && this.onDrawingStateChange(false)
+                }
                 if (this._emptyHand > 100) {
                     if (this._trainingState in [...Array(this._numberOfTrainingStates).keys()]) {
                         console.log("training state", this._trainingState)
                         await new Promise((resolve) => setTimeout(() => { resolve(true) }, 3000))
                         this._trainingState += 1
                     }
+                } else {
+                    this._emptyHand += 1
                 }
-                this._emptyHand += 1
+                this._nonEmptyHand = 0
             }
             // this.predictTrainHandPositions()
         }
@@ -238,7 +254,7 @@ export default class VideoBoard {
         canvasWidth = this.videoSource.videoWidth,
         canvasHeight = this.videoSource.videoHeight
     ) {
-        (!this._canvas_ctx || this._canvas_ctx.canvas.width!=canvasWidth || this._canvas_ctx.canvas.height!=canvasHeight ) && this.configureCanvas(canvasWidth, canvasHeight)
+        (!this._canvas_ctx || this._canvas_ctx.canvas.width != canvasWidth || this._canvas_ctx.canvas.height != canvasHeight) && this.configureCanvas(canvasWidth, canvasHeight)
 
         if (!isRemote && Date.now() - this._drawing_position.timestamp > 1000) {
             this.setDrawingPosition(x, y)

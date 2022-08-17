@@ -58,16 +58,17 @@
 
             <canvas ref="canvasRemote" class="fixed z-29  w-full bg-transparent transform self-center"></canvas>
 
-            <div ref="videoLocalContainer" class="absolute flex m-auto h-screen w-full items-center z-30" :class="{
-                'w-[unset]': call, 'h-1/4': call,
-                'transition-all duration-600': draggable && !draggable.isDragging
-            }" style="touch-action:none;"
-                :style="call ? videoLocalContainerDraggableStyle && videoLocalContainerDraggableStyle.style : ''">
+            <div ref="videoLocalContainer"
+                class="absolute flex m-auto h-screen w-full items-center z-30 flex justify-center" :class="{
+                    'w-[unset] h-1/4': call && !isDrawing,
+                    'transition-all duration-600': draggable && !draggable.isDragging
+                }" style="touch-action:none;"
+                :style="call && !isDrawing ? videoLocalContainerDraggableStyle && videoLocalContainerDraggableStyle.style : `left:${videoLocalContainerDraggableStyle.x};top:${videoLocalContainerDraggableStyle.y}`">
                 <video autoplay ref="videoLocal"
                     class=" flex-1  w-full max-h-screen max-h-full max-w-full <lg:object-cover"
                     :class="{ 'transform  rotate-y-180': frontCamera }"></video>
-                <canvas ref="canvasLocal"
-                    class="fixed z-31  w-full bg-transparent transform self-center rotate-y-180"></canvas>
+                <canvas ref="canvasLocal" class="fixed z-31  w-full bg-transparent transform self-center rotate-y-180"
+                    max></canvas>
 
             </div>
             <div class="absolute flex m-auto h-screen w-full items-center justify-center">
@@ -179,6 +180,7 @@ const videoRemote = ref<HTMLVideoElement>(null)
 const canvasLocal = ref<HTMLCanvasElement>(null)
 const canvasRemote = ref<HTMLCanvasElement>(null)
 const isUserInteractionRequiredForVideoRemoteReproduction = ref<boolean>(false)
+const isDrawing = ref<boolean>(false)
 
 let videoRemoteStream: MediaStream;
 
@@ -291,6 +293,7 @@ const enablePencilFunc = async () => {
     if (pencilEnabled.value) {
         await videoBoard.stop()
         pencilEnabled.value = false
+        isDrawing.value = false
     } else {
         await videoBoard.start()
         pencilEnabled.value = true
@@ -357,7 +360,7 @@ function writeOnChat(message: ChatMessage) {
     chatMessages.value.push(message)
 }
 function sendChatMessage(message: ChatMessage[]) {
-    webRtcConnection && webRtcConnection.dataChannels["chat"] && webRtcConnection.dataChannels["chat"].send(message[message.length - 1].data)
+    webRtcConnection && call.value && webRtcConnection.dataChannels["chat"] && webRtcConnection.dataChannels["chat"].send(message[message.length - 1].data)
 }
 
 async function generateLink() {
@@ -455,7 +458,7 @@ function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
 
 function onDraw(x, y, px, py, mode, radius, canvasSize) {
 
-    if (webRtcConnection) {
+    if (webRtcConnection && call.value) {
 
         const videoBoardDatachannel = webRtcConnection.dataChannels["video-board"];
         if (videoBoardDatachannel) {
@@ -466,6 +469,12 @@ function onDraw(x, y, px, py, mode, radius, canvasSize) {
             console.log("no video board datachannel")
             webRtcConnection.attachDataChannel("video-board", 3, false)
         }
+    }
+}
+
+function onDrawStateChange(drawState) {
+    if (isDrawing.value != drawState) {
+        isDrawing.value = drawState
     }
 }
 
@@ -527,7 +536,12 @@ async function initializeLocalStream() {
         videoSelected.value = mediaSourcesHandler.currentDevices.video;
 
         if (videoEnabled.value) {
-            videoBoard = new VideoBoard(videoLocal.value, canvasLocal.value, onDraw)
+            videoBoard = new VideoBoard(videoLocal.value, canvasLocal.value, onDraw, onDrawStateChange)
+            videoLocal.value.oncanplay = () => {
+                const aspectRatio = videoLocal.value.videoWidth / videoLocal.value.videoHeight;
+                canvasLocal.value.style.maxWidth = (window.innerHeight * aspectRatio) + "px";
+            }
+
         }
     }
 }
@@ -684,6 +698,8 @@ watch(windowSize, () => {
     if ((videoLocalContainerDraggableStyle.value.y + videoLocalContainer.value.offsetHeight) >= windowSize.height) {
         videoLocalContainerDrag(windowSize.height - videoLocalContainer.value.offsetHeight)
     }
+    const aspectRatio = videoLocal.value.videoWidth / videoLocal.value.videoHeight;
+    canvasLocal.value.style.maxWidth = (window.innerHeight * aspectRatio) + "px";
     // adjustRemoteVideoAspectRatio()
 
 }, { deep: true })
