@@ -18,9 +18,9 @@ export default class MediaSourcesHandler {
         },
 
         video: {
-            // width: { min: 640 },
-            // height: { min: 400 },
-            // aspectRatio: { min: 0, ideal: 16 / 9 },
+            width: { min: 640 },
+            height: { min: 400 },
+            aspectRatio: { min: 0, ideal: 16 / 9 },
             frameRate: { min: 10, ideal: 60, max: 240 },
         },
     };
