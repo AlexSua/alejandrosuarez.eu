@@ -44,7 +44,7 @@
                 </Button>
             </div>
         </div>
-        <div class="flex-1 h-screen flex relative bg-black ">
+        <div class="flex-1 h-screen overflow-hidden flex relative bg-black">
             <div v-if="isUserInteractionRequiredForVideoRemoteReproduction"
                 class="absolute flex justify-center items-center flex-1 h-screen w-screen text-white text-center">
                 <div class="w-80">
@@ -53,22 +53,31 @@
                     Please click or tap anywhere on this screen to reproduce remote video.
                 </div>
             </div>
-            <video autoplay ref="videoRemote" class=" flex-1 max-h-screen w-full"
-                :class="{ '!object-cover': videoRemoteFullSize }"></video>
 
-            <canvas ref="canvasRemote" class="fixed z-29  w-full bg-transparent transform self-center"></canvas>
+            <div ref="videoRemoteContainer"
+                class="absolute flex m-auto h-screen w-screen items-center z-30 flex justify-center ">
+
+                <video autoplay ref="videoRemote" class=" flex-1 max-h-full max-w-full"
+                    :class="{ '!object-cover': videoRemoteFullSize }"></video>
+
+                <canvas ref="canvasRemote"
+                    class="absolute z-29  w-full bg-transparent transform self-center self"></canvas>
+            </div>
+
 
             <div ref="videoLocalContainer"
                 class="absolute flex m-auto h-screen w-full items-center z-30 flex justify-center" :class="{
                     'w-[unset] h-1/4': call && !isDrawing,
                     'transition-all duration-600': draggable && !draggable.isDragging
                 }" style="touch-action:none;"
-                :style="call && !isDrawing ? videoLocalContainerDraggableStyle && videoLocalContainerDraggableStyle.style : `left:${videoLocalContainerDraggableStyle.x};top:${videoLocalContainerDraggableStyle.y}`">
+                :style="call && !isDrawing ? videoLocalContainerDraggableStyle && videoLocalContainerDraggableStyle.style : ''">
+
                 <video autoplay ref="videoLocal"
                     class=" flex-1  w-full max-h-screen max-h-full max-w-full <lg:object-cover"
                     :class="{ 'transform  rotate-y-180': frontCamera }"></video>
-                <canvas ref="canvasLocal" class="fixed z-31  w-full bg-transparent transform self-center rotate-y-180"
-                    max></canvas>
+
+                <canvas ref="canvasLocal"
+                    class="absolute z-31  w-full bg-transparent transform self-center rotate-y-180" max></canvas>
 
             </div>
             <div class="absolute flex m-auto h-screen w-full items-center justify-center">
@@ -404,6 +413,7 @@ function ontrack(connection: WebRtcConnection, track: MediaStreamTrack, stream: 
             videoRemote.value.play().catch(() => {
                 isUserInteractionRequiredForVideoRemoteReproduction.value = true;
             })
+            adjustCanvasToVideo(canvasRemote.value, videoRemote.value)
         }
 
     }
@@ -538,8 +548,7 @@ async function initializeLocalStream() {
         if (videoEnabled.value) {
             videoBoard = new VideoBoard(videoLocal.value, canvasLocal.value, onDraw, onDrawStateChange)
             videoLocal.value.oncanplay = () => {
-                const aspectRatio = videoLocal.value.videoWidth / videoLocal.value.videoHeight;
-                canvasLocal.value.style.maxWidth = (window.innerHeight * aspectRatio) + "px";
+                adjustCanvasToVideo(canvasLocal.value, videoLocal.value)
             }
 
         }
@@ -686,6 +695,12 @@ function videoLocalContainerDrag(x: number = videoLocalContainerDraggableStyle.v
 
 }
 
+
+function adjustCanvasToVideo(canvas, video) {
+    const aspectRatio = video.videoWidth / video.videoHeight;
+    canvas.style.maxWidth = (window.innerHeight * aspectRatio) + "px";
+}
+
 watch(draggable, () => {
     videoLocalContainerDrag(draggable.value.x, draggable.value.y)
 
@@ -698,8 +713,9 @@ watch(windowSize, () => {
     if ((videoLocalContainerDraggableStyle.value.y + videoLocalContainer.value.offsetHeight) >= windowSize.height) {
         videoLocalContainerDrag(windowSize.height - videoLocalContainer.value.offsetHeight)
     }
-    const aspectRatio = videoLocal.value.videoWidth / videoLocal.value.videoHeight;
-    canvasLocal.value.style.maxWidth = (window.innerHeight * aspectRatio) + "px";
+
+    adjustCanvasToVideo(canvasLocal.value, videoLocal.value)
+    adjustCanvasToVideo(canvasRemote.value, videoRemote.value)
     // adjustRemoteVideoAspectRatio()
 
 }, { deep: true })
