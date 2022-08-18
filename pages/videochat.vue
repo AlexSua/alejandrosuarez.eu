@@ -14,6 +14,7 @@
 
             </div>
         </Dialog>
+
         <Dialog header="Share link" footer="" v-model:visible="dialogLinkOpen" class="flex w-50rem">
             <div class="flex-1 p-inputgroup py-2">
                 <Textarea v-model="link" disabled rows="2" class="w-[50rem] w-full" />
@@ -22,6 +23,18 @@
                 <Button label="Copy to clipboard" class="w-full" @click="copyLinkToClipboard" />
             </div>
         </Dialog>
+
+        <Dialog header="Enter room" footer="" v-model:visible="dialogRoomOpen" class="flex w-30rem">
+            <h5>Insert room id:</h5>
+            <div class="flex-1 p-inputgroup py-2">
+                <Textarea v-model="dialogRoomIdInput" rows="1" class="w-[50rem] w-full" />
+            </div>
+            <div class="flex-1 p-inputgroup py-2">
+                <Button label="Enter room" class="w-full" @click="enterRoom" />
+            </div>
+        </Dialog>
+
+
         <div ref="superiorToolBar"
             class="absolute flex flex-row w-full text-right transition-all duration-400 disable-rounded"
             :class="{ 'lg:pr-[400px]': drawerSettingsOpen }">
@@ -110,14 +123,20 @@
             <VideochatChat v-model="chatMessages" v-on:update:modelValue="sendChatMessage"></VideochatChat>
         </Drawer>
 
-        <div ref="lowerToolBar"
+        <div ref="lowerToolBar "
             class="absolute bottom-10 <sxl:bottom-3 flex flex-row w-full text-center transition-all duration-400 bottom-0  align-center items-center lower-toolbar"
             :class="{ 'lg:pr-[400px]': (drawerSettingsOpen || drawerChatOpen), 'hidden': lowerToolBarHidden }">
             <!-- <div class="flex-1">sdf</div> -->
 
-            <div class="flex flex-1 items-center justify-start ml-5">
-                <Button v-if="!call" :icon="`pi pi-user-plus ${link ? 'pi-spin pi-spinner' : ''} `"
-                    @click="generateLink" class=" p-button-rounded p-button-warning lower-toolbar-button" />
+            <div class="flex flex-1 items-center justify-start ml-5  !min-w-20">
+                <div class="flex flex-col  bottom-0 absolute">
+                    <Button v-if="!call" :icon="`pi pi-sign-in`" @click="openRoomDialog"
+                        class=" p-button-rounded p-button-warning lower-toolbar-button" />
+                    <Button v-if="!call" :icon="`pi pi-user-plus ${link ? 'pi-spin pi-spinner' : ''} `"
+                        @click="generateLink" class=" p-button-rounded p-button-warning lower-toolbar-button" />
+
+                </div>
+
             </div>
             <div class="flex flex-1 items-center justify-center">
                 <Button icon="pi pi-desktop" class=" p-button-rounded lower-toolbar-button"
@@ -202,6 +221,9 @@ const drawerChatOpen = ref(false)
 const drawerSettingsOpen = ref(false)
 const dialogServerLessOpen = ref(false)
 const dialogLinkOpen = ref(false)
+const dialogRoomOpen = ref(false)
+const dialogRoomIdInput = ref<string>(null)
+
 const generatingLink = ref<boolean>(false)
 const link = ref("")
 
@@ -386,18 +408,43 @@ async function generateLink() {
             toast.add({ severity: 'error', summary: 'Error', detail: 'Error generating link. Contact the signaling server system administrator.', group: 'br', life: 3000 });
             return
         }
-        let roomid = await webRtcConnection.websocketGenerateLink();
-        link.value = document.location.href + "?room=" + roomid;
+        link.value = document.location.href + "?room=" + result;
         router.push({
             path: '/videochat',
             query: {
-                room: roomid as string
+                room: result as string
             }
         });
         generatingLink.value = false
 
     }
     dialogLinkOpen.value = true;
+}
+
+async function openRoomDialog() {
+    dialogRoomOpen.value = true;
+}
+
+async function enterRoom() {
+    if (dialogRoomIdInput.value) {
+        if (webRtcConnection) {
+            webRtcConnection.close()
+        }
+
+        link.value = document.location.href + "?room=" + dialogRoomIdInput.value;
+        router.push({
+            path: '/videochat',
+            query: {
+                room: dialogRoomIdInput.value as string
+            }
+        });
+        await initalizeWebRTCfromCurrentRoomParam()
+        dialogRoomOpen.value = false;
+    } else {
+        toast.add({ severity: 'error', summary: 'Error', detail: 'You need to introduce a room ID', group: 'br', life: 3000 });
+
+    }
+
 }
 
 function copyLinkToClipboard() {
