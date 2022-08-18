@@ -228,7 +228,7 @@ export default class WebRtcConnection {
                             console.log(params)
                             // params.encodings = [{}]
                             // params.encodings[0].maxBitrate = 120000000;
-                            params.encodings[0].scaleResolutionDownBy = null;
+                            params.encodings[0].scaleResolutionDownBy = 1;
                             // params.encodings[0].
                             this._videoChatSenders["video"].setParameters(params)
                             console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
