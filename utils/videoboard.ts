@@ -145,7 +145,7 @@ export default class VideoBoard {
                         if (distance < 0.015) {
                             // drawingPrediction = await this._gestureModels.drawing.predict(this._tf.tensor3d([drawingModelInput.map((el) => [el.x, el.y, el.z])], [1, 3, 3]))
                             drawingPrediction = [0.9]
-                        } else if(distance > 0.07) {
+                        } else if(distance > 0.066) {
                             if (this._gestureModels.eraser.isModelLoaded()) {
                                 eraserPrediction = await this._gestureModels.eraser.predict(this._tf.tensor3d([eraserModelInput.map((el) => [el.x, el.y, el.z])], [1, 21, 3]))
                             } else {
