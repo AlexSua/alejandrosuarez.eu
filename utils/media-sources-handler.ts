@@ -18,8 +18,8 @@ export default class MediaSourcesHandler {
         },
 
         video: {
-            // width: { min: 640 },
-            // height: { min: 400 },
+            width: { min: 400 },
+            height: { min: 400 },
             aspectRatio: { min: 0, ideal: 16 / 9 },
             frameRate: { min: 10, ideal: 60, max: 240 },
         },
@@ -167,6 +167,7 @@ export default class MediaSourcesHandler {
     public async changeSourceStream(audioSelected?: string, videoSelected?: string) {
 
         let stream;
+        
         if (this.currentDevices.audio != audioSelected) {
             await this.stopAndRemoveAudio()
             stream = await this.startAudio(audioSelected)
