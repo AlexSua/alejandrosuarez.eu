@@ -74,7 +74,7 @@
                     :class="{ '!object-cover': videoRemoteFullSize }"></video>
 
                 <canvas ref="canvasRemote"
-                    class="absolute z-29  w-full bg-transparent transform self-center self"></canvas>
+                    class="absolute z-29 w-full h-full bg-transparent transform self-center self"></canvas>
             </div>
 
 
@@ -90,7 +90,7 @@
                     :class="{ 'transform  rotate-y-180': frontCamera }"></video>
 
                 <canvas ref="canvasLocal"
-                    class="absolute z-31  w-full bg-transparent transform self-center rotate-y-180" max></canvas>
+                    class="absolute  w-full h-full z-31 bg-transparent transform self-center rotate-y-180" ></canvas>
 
             </div>
             <div class="absolute flex m-auto h-screen w-full items-center justify-center">
@@ -462,7 +462,10 @@ function ontrack(connection: WebRtcConnection, track: MediaStreamTrack, stream: 
             })
             adjustCanvasToVideo(canvasRemote.value, videoRemote.value)
         }
-
+        videoRemote.value.onchange = () => {
+            videoBoardRemote.configureCanvas(videoRemote.value.videoWidth, videoRemote.value.videoHeight)
+            adjustCanvasToVideo(canvasRemote.value, videoRemote.value)
+        }
     }
     // if (track.kind == "video")
     //     setTimeout(() => adjustRemoteVideoAspectRatio(), 3000);
@@ -594,7 +597,11 @@ async function initializeLocalStream() {
 
         if (videoEnabled.value) {
             videoBoard = new VideoBoard(videoLocal.value, canvasLocal.value, onDraw, onDrawStateChange)
-            videoLocal.value.oncanplay = () => {
+            videoLocal.value.oncanplay = ()=>{
+                adjustCanvasToVideo(canvasLocal.value, videoLocal.value)
+            }
+            videoLocal.value.onchange = () => {
+                videoBoardRemote.configureCanvas(videoLocal.value.videoWidth, videoLocal.value.videoHeight)
                 adjustCanvasToVideo(canvasLocal.value, videoLocal.value)
             }
 
@@ -661,6 +668,8 @@ const onSourceChange = (type: string) => async (value: string | undefined, oldVa
         if ((type === "audio" && !audioEnabled.value) || (type === "video" && !videoEnabled.value)) return null;
         if (oldValue) {
             mediaSelectionDisabled.value = true
+            videoBoard.stop()
+            isDrawing.value = false;
             await mediaSourcesHandler.changeSourceStream(audioSelected.value, videoSelected.value)
             mediaSelectionDisabled.value = false
             webRtcConnection && webRtcConnection.attachVideoChatStream()
@@ -746,6 +755,7 @@ function videoLocalContainerDrag(x: number = videoLocalContainerDraggableStyle.v
 function adjustCanvasToVideo(canvas, video) {
     const aspectRatio = video.videoWidth / video.videoHeight;
     canvas.style.maxWidth = (window.innerHeight * aspectRatio) + "px";
+    canvas.style.maxHeight = (window.innerWidth/ aspectRatio) + "px";
 }
 
 watch(draggable, () => {

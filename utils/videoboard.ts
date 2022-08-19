@@ -85,12 +85,14 @@ export default class VideoBoard {
             this._past_prediction_time = now
 
             const value = await this._handDetector.estimateHands(this.videoSource)
-            if (value.length > 0 && value[0].score > 0.94) {
+            if (value.length > 0) {
                 this._emptyHand = 0;
+                this._nonEmptyHand += 1;
+            }
+            if (value.length > 0 && value[0].score > 0.5) {
                 if (this._nonEmptyHand > this.ITERATIONS_NUMBER_DRAWING_STATE_CHANGE) {
                     this.onDrawingStateChange && this.onDrawingStateChange(true)
-                } else
-                    this._nonEmptyHand += 1;
+                } 
 
                 if (value[0].keypoints3D[3] && value[0].keypoints3D[8]) {
                     let x = value[0].keypoints3D[4].x - value[0].keypoints3D[8].x
@@ -142,7 +144,7 @@ export default class VideoBoard {
                         let drawingPrediction = null;
                         let eraserPrediction = null;
 
-                        if (distance < 0.015) {
+                        if (distance < 0.017) {
                             // drawingPrediction = await this._gestureModels.drawing.predict(this._tf.tensor3d([drawingModelInput.map((el) => [el.x, el.y, el.z])], [1, 3, 3]))
                             drawingPrediction = [0.9]
                         } else if(distance > 0.066) {

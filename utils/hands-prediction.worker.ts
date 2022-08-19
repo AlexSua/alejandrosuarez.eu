@@ -172,11 +172,11 @@
 
 }
 
-const handsPredictio = new HandsPrediction()
+// const handsPredictio = new HandsPrediction()
 
-console.log("loading model")
+// console.log("loading model")
 
-const result = handsPredictio.predictTrainHandPositions("message.data")
+// const result = handsPredictio.predictTrainHandPositions("message.data")
 
 // addEventListener('message', async (message) => {
 //     // const result = await handsPrediction.predictTrainHandPositions(message.data)
