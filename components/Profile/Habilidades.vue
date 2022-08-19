@@ -13,6 +13,7 @@
           <ul class="lista-habilidades">
             <div v-for="element, index in $tm(`profile.abilities.${String(main_index)}.items`)" :key="index">
               <img
+                :alt="$t(`profile.abilities.${String(main_index)}.items.${String(index)}.title`)"
                 :src="getSrc('/assets/img/habilidades/' + $t(`profile.abilities.${String(main_index)}.items[${String(index)}].logo`))">
               <span>{{ $t(`profile.abilities.${String(main_index)}.items[${String(index)}].title`) }}</span>
             </div>

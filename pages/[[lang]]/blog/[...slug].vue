@@ -103,17 +103,11 @@ const { locale } = useI18n()
 const comments = ref()
 const pageId = ref(false)
 
-const getSrc = (path) => {
-    const modules = import.meta.globEager("/assets/img/blog/*");
-    return modules[path].default;
-};
-
-
 if (data && data.value) {
     useSeo({
         title: data.value.title,
         description: data.value.description,
-        image: getSrc(data.value.image),
+        image: data.value.image,
         type: data.value.section,
         location: route.path,
         lang: data.value.language,
@@ -193,6 +187,10 @@ onUnmounted(() => {
 })
 
 
+const getSrc = (path) => {
+    const modules = import.meta.globEager("/assets/img/blog/*");
+    return modules[path].default;
+};
 
 </script>
 
