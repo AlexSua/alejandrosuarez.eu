@@ -431,7 +431,7 @@ async function enterRoom() {
         }
 
         link.value = document.location.href + "?room=" + dialogRoomIdInput.value;
-        router.push({
+        await router.push({
             path: '/videochat',
             query: {
                 room: dialogRoomIdInput.value as string
@@ -653,7 +653,7 @@ function adjustRemoteVideoAspectRatio() {
 }
 
 async function initalizeWebRTCfromCurrentRoomParam() {
-    if (link.value) {
+    if (route.query.room) {
         webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer);
         let result = await webRtcConnection.websocketConsumeLink(route.query.room)
         if (!result) {
