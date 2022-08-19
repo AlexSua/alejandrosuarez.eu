@@ -45,7 +45,7 @@ const emit = defineEmits(["update:afterEnter"]);
 
 useSeo({
 	title: "Profile",
-	description: "Hi, I am Alejandro Suárez and this is my personal website.",
+	description: "Hello, I am a computer engineer with a wide knowledge in computer engineering interested in projects that involve a high degree of automation.",
 	image: "",
 	type: "WebSite",
 	location: route.path,
