@@ -9,7 +9,7 @@
             <div ref="markdownBody" class="markdown-body ">
                 <div
                     class="!bg-videodark flex h-26 msd:h-40 -ml-[3%] -mr-[3%] msd:-ml-8 msd:-mr-8  msd:px-10  bg-videodark justify-center">
-                    <img class="object-contain max-w-full" :src="getSrc(data.image)" />
+                    <img loading="lazy" :alt="data.title" class="object-contain max-w-full" :src="getSrc(data.image)" />
                 </div>
                 <div class="flex flex-row py-4 lg:pt-7 justify-between ">
                     <div class="flex flex-row ">

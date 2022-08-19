@@ -2,7 +2,7 @@
   <article>
     <NuxtLink :to="blog._path+'/'" class="h-full flex flex-col">
       <header>
-        <img loading="lazy" :src="getSrc(blog.image)">
+        <img loading="lazy" :alt="blog.title" :src="getSrc(blog.image)">
       </header>
       <section class="flex-1">
         <div class="title">
