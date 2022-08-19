@@ -57,7 +57,7 @@
                 </Button>
             </div>
         </div>
-        <div class="flex-1 h-screen overflow-hidden flex relative bg-black">
+        <div class="flex-1 overflow-hidden flex relative bg-black ">
             <div v-if="isUserInteractionRequiredForVideoRemoteReproduction"
                 class="absolute flex justify-center items-center flex-1 h-screen w-screen text-white text-center">
                 <div class="w-80">
@@ -70,27 +70,26 @@
             <div ref="videoRemoteContainer"
                 class="absolute flex m-auto h-screen w-screen items-center z-30 flex justify-center ">
 
-                <video autoplay ref="videoRemote" class=" flex-1 max-h-full max-w-full"
+                <video autoplay ref="videoRemote" class=" flex-1 !max-h-full !max-w-full"
                     :class="{ '!object-cover': videoRemoteFullSize }"></video>
 
                 <canvas ref="canvasRemote"
-                    class="absolute z-29 w-full h-full bg-transparent transform self-center self"></canvas>
+                    class="absolute z-31 bg-transparent transform self-center  max-w-full max-h-full"></canvas>
             </div>
 
 
             <div ref="videoLocalContainer"
-                class="absolute flex m-auto h-screen w-full items-center z-30 flex justify-center" :class="{
-                    'w-[unset] h-1/4': call && !isDrawing,
+                class="absolute flex m-auto h-screen w-screen items-center z-30 flex justify-center" :class="{
+                    'max-h-1/4  w-[unset]': call && !isDrawing,
                     'transition-all duration-600': draggable && !draggable.isDragging
                 }" style="touch-action:none;"
                 :style="call && !isDrawing ? videoLocalContainerDraggableStyle && videoLocalContainerDraggableStyle.style : ''">
+                    <video autoplay ref="videoLocal"
+                        class="flex-1 max-h-screen max-w-screen"
+                        :class="{ 'transform  rotate-y-180': frontCamera,'!max-h-full !max-w-full': call && !isDrawing }"></video>
+                    <canvas ref="canvasLocal"
+                        class="absolute z-31 bg-transparent transform self-center rotate-y-180 max-w-full max-h-full"></canvas>
 
-                <video autoplay ref="videoLocal"
-                    class=" flex-1  w-full max-h-screen max-h-full max-w-full <lg:object-cover"
-                    :class="{ 'transform  rotate-y-180': frontCamera }"></video>
-
-                <canvas ref="canvasLocal"
-                    class="absolute  w-full h-full z-31 bg-transparent transform self-center rotate-y-180" ></canvas>
 
             </div>
             <div class="absolute flex m-auto h-screen w-full items-center justify-center">
@@ -597,7 +596,7 @@ async function initializeLocalStream() {
 
         if (videoEnabled.value) {
             videoBoard = new VideoBoard(videoLocal.value, canvasLocal.value, onDraw, onDrawStateChange)
-            videoLocal.value.oncanplay = ()=>{
+            videoLocal.value.oncanplay = () => {
                 adjustCanvasToVideo(canvasLocal.value, videoLocal.value)
             }
             videoLocal.value.onchange = () => {
@@ -754,8 +753,9 @@ function videoLocalContainerDrag(x: number = videoLocalContainerDraggableStyle.v
 
 function adjustCanvasToVideo(canvas, video) {
     const aspectRatio = video.videoWidth / video.videoHeight;
-    canvas.style.maxWidth = (window.innerHeight * aspectRatio) + "px";
-    canvas.style.maxHeight = (window.innerWidth/ aspectRatio) + "px";
+
+    canvas.style.width = (window.innerHeight * aspectRatio) + "px";
+    canvas.style.height = (window.innerWidth/ aspectRatio) + "px";
 }
 
 watch(draggable, () => {

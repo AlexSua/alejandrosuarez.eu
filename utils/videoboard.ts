@@ -86,13 +86,13 @@ export default class VideoBoard {
 
             const value = await this._handDetector.estimateHands(this.videoSource)
             if (value.length > 0) {
-                this._emptyHand = 0;
                 this._nonEmptyHand += 1;
             }
             if (value.length > 0 && value[0].score > 0.5) {
                 if (this._nonEmptyHand > this.ITERATIONS_NUMBER_DRAWING_STATE_CHANGE) {
                     this.onDrawingStateChange && this.onDrawingStateChange(true)
                 } 
+                this._emptyHand = 0;
 
                 if (value[0].keypoints3D[3] && value[0].keypoints3D[8]) {
                     let x = value[0].keypoints3D[4].x - value[0].keypoints3D[8].x
