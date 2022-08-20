@@ -476,7 +476,7 @@ function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
             channel.onopen = async function (event) {
                 console.log(this.label + " is open!");
                 dialogServerLessOpen.value = false;
-                channel.send("hello");
+                // channel.send("hello");
                 call.value = true;
                 setTimeout(() => !draggable.value && enableVideoLocalDraggable(), 0)
             };

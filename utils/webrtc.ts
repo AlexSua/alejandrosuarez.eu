@@ -44,10 +44,26 @@ export default class WebRtcConnection {
             urls: 'stun:stun.l.google.com:19302'
         },
         {
-            urls: "turn:skynet.sytes.net:5349",
-            username: "guest",
-            credential: "&!bYELZK$&X^n5Tm#bKu6bQe"
-        }]
+            urls: "turn:openrelay.metered.ca:80",
+            username: "openrelayproject",
+            credential: "openrelayproject",
+        },
+        {
+            urls: "turn:openrelay.metered.ca:443",
+            username: "openrelayproject",
+            credential: "openrelayproject",
+        },
+        {
+            urls: "turn:openrelay.metered.ca:443?transport=tcp",
+            username: "openrelayproject",
+            credential: "openrelayproject",
+        },
+        // {
+        //     urls: "turn:skynet.sytes.net:5349",
+        //     username: "guest",
+        //     credential: "&!bYELZK$&X^n5Tm#bKu6bQe"
+        // }
+    ]
     };
 
 
