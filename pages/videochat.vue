@@ -127,11 +127,11 @@
             :class="{ 'lg:pr-[400px]': (drawerSettingsOpen || drawerChatOpen), 'hidden': lowerToolBarHidden }">
             <!-- <div class="flex-1">sdf</div> -->
 
-            <div class="flex flex-1 items-center justify-start ml-5  !min-w-20">
+            <div v-if="!call" class="flex flex-1 items-center justify-start ml-5  !min-w-20">
                 <div class="flex flex-col  bottom-0 absolute">
-                    <Button v-if="!call" :icon="`pi pi-sign-in`" @click="openRoomDialog"
+                    <Button :icon="`pi pi-sign-in`" @click="openRoomDialog"
                         class=" p-button-rounded p-button-warning lower-toolbar-button" />
-                    <Button v-if="!call" :icon="`pi pi-user-plus ${link ? 'pi-spin pi-spinner' : ''} `"
+                    <Button :icon="`pi pi-user-plus ${link ? 'pi-spin pi-spinner' : ''} `"
                         @click="generateLink" class=" p-button-rounded p-button-warning lower-toolbar-button" />
 
                 </div>
