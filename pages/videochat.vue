@@ -123,12 +123,12 @@
         </Drawer>
 
         <div ref="lowerToolBar "
-            class="absolute bottom-10 <sxl:bottom-3 flex flex-row w-full text-center transition-all duration-400 bottom-0  align-center items-center lower-toolbar"
+            class="absolute bottom-10 <sxl:bottom-3  bottom-0  lower-toolbar w-full justify-center"
             :class="{ 'lg:pr-[400px]': (drawerSettingsOpen || drawerChatOpen), 'hidden': lowerToolBarHidden }">
             <!-- <div class="flex-1">sdf</div> -->
 
-            <div class="flex flex-1 items-center justify-start ml-5  !min-w-20">
-                <div v-if="!call"  class="flex flex-col  bottom-0 absolute">
+            <div v-if="!call" class="flex flex-1 items-center justify-start ml-5  !min-w-20">
+                <div   class="flex flex-col  bottom-0 absolute">
                     <Button  :icon="`pi pi-sign-in`" @click="openRoomDialog"
                         class=" p-button-rounded p-button-warning lower-toolbar-button" />
                     <Button :icon="`pi pi-user-plus ${link ? 'pi-spin pi-spinner' : ''} `"
