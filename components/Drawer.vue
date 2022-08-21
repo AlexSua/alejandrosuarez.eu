@@ -1,9 +1,9 @@
 <template>
-    <div class="flex-grow-0 w-md  h-screen z-50 flex-col overflow-hidden transition-all duration-[400ms] text-light-50 box-content max-w-full <sxl:fixed <sxl:right-0 <sxl:top-0 <sxl:bottom-0"
+    <div class="flex-grow-0 w-md z-50 flex-col overflow-hidden transition-all duration-[400ms] text-light-50 box-content max-w-full <sxl:fixed <sxl:right-0 <sxl:top-0 <sxl:bottom-0 bottom-0 <sm:w-full"
         :class="{ '!w-0': !open }">
-        <div class="flex flex-col  h-screen w-full">
-            <div class="basis-[5rem] flex-grow-0 flex flex-row bg-dark-400 m-4 cool-shadow overflow-hidden">
-                <div class="flex-1 flex align-middle justify-start items-center pl-4 ">
+        <div class="flex flex-col  h-full w-full">
+            <div class="basis-[4.5rem] flex-grow-0 flex flex-row bg-dark-400  cool-shadow overflow-hidden">
+                <div class="flex-1 flex align-middle justify-start items-center pl-5 ">
                     <h2>{{ title }}</h2>
                 </div>
                 <div class="flex-0  w-20 items-center flex justify-center">
@@ -11,8 +11,8 @@
                         @click="closeFun" />
                 </div>
             </div>
-            <div class="flex-1 flex flex-col relative bg-dark-400 m-4 cool-shadow overflow-hidden">
-                <div class="absolute left-0 right-0 bottom-0 top-0  ">
+            <div class="flex-1 flex flex-col relative bg-dark-400  cool-shadow overflow-hidden">
+                <div class="absolute left-0 right-0 bottom-0 top-2  ">
                     <slot></slot>
                 </div>
 
