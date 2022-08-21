@@ -40,30 +40,34 @@ export default class WebRtcConnection {
     }
 
     private readonly configuration = {
-        iceServers: [{
-            urls: 'stun:stun.l.google.com:19302'
-        },
-        {
-            urls: "turn:openrelay.metered.ca:80",
-            username: "openrelayproject",
-            credential: "openrelayproject",
-        },
-        {
-            urls: "turn:openrelay.metered.ca:443",
-            username: "openrelayproject",
-            credential: "openrelayproject",
-        },
-        {
-            urls: "turn:openrelay.metered.ca:443?transport=tcp",
-            username: "openrelayproject",
-            credential: "openrelayproject",
-        },
-        // {
-        //     urls: "turn:skynet.sytes.net:5349",
-        //     username: "guest",
-        //     credential: "&!bYELZK$&X^n5Tm#bKu6bQe"
-        // }
-    ]
+        iceServers: [
+            {
+                urls: "stun:openrelay.metered.ca:80",
+            },
+            {
+                urls: 'stun:stun.l.google.com:19302'
+            },
+            {
+                urls: "turn:openrelay.metered.ca:80",
+                username: "openrelayproject",
+                credential: "openrelayproject",
+            },
+            {
+                urls: "turn:openrelay.metered.ca:443",
+                username: "openrelayproject",
+                credential: "openrelayproject",
+            },
+            {
+                urls: "turn:openrelay.metered.ca:443?transport=tcp",
+                username: "openrelayproject",
+                credential: "openrelayproject",
+            },
+            // {
+            //     urls: "turn:skynet.sytes.net:5349",
+            //     username: "guest",
+            //     credential: "&!bYELZK$&X^n5Tm#bKu6bQe"
+            // }
+        ]
     };
 
 
@@ -257,6 +261,7 @@ export default class WebRtcConnection {
                     console.log("adding candidate")
                     this._remoteCandidates = message.candidate
                     for (const element of message.candidate) {
+                        console.log(element)
                         await this.pc.addIceCandidate(element)
                     }
                 }
