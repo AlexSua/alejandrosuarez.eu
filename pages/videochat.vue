@@ -563,7 +563,7 @@ function onDrawStateChange(drawState) {
             videoLocalContainer.value.style.height = ""
 
         } else {
-           call.value && !videoLocalContainer.value.style.width && minimizeLocalVideo()
+           call.value &&  minimizeLocalVideo()
         }
         // adjustAspectRatio(videoLocal.value,videoLocalContainer.value)
     }
@@ -713,7 +713,7 @@ const onSourceChange = (type: string) => async (value: string | undefined, oldVa
 }
 
 function minimizeLocalVideo() {
-    videoLocalContainer.value.style.height = videoLocalContainer.value.offsetHeight / 4 + "px"
+    videoLocalContainer.value.style.height = window.innerHeight / 4 + "px"
     const result = adjustAspectRatio(videoLocal.value, videoLocalContainer.value)
     videoLocalContainer.value.style.transform = "translate3d(" + (window.innerWidth - result.width) + "px," + (window.innerHeight - result.height) + "px,0)"
 }
