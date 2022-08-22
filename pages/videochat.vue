@@ -563,7 +563,7 @@ function onDrawStateChange(drawState) {
             videoLocalContainer.value.style.height = ""
 
         } else {
-           call.value && minimizeLocalVideo()
+           call.value && !videoLocalContainer.value.style.width && minimizeLocalVideo()
         }
         // adjustAspectRatio(videoLocal.value,videoLocalContainer.value)
     }
