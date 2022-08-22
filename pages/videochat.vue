@@ -74,7 +74,7 @@
                     :class="{ '!object-cover': videoRemoteFullSize }"></video>
 
                 <canvas ref="canvasRemote"
-                    class="absolute z-31 bg-transparent transform self-center  max-w-full max-h-full"></canvas>
+                    class="absolute z-31 bg-transparent transform self-center  w-full h-full"></canvas>
             </div>
 
 
@@ -807,8 +807,8 @@ function videoLocalContainerDrag(x: number = videoLocalContainerDraggableStyle.v
 function adjustCanvasToVideo(canvas, video) {
     const aspectRatio = video.videoWidth / video.videoHeight;
 
-    canvas.style.width = (window.innerHeight * aspectRatio) + "px";
-    canvas.style.height = (window.innerWidth / aspectRatio) + "px";
+    canvas.style.maxWidth = (window.innerHeight * aspectRatio) + "px";
+    canvas.style.maxHeight = (window.innerWidth / aspectRatio) + "px";
 }
 function clearAdjustCanvasToVideo(canvas) {
     canvas.style.width = "";
