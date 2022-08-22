@@ -61,7 +61,7 @@
             <div v-if="isUserInteractionRequiredForVideoRemoteReproduction"
                 class="absolute flex justify-center items-center flex-1 h-screen w-screen text-white text-center">
                 <div class="w-80">
-                    Some browsers require you to interact with the webpage before reproduce video.
+                    Some browsers require you to interact with the webpage before reproducing video.
                     <br /><br />
                     Please click or tap anywhere on this screen to reproduce remote video.
                 </div>
@@ -655,6 +655,10 @@ async function initializeScreenStream() {
             screenSharing.value = false;
         } else {
             let result = await mediaSourcesHandler.getScreenStream();
+            result.getVideoTracks()[0].onended = ()=>{
+                screenSharing.value = true;
+                initializeScreenStream()
+            }
             if (!result) return;
             webRtcConnection && webRtcConnection.attachVideoChatStream()
             frontCamera.value = false;
