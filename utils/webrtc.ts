@@ -352,7 +352,6 @@ export default class WebRtcConnection {
             console.log("p2p is open!");
             this._websocket && this._websocket.close(1000, "close")
             this._connected = true;
-            this.attachDataChannel("chat", 2, true);
             if (this._videoChatSendStream) {
                 this.attachVideoChatStream()
                 let videochatstream = () => {
@@ -363,6 +362,7 @@ export default class WebRtcConnection {
                 }
                 videochatstream()
             }
+            this.attachDataChannel("chat", 2, true);
         };
 
         channel.onclose = () => {
