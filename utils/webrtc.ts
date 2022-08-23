@@ -135,7 +135,18 @@ export default class WebRtcConnection {
             console.log("negotiation needed")
             // if (this.pc.signalingState != "stable") return; 
             const offer = await this.createOffer();
-            if ("p2p" in this._dataChannels) this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+            if ("p2p" in this._dataChannels){ 
+                if (this._dataChannels["p2p"].readyState !== "open"){
+                    const previousOnOpenFunction  = this._dataChannels["p2p"].onopen
+                    this._dataChannels["p2p"].onopen = function(ev:Event){
+                        this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+                        this._dataChannels["p2p"].onopen = previousOnOpenFunction
+                        previousOnOpenFunction(this._dataChannels["p2p"],ev)
+                    }.bind(this);
+                }else{
+                    this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+                }
+            }
         }
 
         this.pc.onsignalingstatechange = event => {
@@ -191,13 +202,7 @@ export default class WebRtcConnection {
                     this.createInitialOffer();
                 } else {
                     this._signalingFromWebsocket = true;
-                    const answer = await this.createAnswerFromString(msg.data);
-                    console.log("answer", answer)
-                    const message: Message = {
-                        sdp: answer
-                    }
-                    const compressedString = LZString.compressToEncodedURIComponent(JSON.stringify(message));
-                    this._websocket.send(compressedString);
+                    await this.createAnswerFromString(msg.data);
                 }
             }
             this._websocket.onclose = (msg: CloseEvent) => {
@@ -244,6 +249,7 @@ export default class WebRtcConnection {
                     await this.pc.setLocalDescription(answerDesc);
                 } else {
                     if (this.pc.signalingState == "have-local-offer") {
+                        console.log("create remote description")
                         await this.pc.setRemoteDescription(message.sdp)
                     }
                     if (this._videoChatSenders["video"]) {
@@ -260,12 +266,14 @@ export default class WebRtcConnection {
                             this._videoChatSenders["video"].setParameters(params)
                             console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
                             console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
+
                         }
                     }
                     if (this._videoChatSenders["audio"]) {
                         if ("connected" == this._videoChatSenders["audio"].transport.state) {
                             this._videoChatSenders["audio"].track.contentHint = "speech"
                         }
+
 
                     }
                 }
