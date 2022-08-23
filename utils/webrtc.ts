@@ -3,7 +3,7 @@ import MediaSourcesHandler from "./media-sources-handler";
 
 export interface Message {
     sdp: RTCSessionDescription | null,
-    candidate?: RTCIceCandidate[],
+    candidate: RTCIceCandidate[],
 }
 
 
@@ -92,10 +92,13 @@ export default class WebRtcConnection {
                 this._localCandidates.push(event.candidate)
             }
             else {
+                console.log("localCandidate", this._localCandidates)
+
                 const message: Message = {
                     sdp: this.pc.localDescription,
                     candidate: this._localCandidates
                 }
+                console.log(message)
                 const compressedString = LZString.compressToEncodedURIComponent(JSON.stringify(message));
                 if (this._signalingFromWebsocket && this._websocket) {
                     this._websocket.send(compressedString);
@@ -135,24 +138,48 @@ export default class WebRtcConnection {
             console.log("negotiation needed")
             // if (this.pc.signalingState != "stable") return; 
             const offer = await this.createOffer();
-            if ("p2p" in this._dataChannels){ 
-                if (this._dataChannels["p2p"].readyState !== "open"){
-                    const previousOnOpenFunction  = this._dataChannels["p2p"].onopen
-                    this._dataChannels["p2p"].onopen = function(ev:Event){
+            if ("video" in this._videoChatSenders) {
+                console.log("video transport state: ", this._videoChatSenders["video"])
+                if ("connected" == this._videoChatSenders["video"].transport.state) {
+                    let params = this._videoChatSenders["video"].getParameters()
+                    this._videoChatSenders["video"].track.contentHint = "motion"
+                    console.log(params)
+                    // params.encodings = [{}]
+                    // params.encodings[0].maxBitrate = 120000000;
+                    // params.encodings[0].scaleResolutionDownBy = 1;
+                    params.degradationPreference = "maintain-framerate"
+                    // params.encodings[0].
+                    this._videoChatSenders["video"].setParameters(params)
+                    console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
+                    console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
+
+                }
+            }
+            if ("audio" in this._videoChatSenders) {
+                if ("connected" == this._videoChatSenders["audio"].transport.state) {
+                    this._videoChatSenders["audio"].track.contentHint = "speech"
+                }
+            }
+            if ("p2p" in this._dataChannels) {
+                if (this._dataChannels["p2p"].readyState !== "open") {
+                    const previousOnOpenFunction = this._dataChannels["p2p"].onopen
+                    this._dataChannels["p2p"].onopen = function (ev: Event) {
                         this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
                         this._dataChannels["p2p"].onopen = previousOnOpenFunction
-                        previousOnOpenFunction(this._dataChannels["p2p"],ev)
+                        this._dataChannels["p2p"].onopen(ev)
                     }.bind(this);
-                }else{
+                } else {
                     this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
                 }
             }
+
         }
 
         this.pc.onsignalingstatechange = event => {
             console.log("signaling state: " + this.pc.signalingState)
             this._state = String(this.pc.signalingState)
         }
+
     }
 
     async createOffer() {
@@ -239,6 +266,8 @@ export default class WebRtcConnection {
 
     async createAnswer(message: Message): Promise<RTCSessionDescriptionInit | null> {
         let answerDesc = null
+        this._localCandidates = []
+        console.log(message)
         if (message.sdp) {
             const sdpMessage = message.sdp
             try {
@@ -248,35 +277,11 @@ export default class WebRtcConnection {
                     answerDesc = await this.pc.createAnswer();
                     await this.pc.setLocalDescription(answerDesc);
                 } else {
-                    if (this.pc.signalingState == "have-local-offer") {
-                        console.log("create remote description")
+                    if (this.pc.signalingState == "have-local-offer" && !message.candidate) {
                         await this.pc.setRemoteDescription(message.sdp)
                     }
-                    if (this._videoChatSenders["video"]) {
-                        console.log("video transport state: ", this._videoChatSenders["video"])
-                        if ("connected" == this._videoChatSenders["video"].transport.state) {
-                            let params = this._videoChatSenders["video"].getParameters()
-                            this._videoChatSenders["video"].track.contentHint = "motion"
-                            console.log(params)
-                            // params.encodings = [{}]
-                            // params.encodings[0].maxBitrate = 120000000;
-                            // params.encodings[0].scaleResolutionDownBy = 1;
-                            params.degradationPreference = "maintain-framerate"
-                            // params.encodings[0].
-                            this._videoChatSenders["video"].setParameters(params)
-                            console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
-                            console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
-
-                        }
-                    }
-                    if (this._videoChatSenders["audio"]) {
-                        if ("connected" == this._videoChatSenders["audio"].transport.state) {
-                            this._videoChatSenders["audio"].track.contentHint = "speech"
-                        }
-
-
-                    }
                 }
+
                 if (message.candidate) {
                     await this.pc.setRemoteDescription(message.sdp)
                     console.log("adding candidate")
@@ -286,6 +291,8 @@ export default class WebRtcConnection {
                         await this.pc.addIceCandidate(element)
                     }
                 }
+
+
                 return answerDesc
             }
 
@@ -322,6 +329,7 @@ export default class WebRtcConnection {
                 this._videoChatSenders[track.kind] = this.pc.addTrack(track, stream)
             }
         })
+
         console.log(this._videoChatSenders["video"])
     }
 
