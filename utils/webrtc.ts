@@ -244,22 +244,30 @@ export default class WebRtcConnection {
                     if (this._videoChatSenders["video"]) {
                         console.log("video transport state: ", this._videoChatSenders["video"])
                         if ("connected" == this._videoChatSenders["video"].transport.state) {
-                            let params = this._videoChatSenders["video"].getParameters()
-                            this._videoChatSenders["video"].track.contentHint = "motion"
-                            console.log(params)
-                            // params.encodings = [{}]
-                            // params.encodings[0].maxBitrate = 120000000;
-                            // params.encodings[0].scaleResolutionDownBy = 1;
-                            params.degradationPreference = "maintain-framerate"
-                            // params.encodings[0].
-                            this._videoChatSenders["video"].setParameters(params)
-                            console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
-                            console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
+                            try {
+                                let params = this._videoChatSenders["video"].getParameters()
+                                this._videoChatSenders["video"].track.contentHint = "motion"
+                                console.log(params)
+                                // params.encodings = [{}]
+                                // params.encodings[0].maxBitrate = 120000000;
+                                // params.encodings[0].scaleResolutionDownBy = 1;
+                                params.degradationPreference = "maintain-framerate"
+                                // params.encodings[0].
+                                this._videoChatSenders["video"].setParameters(params)
+                                console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
+                                console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
+                            } catch (e) {
+                                console.log(e)
+                            }
                         }
                     }
                     if (this._videoChatSenders["audio"]) {
-                        if ("connected" == this._videoChatSenders["audio"].transport.state) {
-                            this._videoChatSenders["audio"].track.contentHint = "speech"
+                        try {
+                            if ("connected" == this._videoChatSenders["audio"].transport.state) {
+                                this._videoChatSenders["audio"].track.contentHint = "speech"
+                            }
+                        } catch (e) {
+                            console.log(e)
                         }
 
                     }
