@@ -3,7 +3,7 @@ import MediaSourcesHandler from "./media-sources-handler";
 
 export interface Message {
     sdp: RTCSessionDescription | null,
-    candidate: RTCIceCandidate[],
+    candidate?: RTCIceCandidate[],
 }
 
 
@@ -131,12 +131,11 @@ export default class WebRtcConnection {
             console.log(this.pc.iceConnectionState)
         }
 
-        this.pc.onnegotiationneeded = event => {
+        this.pc.onnegotiationneeded = async event => {
             console.log("negotiation needed")
             // if (this.pc.signalingState != "stable") return; 
-            this.createOffer().then(offer => {
-                this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
-            });
+            const offer = await this.createOffer();
+            if ("p2p" in this._dataChannels) this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
         }
 
         this.pc.onsignalingstatechange = event => {
@@ -154,9 +153,9 @@ export default class WebRtcConnection {
 
     async createInitialOffer() {
         this._localCandidates = []
-        this.attachDataChannel("p2p", 0, false);
-        let offer = await this.createOffer();
-        return offer
+        this.attachDataChannel("p2p", 1, false);
+        // let offer = await this.createOffer();
+        // return offer
     }
 
 
@@ -192,7 +191,13 @@ export default class WebRtcConnection {
                     this.createInitialOffer();
                 } else {
                     this._signalingFromWebsocket = true;
-                    this.createAnswerFromString(msg.data)
+                    const answer = await this.createAnswerFromString(msg.data);
+                    console.log("answer", answer)
+                    const message: Message = {
+                        sdp: answer
+                    }
+                    const compressedString = LZString.compressToEncodedURIComponent(JSON.stringify(message));
+                    this._websocket.send(compressedString);
                 }
             }
             this._websocket.onclose = (msg: CloseEvent) => {
@@ -244,30 +249,22 @@ export default class WebRtcConnection {
                     if (this._videoChatSenders["video"]) {
                         console.log("video transport state: ", this._videoChatSenders["video"])
                         if ("connected" == this._videoChatSenders["video"].transport.state) {
-                            try {
-                                let params = this._videoChatSenders["video"].getParameters()
-                                this._videoChatSenders["video"].track.contentHint = "motion"
-                                console.log(params)
-                                // params.encodings = [{}]
-                                // params.encodings[0].maxBitrate = 120000000;
-                                // params.encodings[0].scaleResolutionDownBy = 1;
-                                params.degradationPreference = "maintain-framerate"
-                                // params.encodings[0].
-                                this._videoChatSenders["video"].setParameters(params)
-                                console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
-                                console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
-                            } catch (e) {
-                                console.log(e)
-                            }
+                            let params = this._videoChatSenders["video"].getParameters()
+                            this._videoChatSenders["video"].track.contentHint = "motion"
+                            console.log(params)
+                            // params.encodings = [{}]
+                            // params.encodings[0].maxBitrate = 120000000;
+                            // params.encodings[0].scaleResolutionDownBy = 1;
+                            params.degradationPreference = "maintain-framerate"
+                            // params.encodings[0].
+                            this._videoChatSenders["video"].setParameters(params)
+                            console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
+                            console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
                         }
                     }
                     if (this._videoChatSenders["audio"]) {
-                        try {
-                            if ("connected" == this._videoChatSenders["audio"].transport.state) {
-                                this._videoChatSenders["audio"].track.contentHint = "speech"
-                            }
-                        } catch (e) {
-                            console.log(e)
+                        if ("connected" == this._videoChatSenders["audio"].transport.state) {
+                            this._videoChatSenders["audio"].track.contentHint = "speech"
                         }
 
                     }
@@ -320,7 +317,7 @@ export default class WebRtcConnection {
         console.log(this._videoChatSenders["video"])
     }
 
-    attachDataChannel(dataChannelName: string = "p2p", id: number = 0, negotiated = true) {
+    attachDataChannel(dataChannelName: string = "p2p", id: number = 1, negotiated = true) {
         if (!(dataChannelName in this._dataChannels)) {
             console.log("attach datachannel:" + dataChannelName)
             const channel = this.pc.createDataChannel(dataChannelName, { negotiated: negotiated, id: id });
