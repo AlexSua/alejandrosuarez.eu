@@ -136,7 +136,10 @@ export default class MediaSourcesHandler {
     public async getScreenStream() {
         if (navigator && navigator.mediaDevices) {
             try {
-                this._currentScreenStream = await navigator.mediaDevices.getDisplayMedia({ video: {frameRate:{"ideal":240}, width:{"max":1920},height:{"max":1080}, }, audio: this.defaultConstraints.audio })
+                this._currentScreenStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: { frameRate: { "ideal": 240 } },
+                    audio: true
+                })
                 await this.stopAndRemoveVideo()
                 this.currentStream.addTrack(this._currentScreenStream.getVideoTracks()[0])
 
@@ -166,7 +169,7 @@ export default class MediaSourcesHandler {
     public async changeSourceStream(audioSelected?: string, videoSelected?: string) {
 
         let stream;
-        
+
         if (this.currentDevices.audio != audioSelected) {
             await this.stopAndRemoveAudio()
             stream = await this.startAudio(audioSelected)
