@@ -27,7 +27,6 @@ export default class WebRtcConnection {
 
     private _onDataChannel: ((connection: WebRtcConnection, channel: RTCDataChannel) => void) | undefined
     private _onTrack: ((connection: WebRtcConnection, track: MediaStreamTrack, stream: readonly MediaStream[]) => void) | undefined
-    private _writeOnChat?: (message: ChatMessage) => void
     private _writeOnOffer?: (message: string) => void
 
     private _connected: boolean = false
@@ -379,9 +378,6 @@ export default class WebRtcConnection {
                     });
                 }.bind(this));
             }
-
-
-
         };
 
         channel.onclose = () => {

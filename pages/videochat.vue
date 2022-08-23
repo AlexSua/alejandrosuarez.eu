@@ -563,7 +563,7 @@ function onDrawStateChange(drawState) {
             videoLocalContainer.value.style.height = ""
 
         } else {
-           call.value &&  minimizeLocalVideo()
+            call.value && minimizeLocalVideo()
         }
         // adjustAspectRatio(videoLocal.value,videoLocalContainer.value)
     }
@@ -655,7 +655,7 @@ async function initializeScreenStream() {
             screenSharing.value = false;
         } else {
             let result = await mediaSourcesHandler.getScreenStream();
-            result.getVideoTracks()[0].onended = ()=>{
+            result.getVideoTracks()[0].onended = () => {
                 screenSharing.value = true;
                 initializeScreenStream()
             }
@@ -718,6 +718,7 @@ const onSourceChange = (type: string) => async (value: string | undefined, oldVa
 
 function minimizeLocalVideo() {
     videoLocalContainer.value.style.height = window.innerHeight / 4 + "px"
+    videoLocalContainer.value.style.width = ""
     const result = adjustAspectRatio(videoLocal.value, videoLocalContainer.value)
     videoLocalContainer.value.style.transform = "translate3d(" + (window.innerWidth - result.width) + "px," + (window.innerHeight - result.height) + "px,0)"
 }
@@ -840,13 +841,13 @@ watch(draggable, () => {
 }, { deep: true })
 
 watch(windowSize, () => {
+    call.value && !isDrawing.value && minimizeLocalVideo()
     if ((videoLocalContainerDraggableStyle.value.x + videoLocalContainer.value.offsetWidth) >= windowSize.width) {
         videoLocalContainerDrag(windowSize.width - videoLocalContainer.value.offsetWidth)
     }
     if ((videoLocalContainerDraggableStyle.value.y + videoLocalContainer.value.offsetHeight) >= windowSize.height) {
         videoLocalContainerDrag(windowSize.height - videoLocalContainer.value.offsetHeight)
     }
-
     adjustCanvasToVideo(canvasLocal.value, videoLocal.value)
     adjustCanvasToVideo(canvasRemote.value, videoRemote.value)
     // adjustRemoteVideoAspectRatio()
@@ -862,14 +863,10 @@ onMounted(() => {
         }
     })();
     videoLocalContainer.value.ontransitionend = () => {
+        adjustAspectRatio(videoLocal.value, canvasLocal.value,)
         if (call.value && !isDrawing.value) {
-            adjustAspectRatio(videoLocal.value, videoLocalContainer.value)
             !draggable.value && enableVideoLocalDraggable()
         }
-        else {
-            adjustAspectRatio(videoLocal.value,canvasLocal.value, )
-        }
-
         // !draggable.value && enableVideoLocalDraggable()
         // adjustAspectRatio(videoLocal.value, videoLocalContainer.value)
 
@@ -880,7 +877,7 @@ onMounted(() => {
     videoLocalContainer.value.ontransitionstart = () => {
         if (call.value && !isDrawing.value) {
             clearAdjustCanvasToVideo(canvasLocal.value)
-        }else{}
+        } 
         // adjustAspectRatio(videoLocal.value, videoLocalContainer.value)
         // !draggable.value && enableVideoLocalDraggable()
         // videoLocalContainer.value.style.width = ""
