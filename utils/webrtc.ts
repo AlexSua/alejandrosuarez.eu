@@ -183,8 +183,7 @@ export default class WebRtcConnection {
             this._state = String(this.pc.signalingState)
             if (this.pc.signalingState == "stable") {
                 if (this._actions_queue.length > 0) {
-                    const action = this._actions_queue.shift()
-                    action()
+                    this._actions_queue.shift()()
                 }
             }
         }
@@ -357,7 +356,8 @@ export default class WebRtcConnection {
 
 
     executeOrQueue(action: Function) {
-        if (this.pc.signalingState !== "stable")
+        console.log("executeOrQueue", action)
+        if (this.pc.signalingState != "stable")
             this._actions_queue.push(action)
         else {
             action()
@@ -369,11 +369,18 @@ export default class WebRtcConnection {
             console.log("p2p is open!");
             this._websocket && this._websocket.close(1000, "close")
             this._connected = true;
-            this.executeOrQueue(() => this.attachDataChannel("chat", 2, true));
+            this.executeOrQueue(function () { this.attachDataChannel("chat", 2, true) }.bind(this));
 
-            if (this._videoChatSendStream) {
-                this.executeOrQueue(() => this.attachVideoChatStream());
+            if (this._mediaSourcesHandler.currentStream) {
+                this.executeOrQueue(function () {
+                    this.attachVideoChatStream();
+                    this.createOffer().then((offer) => {
+                        this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+                    });
+                }.bind(this));
             }
+
+
 
         };
 
