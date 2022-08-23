@@ -32,8 +32,9 @@ export default class WebRtcConnection {
 
     private _connected: boolean = false
     private _state: string = ""
+    private _actions_queue: Function[] = []
 
-    
+
     private readonly websocket_configuration = {
         address: "wss://skynet.sytes.net:5355/ws/",
         // address: "ws://127.0.0.1:8080/ws/",
@@ -86,6 +87,7 @@ export default class WebRtcConnection {
         this._writeOnOffer = writeOnOffer
         this._mediaSourcesHandler = mediaSourcesHandler;
 
+        this._actions_queue = []
 
         this.pc.onicecandidate = (event) => {
             if (event.candidate) {
@@ -179,6 +181,12 @@ export default class WebRtcConnection {
         this.pc.onsignalingstatechange = event => {
             console.log("signaling state: " + this.pc.signalingState)
             this._state = String(this.pc.signalingState)
+            if (this.pc.signalingState == "stable") {
+                if (this._actions_queue.length > 0) {
+                    const action = this._actions_queue.shift()
+                    action()
+                }
+            }
         }
 
     }
@@ -347,22 +355,26 @@ export default class WebRtcConnection {
         }
     }
 
+
+    executeOrQueue(action: Function) {
+        if (this.pc.signalingState !== "stable")
+            this._actions_queue.push(action)
+        else {
+            action()
+        }
+    }
+
     p2pDataChannelInitialization(channel: RTCDataChannel) {
         channel.onopen = (event) => {
             console.log("p2p is open!");
             this._websocket && this._websocket.close(1000, "close")
             this._connected = true;
+            this.executeOrQueue(() => this.attachDataChannel("chat", 2, true));
+
             if (this._videoChatSendStream) {
-                this.attachVideoChatStream()
-                let videochatstream = () => {
-                    if (this.pc.signalingState != "stable") setTimeout(() => videochatstream(), 100)
-                    else this.createOffer().then((offer) => {
-                        this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
-                    });
-                }
-                videochatstream()
+                this.executeOrQueue(() => this.attachVideoChatStream());
             }
-            this.attachDataChannel("chat", 2, true);
+
         };
 
         channel.onclose = () => {
