@@ -716,11 +716,10 @@ const onSourceChange = (type: string) => async (value: string | undefined, oldVa
     }
 }
 
-function minimizeLocalVideo() {
+function minimizeLocalVideo(translate: boolean = false) {
     videoLocalContainer.value.style.height = window.innerHeight / 4 + "px"
-    videoLocalContainer.value.style.width = ""
     const result = adjustAspectRatio(videoLocal.value, videoLocalContainer.value)
-    videoLocalContainer.value.style.transform = "translate3d(" + (window.innerWidth - result.width) + "px," + (window.innerHeight - result.height) + "px,0)"
+    translate && (videoLocalContainer.value.style.transform = "translate3d(" + (window.innerWidth - result.width) + "px," + (window.innerHeight - result.height) + "px,0)")
 }
 watch(audioSelected, onSourceChange("audio"))
 watch(videoSelected, onSourceChange("video"))
@@ -730,8 +729,7 @@ watch(call, async (value: boolean) => {
         setTimeout(() => {
             lowerToolBarHidden.value = true;
         }, 5000)
-        minimizeLocalVideo()
-
+        minimizeLocalVideo(true)
 
         // videoLocalContainer.value.style.left = (window.innerWidth - Number(videoLocalContainer.value.style.width.replace("px",""))) + "px"
         // videoLocalContainer.value.style.top = (window.innerHeight - Number(videoLocalContainer.value.style.height.replace("px",""))) + "px"
@@ -812,13 +810,13 @@ function adjustCanvasToVideo(canvas, video) {
     canvas.style.maxHeight = (window.innerWidth / aspectRatio) + "px";
 }
 function clearAdjustCanvasToVideo(canvas) {
-    canvas.style.width = "";
-    canvas.style.height = "";
+    canvas.style.maxWidth = "";
+    canvas.style.maxHeight = "";
 }
 
 
 function adjustAspectRatio(video: HTMLVideoElement, container: HTMLElement) {
-    const containerWidth = Number(container.style.width.replace("px", "") || container.offsetWidth)
+    const containerWidth = Number(10000000)
     const containerHeight = Number(container.style.height.replace("px", "") || container.offsetHeight)
     const videoFrameAspectRatio = containerWidth / containerHeight;
     const aspectRatio = video.videoWidth / video.videoHeight;
@@ -843,10 +841,14 @@ watch(draggable, () => {
 watch(windowSize, () => {
     call.value && !isDrawing.value && minimizeLocalVideo()
     if ((videoLocalContainerDraggableStyle.value.x + videoLocalContainer.value.offsetWidth) >= windowSize.width) {
-        videoLocalContainerDrag(windowSize.width - videoLocalContainer.value.offsetWidth)
+        videoLocalContainerDrag(windowSize.width - videoLocalContainer.value.offsetWidth, videoLocalContainerDraggableStyle.value.y)
+        draggable.value && (draggable.value.x = videoLocalContainerDraggableStyle.value.x);
+
     }
     if ((videoLocalContainerDraggableStyle.value.y + videoLocalContainer.value.offsetHeight) >= windowSize.height) {
-        videoLocalContainerDrag(windowSize.height - videoLocalContainer.value.offsetHeight)
+        videoLocalContainerDrag(videoLocalContainerDraggableStyle.value.x, windowSize.height - videoLocalContainer.value.offsetHeight)
+         draggable.value && (draggable.value.y = videoLocalContainerDraggableStyle.value.y);
+
     }
     adjustCanvasToVideo(canvasLocal.value, videoLocal.value)
     adjustCanvasToVideo(canvasRemote.value, videoRemote.value)
@@ -863,10 +865,11 @@ onMounted(() => {
         }
     })();
     videoLocalContainer.value.ontransitionend = () => {
-        adjustAspectRatio(videoLocal.value, canvasLocal.value,)
+        // adjustAspectRatio(videoLocal.value, canvasLocal.value,)
         if (call.value && !isDrawing.value) {
             !draggable.value && enableVideoLocalDraggable()
         }
+        adjustCanvasToVideo(canvasLocal.value, videoLocal.value)
         // !draggable.value && enableVideoLocalDraggable()
         // adjustAspectRatio(videoLocal.value, videoLocalContainer.value)
 
@@ -877,7 +880,7 @@ onMounted(() => {
     videoLocalContainer.value.ontransitionstart = () => {
         if (call.value && !isDrawing.value) {
             clearAdjustCanvasToVideo(canvasLocal.value)
-        } 
+        }
         // adjustAspectRatio(videoLocal.value, videoLocalContainer.value)
         // !draggable.value && enableVideoLocalDraggable()
         // videoLocalContainer.value.style.width = ""
