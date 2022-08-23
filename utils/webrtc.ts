@@ -138,6 +138,19 @@ export default class WebRtcConnection {
             console.log("negotiation needed")
             // if (this.pc.signalingState != "stable") return; 
             const offer = await this.createOffer();
+
+            if ("p2p" in this._dataChannels) {
+                if (this._dataChannels["p2p"].readyState != "open") {
+                    const previousOnOpenFunction = this._dataChannels["p2p"].onopen
+                    this._dataChannels["p2p"].onopen = function (ev: Event) {
+                        this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+                        this._dataChannels["p2p"].onopen = previousOnOpenFunction
+                        this._dataChannels["p2p"].onopen(ev)
+                    }.bind(this);
+                } else {
+                    this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+                }
+            }
             if ("video" in this._videoChatSenders) {
                 console.log("video transport state: ", this._videoChatSenders["video"])
                 if ("connected" == this._videoChatSenders["video"].transport.state) {
@@ -158,18 +171,6 @@ export default class WebRtcConnection {
             if ("audio" in this._videoChatSenders) {
                 if ("connected" == this._videoChatSenders["audio"].transport.state) {
                     this._videoChatSenders["audio"].track.contentHint = "speech"
-                }
-            }
-            if ("p2p" in this._dataChannels) {
-                if (this._dataChannels["p2p"].readyState !== "open") {
-                    const previousOnOpenFunction = this._dataChannels["p2p"].onopen
-                    this._dataChannels["p2p"].onopen = function (ev: Event) {
-                        this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
-                        this._dataChannels["p2p"].onopen = previousOnOpenFunction
-                        this._dataChannels["p2p"].onopen(ev)
-                    }.bind(this);
-                } else {
-                    this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
                 }
             }
 
@@ -361,7 +362,6 @@ export default class WebRtcConnection {
                     });
                 }
                 videochatstream()
-
             }
 
         };
