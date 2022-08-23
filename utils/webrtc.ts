@@ -33,7 +33,7 @@ export default class WebRtcConnection {
     private _connected: boolean = false
     private _state: string = ""
 
-
+    
     private readonly websocket_configuration = {
         address: "wss://skynet.sytes.net:5355/ws/",
         // address: "ws://127.0.0.1:8080/ws/",
@@ -134,46 +134,46 @@ export default class WebRtcConnection {
             console.log(this.pc.iceConnectionState)
         }
 
-        this.pc.onnegotiationneeded = async event => {
+        this.pc.onnegotiationneeded = event => {
             console.log("negotiation needed")
             // if (this.pc.signalingState != "stable") return; 
-            const offer = await this.createOffer();
-
-            if ("p2p" in this._dataChannels) {
-                if (this._dataChannels["p2p"].readyState != "open") {
-                    const previousOnOpenFunction = this._dataChannels["p2p"].onopen
-                    this._dataChannels["p2p"].onopen = function (ev: Event) {
+            this.createOffer().then((offer) => {
+                if ("p2p" in this._dataChannels) {
+                    if (this._dataChannels["p2p"].readyState != "open") {
+                        const previousOnOpenFunction = this._dataChannels["p2p"].onopen
+                        this._dataChannels["p2p"].onopen = function (ev: Event) {
+                            this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+                            this._dataChannels["p2p"].onopen = previousOnOpenFunction
+                            this._dataChannels["p2p"].onopen(ev)
+                        }.bind(this);
+                    } else {
                         this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
-                        this._dataChannels["p2p"].onopen = previousOnOpenFunction
-                        this._dataChannels["p2p"].onopen(ev)
-                    }.bind(this);
-                } else {
-                    this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+                    }
                 }
-            }
-            if ("video" in this._videoChatSenders) {
-                console.log("video transport state: ", this._videoChatSenders["video"])
-                if ("connected" == this._videoChatSenders["video"].transport.state) {
-                    let params = this._videoChatSenders["video"].getParameters()
-                    this._videoChatSenders["video"].track.contentHint = "motion"
-                    console.log(params)
-                    // params.encodings = [{}]
-                    // params.encodings[0].maxBitrate = 120000000;
-                    // params.encodings[0].scaleResolutionDownBy = 1;
-                    params.degradationPreference = "maintain-framerate"
-                    // params.encodings[0].
-                    this._videoChatSenders["video"].setParameters(params)
-                    console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
-                    console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
+                if ("video" in this._videoChatSenders) {
+                    console.log("video transport state: ", this._videoChatSenders["video"])
+                    if ("connected" == this._videoChatSenders["video"].transport.state) {
+                        let params = this._videoChatSenders["video"].getParameters()
+                        this._videoChatSenders["video"].track.contentHint = "motion"
+                        console.log(params)
+                        // params.encodings = [{}]
+                        // params.encodings[0].maxBitrate = 120000000;
+                        // params.encodings[0].scaleResolutionDownBy = 1;
+                        params.degradationPreference = "maintain-framerate"
+                        // params.encodings[0].
+                        this._videoChatSenders["video"].setParameters(params)
+                        console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
+                        console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
 
+                    }
                 }
-            }
-            if ("audio" in this._videoChatSenders) {
-                if ("connected" == this._videoChatSenders["audio"].transport.state) {
-                    this._videoChatSenders["audio"].track.contentHint = "speech"
+                if ("audio" in this._videoChatSenders) {
+                    if ("connected" == this._videoChatSenders["audio"].transport.state) {
+                        this._videoChatSenders["audio"].track.contentHint = "speech"
+                    }
                 }
-            }
 
+            })
         }
 
         this.pc.onsignalingstatechange = event => {
@@ -363,7 +363,6 @@ export default class WebRtcConnection {
                 }
                 videochatstream()
             }
-
         };
 
         channel.onclose = () => {
