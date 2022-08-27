@@ -100,7 +100,7 @@ export default class WebRtcConnection {
                     sdp: this.pc.localDescription,
                     candidate: this._localCandidates
                 }
-                console.log(message)
+                console.log(JSON.stringify(message.sdp.sdp))
                 const compressedString = LZString.compressToEncodedURIComponent(JSON.stringify(message));
                 if (this._signalingFromWebsocket && this._websocket) {
                     this._websocket.send(compressedString);
@@ -200,8 +200,9 @@ export default class WebRtcConnection {
     async createInitialOffer() {
         this._localCandidates = []
         this.attachDataChannel("p2p", 1, false);
-        // let offer = await this.createOffer();
-        // return offer
+        if(this.pc.signalingState === "stable") return;
+        let offer = await this.createOffer();
+        return offer
     }
 
 
