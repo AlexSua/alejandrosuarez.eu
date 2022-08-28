@@ -90,12 +90,11 @@ export default class WebRtcConnection {
         this._actions_queue = []
 
         this.pc.onicecandidate = (event) => {
-            if (event.candidate) {
-                this._localCandidates.push(event.candidate)
-            }
-            else {
-                console.log("localCandidate", this._localCandidates)
 
+            this._localCandidates.push(event.candidate)
+
+            if(!event.candidate) {
+                console.log("localCandidate", this._localCandidates)
                 const message: Message = {
                     sdp: this.pc.localDescription,
                     candidate: this._localCandidates
@@ -108,8 +107,6 @@ export default class WebRtcConnection {
                     writeOnOffer ? writeOnOffer(compressedString) : console.log(compressedString)
                     navigator.clipboard.writeText(compressedString)
                 }
-
-
             }
         };
         this.pc.ontrack = event => {
@@ -187,21 +184,21 @@ export default class WebRtcConnection {
                 }
             }
         }
-        this.pc.onconnectionstatechange = event=>{
-            switch(this.pc.connectionState) {
+        this.pc.onconnectionstatechange = event => {
+            switch (this.pc.connectionState) {
                 case "new":
                     break;
                 case "connected":
-                  break;
+                    break;
                 case "disconnected":
-                  break;
+                    break;
                 case "closed":
-                  break;
+                    break;
                 case "failed":
-                  break;
+                    break;
                 default:
-                  break;
-              }
+                    break;
+            }
         }
 
     }
@@ -218,7 +215,7 @@ export default class WebRtcConnection {
         this.attachDataChannel("p2p", 1, false);
     }
 
-    _compressMessage(message:any){
+    _compressMessage(message: any) {
         const compressedString = LZString.compressToEncodedURIComponent(JSON.stringify(message));
         return compressedString;
     }
@@ -363,12 +360,12 @@ export default class WebRtcConnection {
         if (!(dataChannelName in this._dataChannels)) {
             console.log("attach datachannel:" + dataChannelName)
             const channel = this.pc.createDataChannel(dataChannelName, { negotiated: negotiated, id: id });
-            this._dataChannels[channel.label] = channel
             if (dataChannelName !== "p2p") {
-                this._onDataChannel && this._onDataChannel(this, this._dataChannels[channel.label])
+                this._onDataChannel && this._onDataChannel(this, channel)
             } else {
-                this.p2pDataChannelInitialization(this._dataChannels[channel.label])
+                this.p2pDataChannelInitialization(channel)
             }
+            this._dataChannels[channel.label] = channel
         }
     }
 
@@ -387,14 +384,12 @@ export default class WebRtcConnection {
             console.log("p2p is open!");
             this._websocket && this._websocket.close(1000, "close")
             this._connected = true;
-            this.executeOrQueue(function () { this.attachDataChannel("chat", 2, true) }.bind(this));
-
+            this.executeOrQueue(function () {
+                this.attachDataChannel("chat", 2, true)
+            }.bind(this));
             if (this._mediaSourcesHandler.currentStream) {
                 this.executeOrQueue(function () {
                     this.attachVideoChatStream();
-                    // this.createOffer().then((offer) => {
-                    //     this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
-                    // });
                 }.bind(this));
             }
         };
