@@ -594,7 +594,7 @@ async function createOrRecibeAnswer() {
     if (!webRtcConnection || webRtcConnection.state != "have-local-offer") {
         webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer)
     }
-    await webRtcConnection.createAnswerFromString(sdpMessageInput.value)
+    await webRtcConnection.createAnswerFromCompressedString(sdpMessageInput.value)
 }
 
 async function refreshMediaDevices() {

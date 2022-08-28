@@ -23,6 +23,7 @@ export default class WebRtcConnection {
 
     private _dataChannels: Record<string, RTCDataChannel> = {}
     private _websocket: WebSocket | null = null
+    private _websocket_uuid: string = null
     private _signalingFromWebsocket = false
 
     private _onDataChannel: ((connection: WebRtcConnection, channel: RTCDataChannel) => void) | undefined
@@ -47,12 +48,6 @@ export default class WebRtcConnection {
             {
                 urls: "stun:openrelay.metered.ca:80",
             },
-
-            {
-                urls: "turn:openrelay.metered.ca:80",
-                username: "openrelayproject",
-                credential: "openrelayproject",
-            },
             {
                 urls: "turn:openrelay.metered.ca:443",
                 username: "openrelayproject",
@@ -63,6 +58,12 @@ export default class WebRtcConnection {
                 username: "openrelayproject",
                 credential: "openrelayproject",
             },
+            {
+                urls: "turn:openrelay.metered.ca:80",
+                username: "openrelayproject",
+                credential: "openrelayproject",
+            },
+
             // {
             //     urls: "turn:skynet.sytes.net:5349",
             //     username: "guest",
@@ -93,7 +94,7 @@ export default class WebRtcConnection {
 
             this._localCandidates.push(event.candidate)
 
-            if(!event.candidate) {
+            if (!event.candidate) {
                 console.log("localCandidate", this._localCandidates)
                 const message: Message = {
                     sdp: this.pc.localDescription,
@@ -132,6 +133,33 @@ export default class WebRtcConnection {
         this.pc.oniceconnectionstatechange = event => {
             console.log(this.pc.iceConnectionState)
         }
+
+        this.pc.onconnectionstatechange = event => {
+            console.log(this.pc.connectionState)
+            switch (this.pc.connectionState) {
+                case "new":
+                    break;
+                case "connected":
+                    break;
+                case "closed":
+                    break;
+                case "failed":
+                    // if(this._websocket){
+                    //     const previousOnClose = this._websocket.onclose;
+                    //     this._websocket.onclose = (event)=>{
+                    //         this._websocket.onclose = previousOnClose;
+                    //         this._websocket.onclose(event)
+                    //         this._createWebsocket(this._websocket_uuid);
+                    //     }
+                    //     this._websocket.close(1000, "close");}
+                    break;
+                case "disconnected":
+                    break;
+                default:
+                    break;
+            }
+        }
+
 
         this.pc.onnegotiationneeded = event => {
             console.log("negotiation needed")
@@ -184,22 +212,6 @@ export default class WebRtcConnection {
                 }
             }
         }
-        this.pc.onconnectionstatechange = event => {
-            switch (this.pc.connectionState) {
-                case "new":
-                    break;
-                case "connected":
-                    break;
-                case "disconnected":
-                    break;
-                case "closed":
-                    break;
-                case "failed":
-                    break;
-                default:
-                    break;
-            }
-        }
 
     }
 
@@ -236,12 +248,13 @@ export default class WebRtcConnection {
         });
     }
 
-    _createWebsocket(uuid?: string, attempt: number = 0) {
+    _createWebsocket(uuid: string=this._websocket_uuid, attempt: number = 0) {
         return new Promise(async function (resolve, reject) {
-            if (!uuid) {
+            if (!uuid || uuid==null) {
                 uuid = this._generateUUID()
             }
             this._websocket = new WebSocket(this.websocket_configuration.address + uuid)
+            this._websocket_uuid = uuid;
 
             this._websocket.onopen = () => {
                 resolve(uuid);
@@ -252,14 +265,14 @@ export default class WebRtcConnection {
                     this.createInitialOffer();
                 } else {
                     this._signalingFromWebsocket = true;
-                    await this.createAnswerFromString(msg.data);
+                    this.createAnswerFromCompressedString(msg.data);
                 }
             }
             this._websocket.onclose = (msg: CloseEvent) => {
                 console.log("websocket closed")
             }
             this._websocket.onerror = (err: ErrorEvent) => {
-                this._websocket = null;
+                console.log("websocket error" + err.message);
                 resolve(null)
             }
         }.bind(this))
@@ -281,18 +294,20 @@ export default class WebRtcConnection {
         this._websocket && this._websocket.close(1000, "close");
     }
 
-    async createAnswerFromString(message: string) {
+    async createAnswerFromCompressedString(message: string) {
         const decompressedMessage = LZString.decompressFromEncodedURIComponent(message)
         decompressedMessage && (message = decompressedMessage)
-        await this.createAnswer(JSON.parse(message))
+        const answerDesc = await this.createAnswer(JSON.parse(message))
+        return answerDesc;
     }
 
     async createAnswer(message: Message): Promise<RTCSessionDescriptionInit | null> {
         let answerDesc = null
         this._localCandidates = []
-        console.log(message)
         if (message.sdp) {
             const sdpMessage = message.sdp
+            console.log(sdpMessage.type,message)
+
             try {
                 if (sdpMessage.type == "offer") {
                     console.log("create answer")
