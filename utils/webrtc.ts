@@ -187,6 +187,22 @@ export default class WebRtcConnection {
                 }
             }
         }
+        this.pc.onconnectionstatechange = event=>{
+            switch(this.pc.connectionState) {
+                case "new":
+                    break;
+                case "connected":
+                  break;
+                case "disconnected":
+                  break;
+                case "closed":
+                  break;
+                case "failed":
+                  break;
+                default:
+                  break;
+              }
+        }
 
     }
 
@@ -200,11 +216,12 @@ export default class WebRtcConnection {
     async createInitialOffer() {
         this._localCandidates = []
         this.attachDataChannel("p2p", 1, false);
-        if(this.pc.signalingState === "stable") return;
-        let offer = await this.createOffer();
-        return offer
     }
 
+    _compressMessage(message:any){
+        const compressedString = LZString.compressToEncodedURIComponent(JSON.stringify(message));
+        return compressedString;
+    }
 
     _generateUUID() {
         var d = new Date().getTime();
@@ -375,9 +392,9 @@ export default class WebRtcConnection {
             if (this._mediaSourcesHandler.currentStream) {
                 this.executeOrQueue(function () {
                     this.attachVideoChatStream();
-                    this.createOffer().then((offer) => {
-                        this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
-                    });
+                    // this.createOffer().then((offer) => {
+                    //     this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+                    // });
                 }.bind(this));
             }
         };
