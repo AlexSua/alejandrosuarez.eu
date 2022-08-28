@@ -92,9 +92,10 @@ export default class WebRtcConnection {
 
         this.pc.onicecandidate = (event) => {
 
-            this._localCandidates.push(event.candidate)
-
-            if (!event.candidate) {
+            if (event.candidate) {
+                this._localCandidates.push(event.candidate)
+            }
+            else {
                 console.log("localCandidate", this._localCandidates)
                 const message: Message = {
                     sdp: this.pc.localDescription,
@@ -136,35 +137,36 @@ export default class WebRtcConnection {
 
         this.pc.onconnectionstatechange = event => {
             console.log(this.pc.connectionState)
-            switch (this.pc.connectionState) {
-                case "new":
-                    break;
-                case "connected":
-                    break;
-                case "closed":
-                    break;
-                case "failed":
-                    // if(this._websocket){
-                    //     const previousOnClose = this._websocket.onclose;
-                    //     this._websocket.onclose = (event)=>{
-                    //         this._websocket.onclose = previousOnClose;
-                    //         this._websocket.onclose(event)
-                    //         this._createWebsocket(this._websocket_uuid);
-                    //     }
-                    //     this._websocket.close(1000, "close");}
-                    break;
-                case "disconnected":
-                    break;
-                default:
-                    break;
-            }
+            // switch (this.pc.connectionState) {
+            //     case "new":
+            //         break;
+            //     case "connected":
+            //         break;
+            //     case "closed":
+            //         break;
+            //     case "failed":
+            //         // if(this._websocket){
+            //         //     const previousOnClose = this._websocket.onclose;
+            //         //     this._websocket.onclose = (event)=>{
+            //         //         this._websocket.onclose = previousOnClose;
+            //         //         this._websocket.onclose(event)
+            //         //         this._createWebsocket(this._websocket_uuid);
+            //         //     }
+            //         //     this._websocket.close(1000, "close");}
+            //         break;
+            //     case "disconnected":
+            //         break;
+            //     default:
+            //         break;
+            // }
         }
 
 
         this.pc.onnegotiationneeded = event => {
             console.log("negotiation needed")
             // if (this.pc.signalingState != "stable") return; 
-            this.createOffer().then((offer) => {
+            this.createOffer().then(async (offer) => {
+                this.pc.setLocalDescription(offer);
                 if ("p2p" in this._dataChannels) {
                     if (this._dataChannels["p2p"].readyState != "open") {
                         const previousOnOpenFunction = this._dataChannels["p2p"].onopen
@@ -248,9 +250,9 @@ export default class WebRtcConnection {
         });
     }
 
-    _createWebsocket(uuid: string=this._websocket_uuid, attempt: number = 0) {
+    _createWebsocket(uuid: string = this._websocket_uuid, attempt: number = 0) {
         return new Promise(async function (resolve, reject) {
-            if (!uuid || uuid==null) {
+            if (!uuid || uuid == null) {
                 uuid = this._generateUUID()
             }
             this._websocket = new WebSocket(this.websocket_configuration.address + uuid)
@@ -306,7 +308,7 @@ export default class WebRtcConnection {
         this._localCandidates = []
         if (message.sdp) {
             const sdpMessage = message.sdp
-            console.log(sdpMessage.type,message)
+            console.log(sdpMessage.type, message)
 
             try {
                 if (sdpMessage.type == "offer") {
