@@ -162,47 +162,47 @@ export default class WebRtcConnection {
         }
 
 
-        this.pc.onnegotiationneeded = event => {
+        this.pc.onnegotiationneeded = async event => {
             console.log("negotiation needed")
             // if (this.pc.signalingState != "stable") return; 
-            this.createOffer().then(async (offer) => {
-                this.pc.setLocalDescription(offer);
-                if ("p2p" in this._dataChannels) {
-                    if (this._dataChannels["p2p"].readyState != "open") {
-                        const previousOnOpenFunction = this._dataChannels["p2p"].onopen
-                        this._dataChannels["p2p"].onopen = function (ev: Event) {
-                            this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
-                            this._dataChannels["p2p"].onopen = previousOnOpenFunction
-                            this._dataChannels["p2p"].onopen(ev)
-                        }.bind(this);
-                    } else {
+            const offer = await this.createOffer()
+            this.pc.setLocalDescription(offer);
+            if ("p2p" in this._dataChannels) {
+                if (this._dataChannels["p2p"].readyState != "open") {
+                    const previousOnOpenFunction = this._dataChannels["p2p"].onopen
+                    this._dataChannels["p2p"].onopen = function (ev: Event) {
                         this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
-                    }
+                        this._dataChannels["p2p"].onopen = previousOnOpenFunction
+                        this._dataChannels["p2p"].onopen(ev)
+                    }.bind(this);
+                } else {
+                    this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
                 }
-                if ("video" in this._videoChatSenders) {
-                    console.log("video transport state: ", this._videoChatSenders["video"])
-                    if ("connected" == this._videoChatSenders["video"].transport.state) {
-                        let params = this._videoChatSenders["video"].getParameters()
-                        this._videoChatSenders["video"].track.contentHint = "motion"
-                        console.log(params)
-                        // params.encodings = [{}]
-                        // params.encodings[0].maxBitrate = 120000000;
-                        // params.encodings[0].scaleResolutionDownBy = 1;
-                        params.degradationPreference = "maintain-framerate"
-                        // params.encodings[0].
-                        this._videoChatSenders["video"].setParameters(params)
-                        console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
-                        console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
+            }
+            if ("video" in this._videoChatSenders) {
+                console.log("video transport state: ", this._videoChatSenders["video"])
+                if ("connected" == this._videoChatSenders["video"].transport.state) {
+                    let params = this._videoChatSenders["video"].getParameters()
+                    this._videoChatSenders["video"].track.contentHint = "motion"
+                    console.log(params)
+                    // params.encodings = [{}]
+                    // params.encodings[0].maxBitrate = 120000000;
+                    // params.encodings[0].scaleResolutionDownBy = 1;
+                    params.degradationPreference = "maintain-framerate"
+                    // params.encodings[0].
+                    this._videoChatSenders["video"].setParameters(params)
+                    console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
+                    console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
 
-                    }
                 }
-                if ("audio" in this._videoChatSenders) {
-                    if ("connected" == this._videoChatSenders["audio"].transport.state) {
-                        this._videoChatSenders["audio"].track.contentHint = "speech"
-                    }
+            }
+            if ("audio" in this._videoChatSenders) {
+                if ("connected" == this._videoChatSenders["audio"].transport.state) {
+                    this._videoChatSenders["audio"].track.contentHint = "speech"
                 }
+            }
 
-            })
+            // this._actions_queue.push(createOffer)
         }
 
         this.pc.onsignalingstatechange = event => {
@@ -306,6 +306,8 @@ export default class WebRtcConnection {
     async createAnswer(message: Message): Promise<RTCSessionDescriptionInit | null> {
         let answerDesc = null
         this._localCandidates = []
+        const asyncEventsList = []
+        let resultIndex = -1;
         if (message.sdp) {
             const sdpMessage = message.sdp
             console.log(sdpMessage.type, message)
@@ -313,26 +315,32 @@ export default class WebRtcConnection {
             try {
                 if (sdpMessage.type == "offer") {
                     console.log("create answer")
-                    await this.pc.setRemoteDescription(message.sdp)
-                    answerDesc = await this.pc.createAnswer();
-                    await this.pc.setLocalDescription(answerDesc);
+                    asyncEventsList.push(...[
+                        this.pc.setRemoteDescription(message.sdp),
+                        this.pc.createAnswer(),
+                        this.pc.setLocalDescription(answerDesc)
+                    ])
+                    resultIndex = 1
                 } else {
                     if (this.pc.signalingState == "have-local-offer" && !message.candidate) {
-                        await this.pc.setRemoteDescription(message.sdp)
+                        asyncEventsList.push(...[
+                            this.pc.setRemoteDescription(message.sdp),
+                        ])
                     }
                 }
 
                 if (message.candidate) {
-                    await this.pc.setRemoteDescription(message.sdp)
+                    asyncEventsList.push(this.pc.setRemoteDescription(message.sdp))
                     console.log("adding candidate")
                     this._remoteCandidates = message.candidate
                     for (const element of message.candidate) {
                         console.log(element)
-                        await this.pc.addIceCandidate(element)
+                        asyncEventsList.push(this.pc.addIceCandidate(element))
                     }
                 }
 
-
+                const result = await Promise.all(asyncEventsList)
+                if (resultIndex >= 0) answerDesc = result[resultIndex]
                 return answerDesc
             }
 
