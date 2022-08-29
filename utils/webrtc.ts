@@ -102,7 +102,7 @@ export default class WebRtcConnection {
                     candidate: this._localCandidates
                 }
                 console.log(JSON.stringify(message.sdp.sdp))
-                const compressedString = LZString.compressToEncodedURIComponent(JSON.stringify(message));
+                const compressedString = this._compressMessage(message);
                 if (this._signalingFromWebsocket && this._websocket) {
                     this._websocket.send(compressedString);
                 } else {
@@ -165,8 +165,8 @@ export default class WebRtcConnection {
         this.pc.onnegotiationneeded = async event => {
             console.log("negotiation needed")
             // if (this.pc.signalingState != "stable") return; 
-            const offer = await this.createOffer()
-            this.pc.setLocalDescription(offer);
+            const offer = await this.createOffer();
+
             if ("p2p" in this._dataChannels) {
                 if (this._dataChannels["p2p"].readyState != "open") {
                     const previousOnOpenFunction = this._dataChannels["p2p"].onopen
@@ -202,7 +202,6 @@ export default class WebRtcConnection {
                 }
             }
 
-            // this._actions_queue.push(createOffer)
         }
 
         this.pc.onsignalingstatechange = event => {
@@ -224,14 +223,31 @@ export default class WebRtcConnection {
         return offer;
     }
 
+
     async createInitialOffer() {
-        this._localCandidates = []
-        this.attachDataChannel("p2p", 1, false);
+        if (this.pc.signalingState != "stable") {
+            if (this._localCandidates && this._websocket && this._websocket.readyState == WebSocket.OPEN) {
+                this._sendWebsocketMessage({
+                    sdp: this.pc.localDescription,
+                    candidate: this._localCandidates
+                });
+            }
+        } else {
+            this.attachDataChannel("p2p", 1, false);
+        }
     }
 
     _compressMessage(message: any) {
         const compressedString = LZString.compressToEncodedURIComponent(JSON.stringify(message));
         return compressedString;
+    }
+
+    _sendWebsocketMessage(message: Message) {
+        console.log(JSON.stringify(message.sdp.sdp))
+        const compressedString = this._compressMessage(message);
+        if (this._signalingFromWebsocket && this._websocket) {
+            this._websocket.send(compressedString);
+        }
     }
 
     _generateUUID() {
@@ -251,6 +267,7 @@ export default class WebRtcConnection {
     }
 
     _createWebsocket(uuid: string = this._websocket_uuid, attempt: number = 0) {
+        console.log('Creating websocket')
         return new Promise(async function (resolve, reject) {
             if (!uuid || uuid == null) {
                 uuid = this._generateUUID()
@@ -275,10 +292,11 @@ export default class WebRtcConnection {
             }
             this._websocket.onerror = (err: ErrorEvent) => {
                 console.log("websocket error" + err.message);
+
+                setTimeout(() => this._createWebsocket(this._websocket_uuid), 5000);
                 resolve(null)
             }
         }.bind(this))
-
     }
 
     async websocketGenerateLink() {
@@ -305,7 +323,7 @@ export default class WebRtcConnection {
 
     async createAnswer(message: Message): Promise<RTCSessionDescriptionInit | null> {
         let answerDesc = null
-        this._localCandidates = []
+        // this._localCandidates = []
         const asyncEventsList = []
         const postAsyncEventsList = []
         let resultIndex = -1;
