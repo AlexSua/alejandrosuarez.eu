@@ -92,10 +92,10 @@ export default class WebRtcConnection {
 
         this.pc.onicecandidate = (event) => {
 
-            if (event.candidate) {
+            if (event.candidate && this.pc.canTrickleIceCandidates) {
                 this._localCandidates.push(event.candidate)
             }
-            else {
+            if (!event.candidate) {
                 console.log("localCandidate", this._localCandidates)
                 const message: Message = {
                     sdp: this.pc.localDescription,
@@ -307,6 +307,7 @@ export default class WebRtcConnection {
         let answerDesc = null
         this._localCandidates = []
         const asyncEventsList = []
+        const postAsyncEventsList = []
         let resultIndex = -1;
         if (message.sdp) {
             const sdpMessage = message.sdp
@@ -317,7 +318,9 @@ export default class WebRtcConnection {
                     console.log("create answer")
                     asyncEventsList.push(...[
                         this.pc.setRemoteDescription(message.sdp),
-                        this.pc.createAnswer(),
+                        this.pc.createAnswer()
+                    ])
+                    postAsyncEventsList.push(...[
                         this.pc.setLocalDescription(answerDesc)
                     ])
                     resultIndex = 1
@@ -339,8 +342,9 @@ export default class WebRtcConnection {
                     }
                 }
 
-                const result = await Promise.all(asyncEventsList)
-                if (resultIndex >= 0) answerDesc = result[resultIndex]
+                const resultAsyncEventList = await Promise.all(asyncEventsList)
+                if (resultIndex >= 0) answerDesc = resultAsyncEventList[resultIndex]
+                await Promise.all(postAsyncEventsList)
                 return answerDesc
             }
 
@@ -397,7 +401,7 @@ export default class WebRtcConnection {
 
     executeOrQueue(action: Function) {
         console.log("executeOrQueue", action)
-        if (this.pc.signalingState != "stable")
+        if (this.pc.signalingState != "stable" || this._actions_queue.length > 0)
             this._actions_queue.push(action)
         else {
             action()
