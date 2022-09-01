@@ -45,7 +45,7 @@ const emit = defineEmits(["update:afterEnter"]);
 
 useSeo({
 	title: "Profile",
-	description: "Hello, I am a computer engineer with a wide knowledge in computer engineering interested in projects that involve a high degree of automation.",
+	description: "Hello, I am a computer engineer with a wide knowledge in computer engineering interested in projects that involve new technologies and high degree of automation.",
 	image: "",
 	type: "WebSite",
 	location: route.path,

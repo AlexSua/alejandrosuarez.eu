@@ -42,9 +42,9 @@ export default class WebRtcConnection {
 
     private readonly configuration = {
         iceServers: [
-            // {
-            //     urls: 'stun:stun.l.google.com:19302'
-            // },
+            {
+                urls: 'stun:stun.l.google.com:19302'
+            },
             {
                 urls: "stun:openrelay.metered.ca:80",
             },

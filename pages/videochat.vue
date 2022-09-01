@@ -81,7 +81,7 @@
             <div ref="videoLocalContainer"
                 class="absolute flex m-auto items-center z-30 flex justify-center h-screen w-screen max-h-screen max-w-screen transition-all duration-600 left-0 top-0"
                 :class="{
-                    '!duration-0': draggable && draggable.isDragging
+                    '!duration-0': (draggable && draggable.isDragging) || isResizing
                 }" style="touch-action:none;"
                 :style="call && !isDrawing ? videoLocalContainerDraggableStyle && videoLocalContainerDraggableStyle.style : ''">
                 <video autoplay ref="videoLocal" class="flex-1 max-h-screen max-w-screen"
@@ -183,6 +183,7 @@ const router = useRouter()
 const route = useRoute()
 const mouse = reactive([useMouse(), useMousePressed()])
 const windowSize = reactive(useWindowSize())
+const isResizing = ref(false)
 
 useSeo({
     title: "VideoChat",
@@ -838,7 +839,10 @@ watch(draggable, () => {
 
 }, { deep: true })
 
+let windowSizeTimeout = null;
 watch(windowSize, () => {
+	isResizing.value =true;
+	windowSizeTimeout && clearTimeout(windowSizeTimeout);
     call.value && !isDrawing.value && minimizeLocalVideo()
     if ((videoLocalContainerDraggableStyle.value.x + videoLocalContainer.value.offsetWidth) >= windowSize.width) {
         videoLocalContainerDrag(windowSize.width - videoLocalContainer.value.offsetWidth, videoLocalContainerDraggableStyle.value.y)
@@ -853,6 +857,10 @@ watch(windowSize, () => {
     adjustCanvasToVideo(canvasLocal.value, videoLocal.value)
     adjustCanvasToVideo(canvasRemote.value, videoRemote.value)
     // adjustRemoteVideoAspectRatio()
+	// isResizing.value =false;
+	windowSizeTimeout = setTimeout(function(){
+		isResizing.value = false;
+	},1000);
 
 }, { deep: true })
 
