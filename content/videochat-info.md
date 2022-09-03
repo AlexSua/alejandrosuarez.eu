@@ -34,12 +34,12 @@ The video chat uses WebRTC as the communication protocol allowing a low latency,
 - :white_check_mark: Mobile devices support.
 - :white_check_mark: Optional connection without a server.
 - :white_check_mark: Change video or audio sources during the calls.
-- :white_check_mark: Draw using your hands. You have the pencil option that will allow you to write over the screen using your fingers. A tensorflow model is used to recognize your hands whilst other models were trained to recognize the gesture to write/erase the painted content.
+- :white_check_mark: Draw using your hands. You have the pencil option that will allow you to write over the screen using your fingers. A TensorFlow model is used to recognize your hands whilst other models were trained to recognize the gesture to write/erase the painted content.
 - :white_check_mark: The Videochat aims to send video at 1080 at 60 fps prioritizing fluency over quality.
 - :white_check_mark: Audio stream optimized for speech with echo/noise canceling.
 
 ### Work in progress
-- :construction: **Multiuser videocalls**. A solution is being designed to support decentralized multiuser video calls up to 20 participants. The solution involves on relaying connections and creating a load balancing system to redistribute the load amongst participants depending on their resources, connection, NAT type...
+- :construction: **Multiuser videocalls**. A solution is being designed to support decentralized multiuser video calls up to 20 participants. The solution involves relaying connections and creating a load balancing system to redistribute the load amongst participants depending on their resources, connection, NAT type...
 - :construction: **Changing drawing properties**. Create an interface to change the color, thickness... of the drawing feature by using your non-drawer hand.
 - :construction: **Configuration parameters**. Add to the interface configuration parameters to control the video and audio sent.
 
@@ -48,36 +48,36 @@ The video chat uses WebRTC as the communication protocol allowing a low latency,
 ## How to use
 
 ### Buttons behavior
-This section describes the behavior of the buttons which are organized by their position in the screen.
+This section describes the behavior of the buttons which are organized by their position on the screen.
 #### Bottom left
 Button            |  Description
 :-------------------------:|:-------------------------
-![](../assets/img/blog/videochat-info/2022-09-03-14-36-16.png) |Introduce the ID of the room to connect to. It can be used to create a new room with a specific ID.
-![](../assets/img/blog/videochat-info/2022-09-03-14-36-28.png) |Generate the link that you can share with another user to create a videocall with you.
+![](/assets/img/blog/videochat-info/2022-09-03-14-36-16.png) |Introduce the ID of the room to connect to. It can be used to create a new room with a specific ID.
+![](/assets/img/blog/videochat-info/2022-09-03-14-36-28.png) |Generate the link that you can share with another user to create a videocall with you.
 
 #### Top left
 Button            |  Description
 :-------------------------:|:-------------------------
-![](../assets/img/blog/videochat-info/2022-09-03-14-36-48.png) |Settings dial: This button will show the action buttons below.
-![](../assets/img/blog/videochat-info/2022-09-03-14-37-16.png) |Settings: From this sections you will be able to modify settings such as the video/audio sources.
-![](../assets/img/blog/videochat-info/2022-09-03-14-37-31.png) |Info: Open the information window you are watching right now.
-![](../assets/img/blog/videochat-info/2022-09-03-14-38-02.png) |Resize: Set the remote video in full screen mode.
-![](../assets/img/blog/videochat-info/2022-09-03-14-38-18.png) |Drawing: Activates the drawing mode, loading a tensorflow model and starting hands detection.
-![](../assets/img/blog/videochat-info/2022-09-03-14-38-28.png) |Serverless: Avoid using the signaling server by inserting yourself the offer/answer.
-![](../assets/img/blog/videochat-info/2022-09-03-14-38-36.png) |Exit: Go to the main webpage.
+![](/assets/img/blog/videochat-info/2022-09-03-14-36-48.png) |Settings dial: This button will show the action buttons below.
+![](/assets/img/blog/videochat-info/2022-09-03-14-37-16.png) |Settings: From this sections you will be able to modify settings such as the video/audio sources.
+![](/assets/img/blog/videochat-info/2022-09-03-14-37-31.png) |Info: Open the information window you are watching right now.
+![](/assets/img/blog/videochat-info/2022-09-03-14-38-02.png) |Resize: Set the remote video in full screen mode.
+![](/assets/img/blog/videochat-info/2022-09-03-14-38-18.png) |Drawing: Activates the drawing mode, loading a tensorflow model and starting hands detection.
+![](/assets/img/blog/videochat-info/2022-09-03-14-38-28.png) |Serverless: Avoid using the signaling server by inserting yourself the offer/answer.
+![](/assets/img/blog/videochat-info/2022-09-03-14-38-36.png) |Exit: Go to the main webpage.
 
 #### Bottom center
 Button            |  Description
 :-------------------------:|:-------------------------
-![](../assets/img/blog/videochat-info/2022-09-03-15-08-18.png) |Screen share: Enable/Disable screen/window sharing.
-![](../assets/img/blog/videochat-info/2022-09-03-15-08-42.png) |Microphone enabled. Mute or unmute your microphone.
-![](../assets/img/blog/videochat-info/2022-09-03-15-09-06.png) |Video enabled: Enable/Disable camera.
-![](../assets/img/blog/videochat-info/2022-09-03-15-10-22.png) |Hang up
+![](/assets/img/blog/videochat-info/2022-09-03-15-08-18.png) |Screen share: Enable/Disable screen/window sharing.
+![](/assets/img/blog/videochat-info/2022-09-03-15-08-42.png) |Microphone enabled. Mute or unmute your microphone.
+![](/assets/img/blog/videochat-info/2022-09-03-15-09-06.png) |Video enabled: Enable/Disable camera.
+![](/assets/img/blog/videochat-info/2022-09-03-15-10-22.png) |Hang up
 
 #### Top right
 Button            |  Description
 :-------------------------:|:-------------------------
-![](../assets/img/blog/videochat-info/2022-09-03-15-10-06.png) |Open the chat.
+![](/assets/img/blog/videochat-info/2022-09-03-15-10-06.png) |Open the chat.
 
 ### Drawing feature
 You can draw in the video chat to explain things to your peer or just to have fun. 
@@ -85,11 +85,11 @@ You can draw in the video chat to explain things to your peer or just to have fu
 
 #### Draw
 You can draw by putting your index fingertip and thumb together as shown in the image below. By separating them you stop writing.
-![](../assets/img/blog/videochat-info/2022-09-03-15-25-22.png) 
+![](/assets/img/blog/videochat-info/2022-09-03-15-25-22.png) 
 
 #### Erase
 You can erase the content you draw with this utility by doing the gesture shown below.
-![](../assets/img/blog/videochat-info/2022-09-03-15-27-06.png) 
+![](/assets/img/blog/videochat-info/2022-09-03-15-27-06.png) 
 
 You can also increase the erasing radius by separating your fingers:
-![](../assets/img/blog/videochat-info/2022-09-03-15-27-39.png) 
+![](/assets/img/blog/videochat-info/2022-09-03-15-27-39.png) 
