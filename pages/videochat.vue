@@ -486,7 +486,8 @@ async function generateLink() {
 		await router.push({
 			path: '/videochat',
 		});
-		webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer)
+		webRtcConnection = createWebRTCConnection()
+
 		let result = await webRtcConnection.websocketGenerateLink()
 		if (!result) {
 			toast.add({ severity: 'error', summary: 'Error', detail: 'Error generating link. Contact the signaling server system administrator.', group: 'br', life: 3000 });
@@ -567,10 +568,7 @@ function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
 
 			channel.onclose = async () => {
 				console.log("channel close");
-				await closeWebRTCConnection()
-				videoRemote.value.srcObject = null;
-				call.value = false;
-				
+				await onClose()
 			};
 
 			channel.onmessage = event => {
@@ -597,6 +595,12 @@ function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
 			};
 			break;
 	}
+}
+
+async function onClose(){
+	await closeWebRTCConnection();
+	videoRemote.value.srcObject = null;
+	call.value = false;
 }
 
 function onDraw(x, y, px, py, mode, radius, canvasSize) {
@@ -646,14 +650,21 @@ function writeOnOffer(message: string) {
 	offerTextArea.value = message
 }
 
+function createWebRTCConnection(){
+	webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer,onClose)
+	return webRtcConnection
+}
+
 async function createOffer() {
-	webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer)
+	webRtcConnection = createWebRTCConnection()
 	await webRtcConnection.createInitialOffer()
 }
 
 async function createOrRecibeAnswer() {
 	if (!webRtcConnection || webRtcConnection.state != "have-local-offer") {
-		webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer)
+		// webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer,onClose)
+		webRtcConnection = createWebRTCConnection()
+
 	}
 	await webRtcConnection.createAnswerFromCompressedString(sdpMessageInput.value)
 }
@@ -780,7 +791,8 @@ function adjustRemoteVideoAspectRatio() {
 
 async function initalizeWebRTCfromCurrentRoomParam() {
 	if (route.query.room && route.query.room!=undefined) {
-		webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer);
+		// webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer, onClose);
+		webRtcConnection = createWebRTCConnection()
 		let result = await webRtcConnection.websocketConsumeLink(route.query.room)
 		if (!result) {
 			toast.add({ severity: 'error', summary: 'Error', detail: 'Error while trying to connnect to the signaling server', group: 'br', life: 3000 });

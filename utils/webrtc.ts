@@ -29,6 +29,7 @@ export default class WebRtcConnection {
 	private _onDataChannel: ((connection: WebRtcConnection, channel: RTCDataChannel) => void) | undefined
 	private _onTrack: ((connection: WebRtcConnection, track: MediaStreamTrack, stream: readonly MediaStream[]) => void) | undefined
 	private _writeOnOffer?: (message: string) => void
+	private _onClose?: () => void
 
 	private _connected: boolean = false
 	private _state: string = ""
@@ -78,7 +79,7 @@ export default class WebRtcConnection {
 		onTrack?: (connection: WebRtcConnection, track: MediaStreamTrack, stream: readonly MediaStream[]) => void,
 		onDataChannel?: (connection: WebRtcConnection, channel: RTCDataChannel) => void,
 		writeOnOffer?: (message: string) => void,
-
+		onClose?: () => void,
 	) {
 
 		this.pc = new RTCPeerConnection(this.configuration);
@@ -86,6 +87,7 @@ export default class WebRtcConnection {
 		this._onTrack = onTrack
 		this._onDataChannel = onDataChannel
 		this._writeOnOffer = writeOnOffer
+		this._onClose = onClose
 		this._mediaSourcesHandler = mediaSourcesHandler;
 
 		this._actions_queue = []
@@ -145,7 +147,7 @@ export default class WebRtcConnection {
 				case "closed":
 					break;
 				case "failed":
-					this._createWebsocket(this._websocket_uuid);
+					this._onClose && this._onClose()
 					break;
 				case "disconnected":
 					break;
