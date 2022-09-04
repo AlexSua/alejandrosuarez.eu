@@ -263,7 +263,7 @@ const dialogRoomOpen = ref(false)
 const dialogRoomIdInput = ref<string>(null)
 const dialogVideochatInfo = ref(true)
 
-const dialogVideochatInfoContent = await useLazyAsyncData('videochat-info', () => queryContent('/videochat-info').findOne());
+const dialogVideochatInfoContent = useLazyAsyncData('videochat-info', () => queryContent('/videochat-info').findOne());
 
 const generatingLink = ref<boolean>(false)
 const link = ref("")
@@ -632,10 +632,10 @@ function onDrawStateChange(drawState) {
 
 async function  closeConnection() {
 	link.value = ""
+	await closeWebRTCConnection()
 	await router.push({
 		path: '/videochat'
 	});
-	await closeWebRTCConnection()
 }
 
 async function closeWebRTCConnection() {
