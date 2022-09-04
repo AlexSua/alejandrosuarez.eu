@@ -503,7 +503,8 @@ async function generateLink() {
 		generatingLink.value = false
 
 	}
-	dialogLinkOpen.value = true;
+	if(link.value)
+		dialogLinkOpen.value = true;
 }
 
 async function openRoomDialog() {
