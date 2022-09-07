@@ -17,8 +17,8 @@
 
 		<Dialog header="Videochat info" v-model:visible="dialogVideochatInfo" class="flex max-w-4xl w-full"
 			:maximizable="true">
-			<div class="blog-wrapper !bg-white !m-0 !p-0 !grid-rows-none !grid-cols-none !min-h-0 ">
-				<div class="markdown-body !shadow-none !m-0 !p-0 mt-2 ">
+			<div class="blog-wrapper !bg-white !m-0 !p-0 !grid-rows-none !grid-cols-none !min-h-0 !flex">
+				<div class="markdown-body !shadow-none !m-0 !p-0 mt-2 max-w-full">
 					<ContentRenderer :value="dialogVideochatInfoContent.data.value"
 						v-if="!dialogVideochatInfoContent.pending.value">
 						<template #default>
