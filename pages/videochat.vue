@@ -707,7 +707,7 @@ async function initializeLocalStream() {
 				await mediaSourcesHandler.stopAndRemoveAudio()
 				await mediaSourcesHandler.stopAndRemoveVideo()
 				console.log("track ended")
-				initializeLocalStream()
+				await initializeLocalStream()
 			}
 		}
 		getMediaDevices.value = false
