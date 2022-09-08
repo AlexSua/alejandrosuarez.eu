@@ -299,9 +299,9 @@ export default class WebRtcConnection {
 	}
 
 
-	async close() {
+	close(force_websocket_close:boolean = true) {
 		this.pc.close();
-		this._websocket && this._websocket.close(1000, "close");
+		this._websocket && force_websocket_close && this._websocket.close(1000, "close");
 	}
 
 	async createAnswerFromCompressedString(message: string) {

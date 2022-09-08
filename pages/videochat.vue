@@ -569,7 +569,7 @@ function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
 
 			channel.onclose = async () => {
 				console.log("channel close");
-				await onClose()
+				// onClose()
 			};
 
 			channel.onmessage = event => {
@@ -598,8 +598,8 @@ function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
 	}
 }
 
-async function onClose(){
-	await closeWebRTCConnection();
+function onClose(){
+	closeWebRTCConnection();
 	videoRemote.value.srcObject = null;
 	call.value = false;
 }
@@ -637,14 +637,14 @@ function onDrawStateChange(drawState) {
 
 async function  closeConnection() {
 	link.value = ""
-	await closeWebRTCConnection()
+	closeWebRTCConnection()
 	await router.push({
 		path: '/videochat'
 	});
 }
 
-async function closeWebRTCConnection() {
-	webRtcConnection && await webRtcConnection.close();
+function closeWebRTCConnection(force_websocket_close=true) {
+	webRtcConnection && webRtcConnection.close(force_websocket_close);
 }
 
 function writeOnOffer(message: string) {
