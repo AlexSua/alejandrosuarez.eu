@@ -553,8 +553,6 @@ function ontrack(connection: WebRtcConnection, track: MediaStreamTrack, stream: 
 			adjustCanvasToVideo(canvasRemote.value, videoRemote.value)
 		}
 	}
-	// if (track.kind == "video")
-	//     setTimeout(() => adjustRemoteVideoAspectRatio(), 3000);
 };
 
 function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
@@ -633,7 +631,6 @@ function onDrawStateChange(drawState) {
 		} else {
 			call.value && minimizeLocalVideo()
 		}
-		// adjustAspectRatio(videoLocal.value,videoLocalContainer.value)
 	}
 }
 
@@ -665,7 +662,6 @@ async function createOffer() {
 
 async function createOrRecibeAnswer() {
 	if (!webRtcConnection || webRtcConnection.state != "have-local-offer") {
-		// webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer,onClose)
 		webRtcConnection = createWebRTCConnection()
 
 	}
@@ -713,7 +709,6 @@ async function initializeLocalStream() {
 			}
 		}
 		getMediaDevices.value = false
-		// await mediaSourcesHandler.getMediaDevices()
 		mediaSourcesHandler.currentAudioTracks.length > 0 && (audioEnabled.value = true)
 		mediaSourcesHandler.currentVideoTracks.length > 0 && (videoEnabled.value = true)
 		devices.audio = mediaSourcesHandler.audioDevices;
@@ -837,8 +832,11 @@ const onSourceChange = (type: string) => async (value: string | undefined, oldVa
 
 function minimizeLocalVideo(translate: boolean = false) {
 	videoLocalContainer.value.style.height = window.innerHeight / 4 + "px"
-	const result = adjustAspectRatio(videoLocal.value, videoLocalContainer.value)
+	const result = getWidthHeightOfVideoContainerBasedOnVideo(videoLocal.value, videoLocalContainer.value)
 	translate && (videoLocalContainer.value.style.transform = "translate3d(" + (window.innerWidth - result.width) + "px," + (window.innerHeight - result.height) + "px,0)")
+	videoLocalContainer.value.style.width = result.width + "px";
+	videoLocalContainer.value.style.height = result.height + "px";
+
 }
 watch(audioSelected, onSourceChange("audio"))
 watch(videoSelected, onSourceChange("video"))
@@ -849,13 +847,6 @@ watch(call, async (value: boolean) => {
 			lowerToolBarHidden.value = true;
 		}, 5000)
 		minimizeLocalVideo(true)
-
-		// videoLocalContainer.value.style.left = (window.innerWidth - Number(videoLocalContainer.value.style.width.replace("px",""))) + "px"
-		// videoLocalContainer.value.style.top = (window.innerHeight - Number(videoLocalContainer.value.style.height.replace("px",""))) + "px"
-		// setTimeout(()=>adjustAspectRatio(videoLocal.value, videoLocalContainer.value),0)
-		// setTimeout(() => {
-		//     !draggable.value && enableVideoLocalDraggable()
-		// }, 200)
 
 	} else {
 		lowerToolBarHidden.value = false;
@@ -935,18 +926,18 @@ function clearAdjustCanvasToVideo(canvas) {
 }
 
 
-function adjustAspectRatio(video: HTMLVideoElement, container: HTMLElement) {
+function getWidthHeightOfVideoContainerBasedOnVideo(video: HTMLVideoElement, container: HTMLElement) {
 	const containerWidth = Number(10000000)
 	const containerHeight = Number(container.style.height.replace("px", "") || container.offsetHeight)
 	const videoFrameAspectRatio = containerWidth / containerHeight;
 	const aspectRatio = video.videoWidth / video.videoHeight;
 	const result = { width: containerWidth, height: containerHeight }
 	if (videoFrameAspectRatio > aspectRatio) {
-		container.style.width = (containerHeight * aspectRatio) + "px";
+		// container.style.width = (containerHeight * aspectRatio) + "px";
 		result.width = (containerHeight * aspectRatio)
 		// container.style.height = container.offsetHeight + "px"
 	} else if (videoFrameAspectRatio < aspectRatio) {
-		container.style.height = (containerWidth / aspectRatio) + "px";
+		// container.style.height = (containerWidth / aspectRatio) + "px";
 		result.height = (containerWidth / aspectRatio)
 		// container.style.width = container.offsetWidth + "px"
 	}
@@ -982,9 +973,6 @@ watch(windowSize, () => {
 	isResizing.value = true;
 	windowSizeTimeout && clearTimeout(windowSizeTimeout);
 	resetVideoLocalPosition()
-
-	// adjustRemoteVideoAspectRatio()
-	// isResizing.value =false;
 	windowSizeTimeout = setTimeout(function () {
 		isResizing.value = false;
 	}, 1000);
@@ -1004,13 +992,10 @@ onMounted(() => {
 		}
 	})();
 	videoLocalContainer.value.ontransitionend = () => {
-		// adjustAspectRatio(videoLocal.value, canvasLocal.value,)
 		if (call.value && !isDrawing.value) {
 			!draggable.value && enableVideoLocalDraggable()
 		}
 		adjustCanvasToVideo(canvasLocal.value, videoLocal.value)
-		// !draggable.value && enableVideoLocalDraggable()
-		// adjustAspectRatio(videoLocal.value, videoLocalContainer.value)
 
 
 
@@ -1020,15 +1005,7 @@ onMounted(() => {
 		if (call.value && !isDrawing.value) {
 			clearAdjustCanvasToVideo(canvasLocal.value)
 		}
-		// adjustAspectRatio(videoLocal.value, videoLocalContainer.value)
-		// !draggable.value && enableVideoLocalDraggable()
-		// videoLocalContainer.value.style.width = ""
-		// videoLocalContainer.value.style.width = ""
 	}
-	// if (process.client) {
-
-	// }
-
 
 })
 onBeforeUnmount(() => {
