@@ -145,6 +145,10 @@ du -h -s ./folder
 
 Wc (**W**ord **c**ounting) is a command that helps you to count lines and words inside a file or an input. The following command counts the number of lines result of the ls command. Since each line represents a file or a directory, the whole command that is shown below counts the number of elements inside a directory:
 
+```bash
+ls | wc -l
+```
+
 If instead, you want to count the number of words in a file:
 ```bash
 wc -w file

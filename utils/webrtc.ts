@@ -148,11 +148,9 @@ export default class WebRtcConnection {
 			console.log(this.pc.connectionState)
 			switch (this.pc.connectionState) {
 				case "new":
-					break;
 				case "connected":
 					break;
 				case "closed":
-					break;
 				case "failed":
 				case "disconnected":
 					this._onClose && this._onClose()

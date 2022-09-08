@@ -503,7 +503,7 @@ async function generateLink() {
 		generatingLink.value = false
 
 	}
-	if(link.value)
+	if (link.value)
 		dialogLinkOpen.value = true;
 }
 
@@ -569,7 +569,7 @@ function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
 
 			channel.onclose = async () => {
 				console.log("channel close");
-				// onClose()
+				onClose()
 			};
 
 			channel.onmessage = event => {
@@ -598,10 +598,12 @@ function onDataChannel(connection: WebRtcConnection, channel: RTCDataChannel) {
 	}
 }
 
-function onClose(){
-	closeWebRTCConnection();
-	videoRemote.value.srcObject = null;
-	call.value = false;
+function onClose() {
+	if (call.value) {
+		closeWebRTCConnection();
+		videoRemote.value.srcObject = null;
+		call.value = false;
+	}
 }
 
 function onDraw(x, y, px, py, mode, radius, canvasSize) {
@@ -635,7 +637,7 @@ function onDrawStateChange(drawState) {
 	}
 }
 
-async function  closeConnection() {
+async function closeConnection() {
 	link.value = ""
 	closeWebRTCConnection()
 	await router.push({
@@ -643,7 +645,7 @@ async function  closeConnection() {
 	});
 }
 
-function closeWebRTCConnection(force_websocket_close=true) {
+function closeWebRTCConnection(force_websocket_close = true) {
 	webRtcConnection && webRtcConnection.close(force_websocket_close);
 }
 
@@ -651,8 +653,8 @@ function writeOnOffer(message: string) {
 	offerTextArea.value = message
 }
 
-function createWebRTCConnection(){
-	webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer,onClose)
+function createWebRTCConnection() {
+	webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer, onClose)
 	return webRtcConnection
 }
 
@@ -672,7 +674,7 @@ async function createOrRecibeAnswer() {
 
 async function refreshMediaDevices() {
 	mediaDevicesAllowed.value = false;
-	if(mediaSourcesHandler){
+	if (mediaSourcesHandler) {
 		mediaSourcesHandler.stopAndRemoveAudio()
 		await mediaSourcesHandler.stopAndRemoveVideo()
 	}
@@ -791,7 +793,7 @@ function adjustRemoteVideoAspectRatio() {
 }
 
 async function initalizeWebRTCfromCurrentRoomParam() {
-	if (route.query.room && route.query.room!=undefined) {
+	if (route.query.room && route.query.room != undefined) {
 		// webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer, onClose);
 		webRtcConnection = createWebRTCConnection()
 		let result = await webRtcConnection.websocketConsumeLink(route.query.room)
@@ -825,7 +827,7 @@ const onSourceChange = (type: string) => async (value: string | undefined, oldVa
 			frontCamera.value = !JSON.stringify(mediaSourcesHandler.currentVideoCapabilities.facingMode).includes("environment")
 		}
 
-	}else{
+	} else {
 		type === "audio" ? audioSelected.value = null : videoSelected.value = null
 
 	}
@@ -1053,11 +1055,11 @@ button {
 }
 
 .button-disabled {
-	@apply  !bg-[#515154] !text-white;
+	@apply !bg-[#515154] !text-white;
 }
 
 .lower-toolbar-button {
-	@apply  !m-4 !h-15 !w-15 !<lg: h-12 !<lg:w-12
+	@apply !m-4 !h-15 !w-15 !<lg: h-12 !<lg:w-12
 }
 
 .disable-rounded button:enabled:active {
