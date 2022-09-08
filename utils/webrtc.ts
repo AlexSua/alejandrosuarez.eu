@@ -35,6 +35,8 @@ export default class WebRtcConnection {
 	private _state: string = ""
 	private _actions_queue: Function[] = []
 
+	private _polite: boolean = true;
+	private _making_offer: boolean = false;
 
 	private readonly websocket_configuration = {
 		address: "wss://skynet.sytes.net:5355/ws/",
@@ -136,6 +138,11 @@ export default class WebRtcConnection {
 		this.pc.oniceconnectionstatechange = event => {
 			console.log(this.pc.iceConnectionState)
 		}
+		this.pc.oniceconnectionstatechange = () => {
+			if (this.pc.iceConnectionState === "failed") {
+				this.pc.restartIce();
+			}
+		};
 
 		this.pc.onconnectionstatechange = event => {
 			console.log(this.pc.connectionState)
@@ -147,9 +154,8 @@ export default class WebRtcConnection {
 				case "closed":
 					break;
 				case "failed":
-					this._onClose && this._onClose()
-					break;
 				case "disconnected":
+					this._onClose && this._onClose()
 					break;
 				default:
 					break;
@@ -160,18 +166,17 @@ export default class WebRtcConnection {
 		this.pc.onnegotiationneeded = async event => {
 			console.log("negotiation needed")
 
-			const offer = await this.createOffer();
-
+			await this.pc.setLocalDescription();
 			if ("p2p" in this._dataChannels) {
 				if (this._dataChannels["p2p"].readyState != "open") {
 					const previousOnOpenFunction = this._dataChannels["p2p"].onopen
 					this._dataChannels["p2p"].onopen = function (ev: Event) {
-						this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+						this._dataChannels["p2p"].send(JSON.stringify({ sdp: this.pc.localDescription }));
 						this._dataChannels["p2p"].onopen = previousOnOpenFunction
 						this._dataChannels["p2p"].onopen(ev)
 					}.bind(this);
 				} else {
-					this._dataChannels["p2p"].send(JSON.stringify({ sdp: offer }));
+					this._dataChannels["p2p"].send(JSON.stringify({ sdp: this.pc.localDescription }));
 				}
 			}
 			if ("video" in this._videoChatSenders) {
@@ -202,22 +207,10 @@ export default class WebRtcConnection {
 		this.pc.onsignalingstatechange = event => {
 			console.log("signaling state: " + this.pc.signalingState)
 			this._state = String(this.pc.signalingState)
-			// if (this.pc.signalingState === "stable") {
-			// 	if (this._actions_queue.length > 0) {
-			// 		console.log("aaaaaaaaaaaa")
-			// 		// this._actions_queue.shift()()
-			// 	}
-			// }
 		}
 
 	}
 
-	async createOffer() {
-		console.log("create offer")
-		const offer = await this.pc.createOffer();
-		await this.pc.setLocalDescription(offer);
-		return offer;
-	}
 
 
 	async createInitialOffer() {
@@ -239,7 +232,6 @@ export default class WebRtcConnection {
 	}
 
 	_sendWebsocketMessage(message: Message) {
-		console.log(JSON.stringify(message.sdp.sdp))
 		const compressedString = this._compressMessage(message);
 		if (this._signalingFromWebsocket && this._websocket) {
 			this._websocket.send(compressedString);
@@ -279,6 +271,7 @@ export default class WebRtcConnection {
 				if (msg.data.startsWith("/get")) {
 					this._signalingFromWebsocket = true;
 					this.createInitialOffer();
+					this._polite = false;
 				} else {
 					this._signalingFromWebsocket = true;
 					this.createAnswerFromCompressedString(msg.data);
@@ -320,25 +313,29 @@ export default class WebRtcConnection {
 
 	async createAnswer(message: Message): Promise<RTCSessionDescriptionInit | null> {
 		let answerDesc = null
-		// this._localCandidates = []
 		const asyncEventsList = []
 		const postAsyncEventsList = []
-		let resultIndex = -1;
+		let ignoreOffer = false;
 		if (message.sdp) {
 			const sdpMessage = message.sdp
 			console.log(sdpMessage.type, message)
+
+			const offerCollision = (sdpMessage.type === "offer") &&
+				(this._making_offer || this.pc.signalingState !== "stable");
+
+			ignoreOffer = !this._polite && offerCollision;
+
+			if (ignoreOffer) return answerDesc;
 
 			try {
 				if (sdpMessage.type == "offer") {
 					console.log("create answer")
 					asyncEventsList.push(...[
 						this.pc.setRemoteDescription(message.sdp),
-						this.pc.createAnswer()
 					])
 					postAsyncEventsList.push(...[
-						this.pc.setLocalDescription(answerDesc)
+						this.pc.setLocalDescription()
 					])
-					resultIndex = 1
 				} else {
 					if (this.pc.signalingState == "have-local-offer" && !message.candidate) {
 						asyncEventsList.push(...[
@@ -357,15 +354,15 @@ export default class WebRtcConnection {
 					}
 				}
 
-				const resultAsyncEventList = await Promise.all(asyncEventsList)
-				if (resultIndex >= 0) answerDesc = resultAsyncEventList[resultIndex]
+				await Promise.all(asyncEventsList)
+				if (sdpMessage.type == "offer") answerDesc = this.pc.localDescription
 				await Promise.all(postAsyncEventsList)
-				return answerDesc
+				return answerDesc;
 			}
 
 			catch (e: any) {
 				console.log("----------------------", e)
-				return null
+				return answerDesc
 			}
 
 		}
@@ -416,12 +413,7 @@ export default class WebRtcConnection {
 
 
 	addActionToQueue(action: Function) {
-		// if (this.pc.signalingState != "stable" || this._actions_queue.length > 0) {
-		// console.log("executeOrQueue", action)
 		this._actions_queue.push(action)
-		// } else {
-		// 	action()
-		// }
 	}
 
 	p2pDataChannelInitialization(channel: RTCDataChannel) {
@@ -429,28 +421,10 @@ export default class WebRtcConnection {
 			console.log("p2p is open!");
 			this._websocket && this._websocket.close(1000, "close")
 			this._connected = true;
-			this.addActionToQueue(function () {
-				this.attachDataChannel("chat", 2, true)
-			}.bind(this));
+			this.attachDataChannel("chat", 2, true)
 			if (this._mediaSourcesHandler.currentStream) {
-				this.addActionToQueue(function () {
-					this.attachVideoChatStream();
-				}.bind(this));
+				this.attachVideoChatStream();
 			}
-			let retry = () => {
-				if (this._actions_queue.length <= 0) return;
-				if (this.pc.signalingState === "stable") {
-					const nextAction = this._actions_queue[0];
-					try {
-						nextAction();
-						this._actions_queue.shift();
-					} catch (err) {
-						console.error("Error in action", err);
-					}
-				}
-				setTimeout(retry, 100)
-			}
-			retry()
 		};
 
 		channel.onclose = () => {
@@ -461,7 +435,7 @@ export default class WebRtcConnection {
 		channel.onmessage = async event => {
 			const message = JSON.parse(event.data);
 			const answer = await this.createAnswer(message)
-			answer && channel.send(JSON.stringify({ sdp: answer }))
+			answer && channel.send(JSON.stringify({ sdp: this.pc.localDescription }))
 
 		};
 	}
