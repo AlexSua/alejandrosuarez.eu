@@ -41,6 +41,6 @@ jobs:
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          token: ${{secrets.DEPLOY_TOKEN}}
-          repository-name: AlexSua/PaginaPersonal
+          # token: ${{secrets.DEPLOY_TOKEN}}
+          # repository-name: AlexSua/PaginaPersonal
           folder: ${{env.BUILD_FOLDER}}
