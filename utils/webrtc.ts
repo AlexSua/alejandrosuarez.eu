@@ -39,8 +39,8 @@ export default class WebRtcConnection {
 	private _making_offer: boolean = false;
 
 	private readonly websocket_configuration = {
-		address: "wss://skynet.sytes.net:5355/ws/",
-		// address: "ws://127.0.0.1:8080/ws/",
+		address: "wss://skynet.sytes.net:5355/",
+		// address: "ws://127.0.0.1:8080/",
 	}
 
 	private readonly configuration = {
@@ -266,10 +266,15 @@ export default class WebRtcConnection {
 				resolve(uuid);
 			}
 			this._websocket.onmessage = async (msg: MessageEvent<any>) => {
-				if (msg.data.startsWith("/get")) {
-					this._signalingFromWebsocket = true;
-					this.createInitialOffer();
-					this._polite = false;
+				if (msg.data.startsWith("/")) {
+					switch(msg.data){
+						case "/remote:open":
+							this._signalingFromWebsocket = true;
+							this.createInitialOffer();
+							this._polite = false;
+							break;
+					}
+					
 				} else {
 					this._signalingFromWebsocket = true;
 					this.createAnswerFromCompressedString(msg.data);
