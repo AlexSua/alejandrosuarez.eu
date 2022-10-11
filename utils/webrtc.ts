@@ -95,9 +95,10 @@ export default class WebRtcConnection {
 		this._actions_queue = []
 
 		this.pc.onicecandidate = (event) => {
-
-			if (event.candidate && this.pc.canTrickleIceCandidates) {
+			console.log("on ice candidate event: " + event.candidate)
+			if (event.candidate) {
 				this._localCandidates.push(event.candidate)
+				console.log("on ice candidate event push: " + event.candidate)
 			}
 			if (!event.candidate) {
 				console.log("localCandidate", this._localCandidates)
@@ -212,6 +213,7 @@ export default class WebRtcConnection {
 
 
 	async createInitialOffer() {
+		console.log("creating initial offer")
 		if (this.pc.signalingState != "stable") {
 			if (this._localCandidates && this._websocket && this._websocket.readyState == WebSocket.OPEN) {
 				this._sendWebsocketMessage({
@@ -220,6 +222,7 @@ export default class WebRtcConnection {
 				});
 			}
 		} else {
+			this._dataChannels = {}
 			this.attachDataChannel("p2p", 1, false);
 		}
 	}
