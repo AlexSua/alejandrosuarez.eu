@@ -215,7 +215,7 @@ export default class WebRtcConnection {
 	async createInitialOffer() {
 		console.log("creating initial offer")
 		if (this.pc.signalingState != "stable") {
-			if (this._localCandidates && this._websocket && this._websocket.readyState == WebSocket.OPEN) {
+			if (this._websocket && this._websocket.readyState == WebSocket.OPEN) {
 				this._sendWebsocketMessage({
 					sdp: this.pc.localDescription,
 					candidate: this._localCandidates
@@ -270,17 +270,18 @@ export default class WebRtcConnection {
 			}
 			this._websocket.onmessage = async (msg: MessageEvent<any>) => {
 				if (msg.data.startsWith("/")) {
-					switch(msg.data){
+					switch (msg.data) {
 						case "/remote:open":
 							this._signalingFromWebsocket = true;
 							this.createInitialOffer();
 							this._polite = false;
 							break;
 					}
-					
+
 				} else {
 					this._signalingFromWebsocket = true;
-					this.createAnswerFromCompressedString(msg.data);
+					await this.createAnswerFromCompressedString(msg.data);
+
 				}
 			}
 			this._websocket.onclose = (msg: CloseEvent) => {
@@ -305,7 +306,7 @@ export default class WebRtcConnection {
 	}
 
 
-	close(force_websocket_close:boolean = true) {
+	close(force_websocket_close: boolean = true) {
 		this.pc.close();
 		this._websocket && force_websocket_close && this._websocket.close(1000, "close");
 	}
@@ -339,7 +340,7 @@ export default class WebRtcConnection {
 					asyncEventsList.push(...[
 						this.pc.setRemoteDescription(message.sdp),
 					])
-					postAsyncEventsList.push(...[
+					asyncEventsList.push(...[
 						this.pc.setLocalDescription()
 					])
 				} else {
