@@ -984,28 +984,26 @@ watch(localVideoMirror, (value) => {
 })
 
 onMounted(() => {
-	(async () => {
-		await initializeLocalStream()
-		if (route.query.room && route.query.room.length > 0) {
-			link.value = document.location.href;
-			initalizeWebRTCfromCurrentRoomParam()
-		}
-	})();
 	videoLocalContainer.value.ontransitionend = () => {
 		if (call.value && !isDrawing.value) {
 			!draggable.value && enableVideoLocalDraggable()
 		}
 		adjustCanvasToVideo(canvasLocal.value, videoLocal.value)
-
-
-
-
 	}
 	videoLocalContainer.value.ontransitionstart = () => {
 		if (call.value && !isDrawing.value) {
 			clearAdjustCanvasToVideo(canvasLocal.value)
 		}
 	}
+
+	(async () => {
+		await initializeLocalStream()
+		if (route.query.room && route.query.room.length > 0) {
+			link.value = document.location.href;
+			await initalizeWebRTCfromCurrentRoomParam()
+		}
+	})();
+	
 
 })
 onBeforeUnmount(() => {

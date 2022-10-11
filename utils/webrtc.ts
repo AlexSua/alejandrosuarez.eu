@@ -213,16 +213,16 @@ export default class WebRtcConnection {
 
 
 	async createInitialOffer() {
-		console.log("creating initial offer")
-		if (this.pc.signalingState != "stable") {
-			if (this._websocket && this._websocket.readyState == WebSocket.OPEN) {
+		console.log("creating initial offer",this.pc.signalingState)
+		if (!this.pc.signalingState.startsWith( "stable") || "p2p" in this._dataChannels) {
+			// if (this._websocket && this._websocket.readyState == WebSocket.OPEN) {
 				this._sendWebsocketMessage({
 					sdp: this.pc.localDescription,
 					candidate: this._localCandidates
 				});
-			}
+			// }
 		} else {
-			this._dataChannels = {}
+			// this._dataChannels = {}
 			this.attachDataChannel("p2p", 1, false);
 		}
 	}
@@ -356,8 +356,8 @@ export default class WebRtcConnection {
 					console.log("adding candidate")
 					this._remoteCandidates = message.candidate
 					for (const element of message.candidate) {
-						console.log(element)
-						asyncEventsList.push(this.pc.addIceCandidate(element))
+							console.log(element)
+							asyncEventsList.push(this.pc.addIceCandidate(element))
 					}
 				}
 
