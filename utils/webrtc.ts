@@ -97,6 +97,7 @@ export default class WebRtcConnection {
 		this._actions_queue = []
 
 		this.pc.onicecandidate = (event) => {
+			console.log(this.pc.canTrickleIceCandidates,event.candidate)
 			if (event.candidate && this.pc.canTrickleIceCandidates) {
 				this._localCandidates.push(event.candidate)
 			} else {
@@ -137,6 +138,7 @@ export default class WebRtcConnection {
 		}
 		this.pc.oniceconnectionstatechange = () => {
 			if (this.pc.iceConnectionState === "failed") {
+				this._localCandidates= []
 				this.pc.restartIce();
 			}
 		};
@@ -155,6 +157,7 @@ export default class WebRtcConnection {
 					break;
 				case "failed":
 					if (this._was_connecting) {
+						this._localCandidates= []
 						this.pc.restartIce();
 						this._was_connecting = false;
 					} else {
@@ -171,6 +174,7 @@ export default class WebRtcConnection {
 
 		this.pc.onnegotiationneeded = async event => {
 			console.log("negotiation needed")
+			this._making_offer = true;
 			await this.pc.setLocalDescription();
 			if ("p2p" in this._dataChannels) {
 				if (this._dataChannels["p2p"].readyState != "open") {
@@ -183,12 +187,7 @@ export default class WebRtcConnection {
 				} else {
 					this._dataChannels["p2p"].send(JSON.stringify({ sdp: this.pc.localDescription }));
 				}
-			} else {
-				this._sendWebsocketMessage({
-					sdp: this.pc.localDescription,
-					candidate: null
-				})
-			}
+			} 
 			if ("video" in this._videoChatSenders) {
 				console.log("video transport state: ", this._videoChatSenders["video"])
 				if ("connected" == this._videoChatSenders["video"].transport.state) {
@@ -211,7 +210,7 @@ export default class WebRtcConnection {
 					this._videoChatSenders["audio"].track.contentHint = "speech"
 				}
 			}
-
+			this._making_offer = false;
 		}
 
 		this.pc.onsignalingstatechange = event => {
@@ -224,6 +223,7 @@ export default class WebRtcConnection {
 
 
 	async createInitialOffer() {
+		this._localCandidates = []
 		console.log("creating initial offer", this.pc.signalingState)
 		if (!this.pc.signalingState.startsWith("stable") || "p2p" in this._dataChannels) {
 			// if (this._websocket && this._websocket.readyState == WebSocket.OPEN) {
@@ -267,6 +267,8 @@ export default class WebRtcConnection {
 	}
 
 	_createWebsocket(uuid: string = this._websocket_uuid, attempt: number = 0) {
+		this._localCandidates = []
+
 		console.log('Creating websocket')
 		if (this._websocket && this._websocket.readyState != WebSocket.CLOSED) return null;
 		return new Promise(async function (resolve, reject) {
@@ -349,7 +351,7 @@ export default class WebRtcConnection {
 					console.log("create answer")
 					asyncEventsList.push(...[
 						this.pc.setRemoteDescription(message.sdp),
-						this.pc.setLocalDescription()
+						this.pc.setLocalDescription(),
 					])
 				} else {
 					asyncEventsList.push(...[
@@ -367,6 +369,7 @@ export default class WebRtcConnection {
 				}
 				await Promise.all(asyncEventsList)
 				if (!this.pc.canTrickleIceCandidates) {
+					this._localCandidates= []
 					this.pc.restartIce()
 				}
 				if (sdpMessage.type == "offer") answerDesc = this.pc.localDescription
@@ -382,25 +385,30 @@ export default class WebRtcConnection {
 		return answerDesc
 	}
 
-	attachVideoChatStream(stream: MediaStream = this._mediaSourcesHandler.currentStream) {
-		if (!(["connected", "connecting"].includes(this.pc.connectionState))) return null;
+	async attachVideoChatStream(stream: MediaStream = this._mediaSourcesHandler.currentStream) {
+		if (this.pc.connectionState!=undefined)
+			if (!(["connected", "connecting"].includes(this.pc.connectionState))) return null;
+		else
+			if(this.pc.iceGatheringState!=="complete")
+				return null
+				
 		console.log("attach video chat stream", stream.getTracks())
 		const videochattracks = stream.getTracks()
 		console.log(this._mediaSourcesHandler)
 
-		Object.entries(this._videoChatSenders).forEach(([key, sender]) => {
+		for (const [key, sender] of Object.entries(this._videoChatSenders)){
 			const track = videochattracks.find((track) => track.kind == key)
 			console.log(track)
 			if (track && track != undefined) {
 				if (track?.label != sender.track?.label) {
-					sender.replaceTrack(track)
+					await sender.replaceTrack(track)
 					console.log("replace" + track.label)
 				}
 			} else {
 				this.pc.removeTrack(sender)
 				delete this._videoChatSenders[key]
 			}
-		})
+		}
 
 		videochattracks.forEach((track) => {
 			if (!this._videoChatSenders[track.kind]) {
@@ -409,7 +417,7 @@ export default class WebRtcConnection {
 		})
 
 		console.log(this._videoChatSenders["video"])
-		this.pc.createOffer()
+
 	}
 
 	attachDataChannel(dataChannelName: string = "p2p", id: number = 1, negotiated = true) {
@@ -422,7 +430,6 @@ export default class WebRtcConnection {
 				this.p2pDataChannelInitialization(channel)
 			}
 			this._dataChannels[channel.label] = channel
-			this.pc.createOffer()
 		}
 	}
 

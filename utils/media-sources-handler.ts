@@ -18,10 +18,10 @@ export default class MediaSourcesHandler {
 		},
 
 		video: {
-			width: { min: 400 },
-			height: { min: 400 },
-			aspectRatio: { min: 0, ideal: 16 / 9 },
-			frameRate: { min: 10, ideal: 60, max: 240 },
+			// width: { min: 400 },
+			// height: { min: 400 },
+			// aspectRatio: { min: 0, ideal: 16 / 9 },
+			// frameRate: { min: 10, ideal: 60, max: 240 },
 		},
 	};
 

@@ -383,7 +383,6 @@ const enableAudioFunc = async () => {
 		} else if (audioSelected.value) {
 			await mediaSourcesHandler.startAudio(audioSelected.value)
 			audioEnabled.value = true
-			webRtcConnection && webRtcConnection.attachVideoChatStream()
 		}
 		webRtcConnection && webRtcConnection.attachVideoChatStream()
 	}
@@ -749,7 +748,6 @@ async function initializeScreenStream() {
 			if (videoEnabled.value) {
 				await mediaSourcesHandler.startVideo(videoSelected.value)
 			}
-			webRtcConnection && webRtcConnection.attachVideoChatStream()
 			frontCamera.value = true;
 			screenSharing.value = false;
 		} else {
@@ -759,7 +757,6 @@ async function initializeScreenStream() {
 				initializeScreenStream()
 			}
 			if (!result) return;
-			webRtcConnection && webRtcConnection.attachVideoChatStream()
 			frontCamera.value = false;
 			screenSharing.value = true;
 		}
@@ -799,6 +796,7 @@ async function initalizeWebRTCfromCurrentRoomParam() {
 }
 
 const onSourceChange = (type: string) => async (value: string | undefined, oldValue: string | undefined) => {
+	if (!call.value) return null;
 	console.log(value, oldValue)
 	mediaSelectionDisabled.value = true
 
