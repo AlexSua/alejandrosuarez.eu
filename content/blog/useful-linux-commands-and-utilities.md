@@ -14,7 +14,7 @@ The following article shows a list of Linux Bash commands and utilities good to 
 
 
 ## Bash commands
-A compilation of useful bash commands.
+A compilation of useful commands that can be used with the bash SHELL.
 
 ### Xargs | Using the output of the last command as arguments of another command
 
