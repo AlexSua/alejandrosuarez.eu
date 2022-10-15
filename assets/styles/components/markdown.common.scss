@@ -16,11 +16,23 @@
   margin-right: 0;
   margin-bottom: 1rem;
 
-  p {
+  p,ul,ol,table {
     text-align: left !important;
     line-height: 1.4;
     margin-top: 1.5rem;
   }
+
+  
+  ul,ol{
+    padding-left: 0;
+    ul,ol{
+      padding-left:2em;
+    }
+  }
+  ol{
+    padding-left:1em;
+  }
+
 
   pre {
     background-color: $video-dark;
@@ -43,8 +55,11 @@
   h2{
     margin-top:5rem;
   }
-  h3,h4{
+  h3{
     margin-top:5rem;
+  }
+  h4{
+    margin-top:3rem;
   }
   h4 {
     font-style: italic;

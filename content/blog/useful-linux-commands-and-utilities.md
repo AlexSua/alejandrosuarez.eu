@@ -14,6 +14,7 @@ The following article shows a list of Linux Bash commands and utilities good to 
 
 
 ## Bash commands
+A compilation of useful bash commands.
 
 ### Xargs | Using the output of the last command as arguments of another command
 
@@ -181,11 +182,11 @@ echo "$(for i in $(find /home/aegos/Descargas -type d); do du -hs $i 2>/dev/null
 
 Translated to human language the command above means the following: For each folder found by the find command execute `du` to check the space of each `i` directory on disk and pass the entire result of the query to the command `sort` to organize the result based on the space.
 
-• ```find "./folder" -type d```{lang="bash"} : Search for all directories in a path.
+- • ```find "./folder" -type d```{lang="bash"} : Search for all directories in a path.
 
-• ```du -hs```{lang="bash"} : Prints the size of a folder in a human readable way, together with the directory path name.
+- • ```du -hs```{lang="bash"} : Prints the size of a folder in a human readable way, together with the directory path name.
 
-• ```sort -h```{lang="bash"} : Sort the entire result by the size obtained with du. The `-h` argument indicates the command that you want to sort using the size information that was printed in a human readable way. In this way data such as: `21G`, `10M`, `100K` is sorted accordingly.
+- • ```sort -h```{lang="bash"} : Sort the entire result by the size obtained with du. The `-h` argument indicates the command that you want to sort using the size information that was printed in a human readable way. In this way data such as: `21G`, `10M`, `100K` is sorted accordingly.
 
 ### Find | Wc | Get the number of files inside all directories in a hierarchy
 The following command searches recursively for all directories that exist in a path and obtains the number of elements inside. When the process finishes the result is piped into the `sort` command to sort the result based on the number of elements inside. Useful for cluster clients with resource limits such as a maximum number of files, the command allows you to identify which is the folder with more files inside.
@@ -195,14 +196,14 @@ echo "$(for i in $(find /folder -type d); do echo "$( ls -la "$i" 2>/dev/null| g
 
 Translated to human language the command above means the following: For each folder found by the find command execute `ls` to get the elements inside each folder `i`, filter the result to get only file elements and pass its result to the command `wc -l` to count them. When all directories have been visited, pass the entire result to the `sort` command to organize the directories based on their ammount of elements.
 
-• ```find ./folder -type d```{lang="bash"} : Search for all directories in a path.
+- • ```find ./folder -type d```{lang="bash"} : Search for all directories in a path.
 
-• ```echo "$( ls -la "$i" 2>/dev/null| grep "^[-]"| wc -l) $i"; done;)"```{lang="bash"} : Prints the result of executing the command that counts the number of files inside a directory together with the path of `i`.
-- \- ```ls -la "$i" 2>/dev/null```{lang="bash"} : Get all elements of a directory and if there is any error output to /dev/null to prevent it from getting piped into the next command. `2>/dev/null` redirects stderr to `/dev/null`. 
-- \- ```grep "^[-]"```{lang="bash"} : Print only lines that start with `-` from the output of `ls` that will match with those lines that refer to a file, filtering in this way every directory or symbolic link.
-- \- `wc -l`{lang="bash"} : From the filtered result obtained with `grep` print the number of lines.
+- • ```echo "$( ls -la "$i" 2>/dev/null| grep "^[-]"| wc -l) $i"; done;)"```{lang="bash"} : Prints the result of executing the command that counts the number of files inside a directory together with the path of `i`.
+  - \- ```ls -la "$i" 2>/dev/null```{lang="bash"} : Get all elements of a directory and if there is any error output to /dev/null to prevent it from getting piped into the next command. `2>/dev/null` redirects stderr to `/dev/null`. 
+  - \- ```grep "^[-]"```{lang="bash"} : Print only lines that start with `-` from the output of `ls` that will match with those lines that refer to a file, filtering in this way every directory or symbolic link.
+  - \- `wc -l`{lang="bash"} : From the filtered result obtained with `grep` print the number of lines.
 
-• ```sort -n```{lang="bash"} : Sort the entire result by the count result obtained with `wc`. The `-n` argument indicates the command that you want to sort by number.
+- • ```sort -n```{lang="bash"} : Sort the entire result by the count result obtained with `wc`. The `-n` argument indicates the command that you want to sort by number.
 
 
 ### Setsid | Run a command in background
@@ -230,15 +231,15 @@ echo "a a"| tee $(tty) >(wc -w) file_last_output -a file_all_outputs | sed "s/a/
 ```
 Translated to human language the command above takes the result of echo and pipes its result into the tee command which duplicates the input received to write into `$(tty)` (which is the file connected to the current terminal) to print into the current terminal, to pass stdin to `wc -w` in order to count the number of words that are received from the echo command, to write stdin into `file_last_output`, to append it into `file_all_outputs`, to be finally piped into `sed` to replace each "a" into "b", result that will be printed into the terminal. 
 
-• ```$(tty)```{lang="bash"} : Command substitution. Takes the output of the command `tty` to be used as argument in `tee`.
+- • ```$(tty)```{lang="bash"} : Command substitution. Takes the output of the command `tty` to be used as argument in `tee`.
 
-• ```>(wc -w)```{lang="bash"} : Duplicates the input received by tee and feeds the `wc` command to count the number of words.
+- • ```>(wc -w)```{lang="bash"} : Duplicates the input received by tee and feeds the `wc` command to count the number of words.
 
-• ```file_last_output```{lang="bash"} : Duplicates the input received by tee and outputs into the file file_las_output.
+- • ```file_last_output```{lang="bash"} : Duplicates the input received by tee and outputs into the file file_las_output.
 
-• ```-a file_last_output```{lang="bash"} : Duplicates the input received by tee and appends into the file file_all_outputs.
+- • ```-a file_last_output```{lang="bash"} : Duplicates the input received by tee and appends into the file file_all_outputs.
 
-• ```| sed "s/a/b/g"```{lang="bash"} : Pipes stdout of tee which has the same content as its input into sed to turn every "a" into "b".
+- • ```| sed "s/a/b/g"```{lang="bash"} : Pipes stdout of tee which has the same content as its input into sed to turn every "a" into "b".
 
 > Notice that this example is a little bit awkward and it will be replaced by a better use case when it is found. The purpose of the command above is to show the use of tee with command substitution, with a command as receiver, a normal file as output, appending into an ouput file and piping at the end.
 
