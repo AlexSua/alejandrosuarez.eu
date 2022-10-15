@@ -19,6 +19,7 @@
   p {
     text-align: left !important;
     line-height: 1.4;
+    margin-top: 1.5rem;
   }
 
   pre {
@@ -37,6 +38,13 @@
   }
   h1,h2,h3,h4{
     font-weight: 600;
+    margin-bottom: 0;
+  }
+  h2{
+    margin-top:5rem;
+  }
+  h3,h4{
+    margin-top:5rem;
   }
   h4 {
     font-style: italic;
