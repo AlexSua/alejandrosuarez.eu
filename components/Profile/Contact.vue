@@ -17,14 +17,14 @@
               <img src="@/assets/img/contacto/gmail.png">
             </a>
           </li>
-          <li>
+          <!-- <li>
             <a
               href="https://www.linkedin.com/in/alejandro-suárez-430986b4"
               target="_blank"
             >
               <img src="@/assets/img/contacto/linkedin.png">
             </a>
-          </li>
+          </li> -->
           <li>
             <a
               href="https://github.com/AlexSua"
