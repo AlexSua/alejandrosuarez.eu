@@ -50,6 +50,12 @@
           "workdone": "Dentro de la empresa he participado en el mantenimiento y desarrollo de nuevas funcionalidades dentro de la parte de backend de un sistema que se encarga del control de cargadores de coches eléctricos. Este sistema pertenece a Efimob, empresa que proporciona una red de cargadores para coches eléctricos en toda España. La monitorización, pago automático de recargas, mantenimiento y control de estos cargadores son algunas de las funcionalidades que este sistema incluye y en las cuales yo participo activamente."
         },
         {
+          "place": "Remoto",
+          "duration": "May ‘18 - Oct ‘18 (6 meses)",
+          "about": "Empresa multinacional de telecomunicaciones cuya principal fuente de ingresos es la difusión de contenidos multimedia.\n\n",
+          "workdone": "Durante mi período en Overon me encargué del desarrollo de un transcodificador que tenía la misión de transformar una señal de video/audio y subtítulos desde cualquier formato u origen a un formato que pueda ser interpretado por cualquier navegador web. Junto con el transcodificador también cree un reproductor web a medida para la empresa."
+        },
+        {
           "place": "Vigo, Galicia",
           "duration": "Enero ‘17 - Mayo ‘17 (5 meses)",
           "about": "Agencia de movilidad internacional que facilita experiencias en el extranjero con el fin de mejorar las capacidades lingüísticas y formativas de las personas.\n\n",

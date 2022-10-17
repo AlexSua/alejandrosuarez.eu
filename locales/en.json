@@ -109,6 +109,31 @@
           ]
         },
         {
+          "title": "Overon",
+          "place": "Remote",
+          "logo": "overon.png",
+          "url": "https://www.overon.es/",
+          "style": "mix-blend-mode: hard-light",
+          "background": "overon.jpeg",
+          "duration": "May ‘18 - Oct ‘18 (6 months)",
+          "about": "International telecommunications company whose main source of income is the broadcasting of multimedia content.\n\n",
+          "workdone": "During this time I was in charge of a transcoder development whose mission was the transformation of audio/video/subtitles signals from any format or origin to a format which could be interpreted by any web browser. Together with the transcoder, I also created a custom web player for this company.\n\n",
+          "technologies": [
+            {
+              "logo": "golang.png",
+              "title": "GoLang"
+            },
+            {
+              "logo": "ffmpeg.png",
+              "title": "FFmpeg"
+            },
+            {
+              "logo": "javascript.png",
+              "title": "JavaScript"
+            }
+          ]
+        },
+        {
           "title": "Connectors",
           "place": "Vigo, Galicia",
           "logo": "connectors.jpg",
