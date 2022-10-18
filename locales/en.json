@@ -49,7 +49,7 @@
           "url": "https://home.cern/",
           "background": "cern.jpg",
           "style": "mix-blend-mode: unset",
-          "duration": "Nov ‘20 - Present",
+          "duration": "Nov ‘20 - Jan '22",
           "about": "CERN is one of the world's largest research centers. It focuses on fundamental physics and its goal is to try to discover what the universe is made of and how it works.",
           "workdone": "In the organization I have been in the systems administration team where I have actively participated in the creation of tools that automate tasks within the group, I have supported the virtual machines of the openstack based cloud infrastructure that CERN uses, I have deployed with ansible and supported a FastX cluster that provides a remote desktop service and during my time there I have also participated in the development in Python of a framework that would serve as an abstraction layer between cern services and users.",
           "technologies": [

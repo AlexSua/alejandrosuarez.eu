@@ -39,7 +39,7 @@
       "positions": [
         {
           "place": "Ginebra, Suiza",
-          "duration": "Nov ‘20 - Actualidad",
+          "duration": "Nov ‘20 - Ene '22 (1 año y 2 meses)",
           "about": "El CERN es uno de los centros de investigación más grandes del mundo. Se centra en la física fundamental y su objetivo es tratar de descubrir de que está hecho el universo y de cómo funciona.\n\n",
           "workdone": "Dentro de la organización he estado en el departamento de administración de sistemas donde he participado activamente en la creación de herramientas que automatizan tareas dentro del grupo, he sido responsable de la administración de los sistemas que controlan componentes del acelerador, he dado soporte a las máquinas virtuales basadas en la infraestructura cloud openstack del CERN, he participado en la reorganización y división del proyecto ansible responsable de los sistemas que dan soporte a la infraestructura del acelerador junto con su publicación y despliegue con Gitlab CI/CD, he desplegado con ansible y dado soporte a un cluster FastX que provee un servicio de escritorio remoto y durante mi tiempo alli también he participado en el desarrollo en Python de un framework que serviría como capa de abstraccion entre los servicios del cern y los usuarios.\n\n"
         },
