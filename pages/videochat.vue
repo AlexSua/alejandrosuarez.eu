@@ -760,6 +760,7 @@ async function initializeScreenStream() {
 			frontCamera.value = false;
 			screenSharing.value = true;
 		}
+		webRtcConnection && webRtcConnection.attachVideoChatStream()
 	}
 	mediaDevicesAllowed.value = true;
 }
