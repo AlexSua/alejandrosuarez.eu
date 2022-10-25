@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   const sitemapCommon = {
     changefreq: 'daily',
     lastmod: new Date().toISOString(),
-    priority: 0.8
+    priority: 0.7
   }
   for (const webpage of ["/", "/blog/", "/videochat/", "/es/", "/es/blog/"]) {
     sitemap.write({
