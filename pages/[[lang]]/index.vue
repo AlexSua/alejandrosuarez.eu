@@ -17,7 +17,6 @@
 
 
 <script setup lang="ts">
-
 const router = useRouter()
 const route = useRoute();
 const loaded_privacy = router.prevRoute.path.includes("/privacy")
@@ -45,7 +44,7 @@ const emit = defineEmits(["update:afterEnter"]);
 
 useSeo({
 	title: "Profile",
-	description: "Hello, I am a computer engineer with a wide knowledge in computer engineering interested in projects that involve new technologies and high degree of automation.",
+	description: "With a master’s degree in Web Engineering, over 2 years of experience as System administrator and Backend developer, I am looking to learn and participate in the development of new projects that allow me to grow professionally.",
 	image: "",
 	type: "WebSite",
 	location: route.path,

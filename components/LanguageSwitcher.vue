@@ -48,5 +48,4 @@ watch(()=>route.params.lang, (value) => {
   locale.value=value as string;
 })
 
-
 </script>
