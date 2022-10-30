@@ -1,6 +1,12 @@
 <template>
 	<div class="flex w-full h-screen bg-black">
-
+		<div class="w-full h-full flex absolute !z-32" v-if="webRtcConnectionState==1" >
+			<ProgressBar mode="indeterminate" class="w-full !h-2 !bg-transparent !z-20 !fixed flex-grow-0 "  ></ProgressBar>
+			<div class="flex-1 flex justify-center items-center text-vanilla-yellow pulsate max-h-20">
+				Establishing connection...
+			</div>
+			
+		</div>
 		<Dialog header="Serverless connection" footer="" v-model:visible="dialogServerLessOpen" class="flex">
 			<div class="flex-1 p-inputgroup py-2">
 				<InputText placeholder="Introduce offer/answer" v-model="sdpMessageInput" />
@@ -53,7 +59,6 @@
 				<Button label="Enter room" class="w-full" @click="enterRoom" />
 			</div>
 		</Dialog>
-
 
 		<div ref="superiorToolBar"
 			class="absolute flex flex-row w-full text-right transition-all duration-400 disable-rounded"
@@ -1061,6 +1066,10 @@ button {
 	}
 }
 
+.p-progressbar-value{
+	background-color:$vanilla-yellow!important;
+}
+
 .pencil-active {
 	.p-speeddial-item:nth-child(3) {
 		.p-speeddial-action {
@@ -1078,5 +1087,21 @@ video::-webkit-media-controls-toggle-closed-captions-button,
 video::-webkit-media-controls-volume-slider {
 	display: none;
 
+}
+.pulsate {
+    -webkit-animation: pulsate 2s ease-out;
+    -webkit-animation-iteration-count: infinite; 
+    opacity: 1;
+}
+@-webkit-keyframes pulsate {
+    0% { 
+        opacity: 0.5;
+    }
+    50% { 
+        opacity: 1.0;
+    }
+    100% { 
+        opacity: 0.5;
+    }
 }
 </style>

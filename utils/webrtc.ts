@@ -181,9 +181,12 @@ export default class WebRtcConnection {
 
 		this.pc.onnegotiationneeded = async event => {
 			try {
+
+
 				console.log("negotiation needed")
 				this._making_offer = true;
 				await this.pc.setLocalDescription();
+
 				if ("p2p" in this._dataChannels) {
 					if (this._dataChannels["p2p"].readyState != "open") {
 						const previousOnOpenFunction = this._dataChannels["p2p"].onopen
@@ -196,39 +199,14 @@ export default class WebRtcConnection {
 						this._dataChannels["p2p"].send(JSON.stringify({ sdp: this.pc.localDescription }));
 					}
 				}
-				if ("video" in this._videoChatSenders) {
-					console.log("video transport state: ", this._videoChatSenders["video"])
-					// if ("connected" == this._videoChatSenders["video"].transport.state) {
-					let param = this._videoChatSenders["video"].getParameters()
-					this._videoChatSenders["video"].track.contentHint = "motion"
-					if (!param.encodings) {
-						param.encodings = [{}];
-					}
-					for (const encodeParam of param.encodings) {
-						encodeParam.scaleResolutionDownBy = 1;
-					}
-					param.degradationPreference = "maintain-framerate"
-					// console.log(param)
-					// param.encodings = [{ scaleResolutionDownBy: 1 }]
-					// params.encodings[0].maxBitrate = 120000000;
-					// params.encodings[0].scaleResolutionDownBy = 1;
-					// params.degradationPreference = "maintain-framerate"
-					// params.encodings[0].
-					await this._videoChatSenders["video"].setParameters(param)
-					console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
-					console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
 
-					// }
-				}
-				if ("audio" in this._videoChatSenders) {
-					// if ("connected" == this._videoChatSenders["audio"].transport.state) {
-					this._videoChatSenders["audio"].track.contentHint = "speech"
-					// }
-				}
+
 				this._making_offer = false;
+
 			}
+
 			catch (ex: any) {
-				// console.log("error")
+				console.log("erzxdror")
 				// console.log(ex.stack)
 			}
 		}
@@ -257,8 +235,39 @@ export default class WebRtcConnection {
 		}
 	}
 
-	_set_reactive_state(state:number){
-		this._reactive_state && state? this._reactive_state.value = state:null
+	async _configure_custom_quality() {
+		if ("video" in this._videoChatSenders) {
+			console.log("video transport state: ", this._videoChatSenders["video"])
+			// if ("connected" == this._videoChatSenders["video"].transport.state) {
+			let param = this._videoChatSenders["video"].getParameters()
+			this._videoChatSenders["video"].track.contentHint = "motion"
+			if (!param.encodings) {
+				param.encodings = [{}];
+			}
+			for (const encodeParam of param.encodings) {
+				encodeParam.scaleResolutionDownBy = 1;
+			}
+			param.degradationPreference = "maintain-framerate"
+			// console.log(param)
+			// param.encodings = [{ scaleResolutionDownBy: 1 }]
+			// params.encodings[0].maxBitrate = 120000000;
+			// params.encodings[0].scaleResolutionDownBy = 1;
+			// params.degradationPreference = "maintain-framerate"
+			// params.encodings[0].
+			await this._videoChatSenders["video"].setParameters(param)
+			console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
+			console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
+			// }
+		}
+		if ("audio" in this._videoChatSenders) {
+			// if ("connected" == this._videoChatSenders["audio"].transport.state) {
+			this._videoChatSenders["audio"].track.contentHint = "speech"
+			// }
+		}
+	}
+
+	_set_reactive_state(state: number) {
+		this._reactive_state && state ? this._reactive_state.value = state : null
 	}
 
 	_compressMessage(message: any) {
@@ -441,6 +450,7 @@ export default class WebRtcConnection {
 		})
 
 		console.log(this._videoChatSenders["video"])
+		setTimeout(() => this._configure_custom_quality(), 1000);
 
 	}
 
