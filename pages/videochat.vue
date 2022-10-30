@@ -202,6 +202,7 @@ import { useToast } from "primevue/usetoast";
 import MediaSourcesHandler from "~~/utils/media-sources-handler";
 import VideoBoard from "~~/utils/videoboard.js";
 import WebRtcConnection from "~~/utils/webrtc";
+import { ConnectionState } from '../utils/webrtc';
 
 let mediaSourcesHandler: MediaSourcesHandler;
 let webRtcConnection: WebRtcConnection;
@@ -290,6 +291,8 @@ let localVideoMirror = ref<boolean>(true);
 const sdpMessageInput = ref("")
 const offerTextArea = ref("")
 const smartphone = ref<boolean>(false)
+
+const webRtcConnectionState = ref<ConnectionState>(ConnectionState.disconnected)
 
 function isMobile() {
 	let check = false;
@@ -650,7 +653,7 @@ function writeOnOffer(message: string) {
 }
 
 function createWebRTCConnection() {
-	webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer, onClose)
+	webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer, onClose, webRtcConnectionState)
 	return webRtcConnection
 }
 
@@ -980,6 +983,10 @@ watch(windowSize, () => {
 
 watch(localVideoMirror, (value) => {
 	useLocalStorage("local-video-mirror", String(value));
+})
+
+watch(webRtcConnectionState, (value) => {
+	console.log("Connection state: " + String(value));
 })
 
 onMounted(() => {

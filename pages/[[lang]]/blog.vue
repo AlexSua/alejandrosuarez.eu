@@ -41,6 +41,10 @@
                             <template #default>
                                 <component :is="Component" :key="$route.path" />
                             </template>
+                            <template #fallback >
+                                <template v-if="$route.name == 'lang-blog'"></template>
+                                <BlogListHeader></BlogListHeader>
+                            </template>
                         </suspense>
                     </div>
                     <!-- </keep-alive> -->
@@ -63,6 +67,7 @@ import DarkModeSwitcher from '~~/components/DarkModeSwitcher.vue';
 
 
 const route = useRoute();
+console.log(route)
 const router = useRouter();
 const darkMode = useDarkMode();
 const resolved = ref(false)
@@ -117,6 +122,7 @@ watch(darkMode, (value) => {
 
 <style lang="scss">
 // @import "@/assets/styles/components/blog.scss";
+import { BlogListHeader } from '../../.nuxt/components';
 :not(.dark) .white-bar {
     background-color: #fff;
     min-height: 3px;

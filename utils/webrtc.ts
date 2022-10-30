@@ -1,4 +1,5 @@
 import LZString from "lz-string"
+import { Ref } from "nuxt/dist/app/compat/capi";
 import MediaSourcesHandler from './media-sources-handler';
 
 export interface Message {
@@ -6,6 +7,11 @@ export interface Message {
 	candidate: RTCIceCandidate[],
 }
 
+export enum ConnectionState {
+	disconnected,
+	connecting,
+	connected,
+}
 
 export default class WebRtcConnection {
 
@@ -33,6 +39,7 @@ export default class WebRtcConnection {
 
 	private _connected: boolean = false
 	private _state: string = ""
+	private _reactive_state: Ref<number>
 	private _actions_queue: Function[] = []
 
 	private _polite: boolean = true;
@@ -84,6 +91,8 @@ export default class WebRtcConnection {
 		onDataChannel?: (connection: WebRtcConnection, channel: RTCDataChannel) => void,
 		writeOnOffer?: (message: string) => void,
 		onClose?: () => void,
+		state: Ref<number> = null
+
 	) {
 
 		this.pc = new RTCPeerConnection(this.configuration);
@@ -93,11 +102,11 @@ export default class WebRtcConnection {
 		this._writeOnOffer = writeOnOffer
 		this._onClose = onClose
 		this._mediaSourcesHandler = mediaSourcesHandler;
-
+		this._reactive_state = state
 		this._actions_queue = []
 
 		this.pc.onicecandidate = (event) => {
-			console.log(this.pc.canTrickleIceCandidates,event.candidate)
+			console.log(this.pc.canTrickleIceCandidates, event.candidate)
 			if (event.candidate && this.pc.canTrickleIceCandidates) {
 				this._localCandidates.push(event.candidate)
 			} else {
@@ -133,12 +142,9 @@ export default class WebRtcConnection {
 				this.p2pDataChannelInitialization(channel)
 		};
 
-		this.pc.oniceconnectionstatechange = event => {
-			console.log(this.pc.iceConnectionState)
-		}
 		this.pc.oniceconnectionstatechange = () => {
 			if (this.pc.iceConnectionState === "failed") {
-				this._localCandidates= []
+				this._localCandidates = []
 				this.pc.restartIce();
 			}
 		};
@@ -157,7 +163,7 @@ export default class WebRtcConnection {
 					break;
 				case "failed":
 					if (this._was_connecting) {
-						this._localCandidates= []
+						this._localCandidates = []
 						this.pc.restartIce();
 						this._was_connecting = false;
 					} else {
@@ -165,6 +171,7 @@ export default class WebRtcConnection {
 					}
 				case "disconnected":
 					this._onClose && this._onClose()
+					this._set_reactive_state(ConnectionState.disconnected)
 					break;
 				default:
 					break;
@@ -173,48 +180,60 @@ export default class WebRtcConnection {
 
 
 		this.pc.onnegotiationneeded = async event => {
-			console.log("negotiation needed")
-			this._making_offer = true;
-			await this.pc.setLocalDescription();
-			if ("p2p" in this._dataChannels) {
-				if (this._dataChannels["p2p"].readyState != "open") {
-					const previousOnOpenFunction = this._dataChannels["p2p"].onopen
-					this._dataChannels["p2p"].onopen = function (ev: Event) {
+			try {
+				console.log("negotiation needed")
+				this._making_offer = true;
+				await this.pc.setLocalDescription();
+				if ("p2p" in this._dataChannels) {
+					if (this._dataChannels["p2p"].readyState != "open") {
+						const previousOnOpenFunction = this._dataChannels["p2p"].onopen
+						this._dataChannels["p2p"].onopen = function (ev: Event) {
+							this._dataChannels["p2p"].send(JSON.stringify({ sdp: this.pc.localDescription }));
+							this._dataChannels["p2p"].onopen = previousOnOpenFunction
+							this._dataChannels["p2p"].onopen(ev)
+						}.bind(this);
+					} else {
 						this._dataChannels["p2p"].send(JSON.stringify({ sdp: this.pc.localDescription }));
-						this._dataChannels["p2p"].onopen = previousOnOpenFunction
-						this._dataChannels["p2p"].onopen(ev)
-					}.bind(this);
-				} else {
-					this._dataChannels["p2p"].send(JSON.stringify({ sdp: this.pc.localDescription }));
+					}
 				}
-			} 
-			if ("video" in this._videoChatSenders) {
-				console.log("video transport state: ", this._videoChatSenders["video"])
-				if ("connected" == this._videoChatSenders["video"].transport.state) {
-					// let params = this._videoChatSenders["video"].getParameters()
-					// this._videoChatSenders["video"].track.contentHint = "motion"
-					// console.log(params)
-					// params.encodings = [{}]
+				if ("video" in this._videoChatSenders) {
+					console.log("video transport state: ", this._videoChatSenders["video"])
+					// if ("connected" == this._videoChatSenders["video"].transport.state) {
+					let param = this._videoChatSenders["video"].getParameters()
+					this._videoChatSenders["video"].track.contentHint = "motion"
+					if (!param.encodings) {
+						param.encodings = [{}];
+					}
+					for (const encodeParam of param.encodings) {
+						encodeParam.scaleResolutionDownBy = 1;
+					}
+					param.degradationPreference = "maintain-framerate"
+					// console.log(param)
+					// param.encodings = [{ scaleResolutionDownBy: 1 }]
 					// params.encodings[0].maxBitrate = 120000000;
 					// params.encodings[0].scaleResolutionDownBy = 1;
 					// params.degradationPreference = "maintain-framerate"
 					// params.encodings[0].
-					// this._videoChatSenders["video"].setParameters(params)
+					await this._videoChatSenders["video"].setParameters(param)
 					console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
 					console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
 
+					// }
 				}
-			}
-			if ("audio" in this._videoChatSenders) {
-				if ("connected" == this._videoChatSenders["audio"].transport.state) {
+				if ("audio" in this._videoChatSenders) {
+					// if ("connected" == this._videoChatSenders["audio"].transport.state) {
 					this._videoChatSenders["audio"].track.contentHint = "speech"
+					// }
 				}
+				this._making_offer = false;
 			}
-			this._making_offer = false;
+			catch (ex: any) {
+				// console.log("error")
+				// console.log(ex.stack)
+			}
 		}
 
 		this.pc.onsignalingstatechange = event => {
-			console.log("signaling state: " + this.pc.signalingState)
 			this._state = String(this.pc.signalingState)
 		}
 
@@ -236,6 +255,10 @@ export default class WebRtcConnection {
 			// this._dataChannels = {}
 			this.attachDataChannel("p2p", 1, false);
 		}
+	}
+
+	_set_reactive_state(state:number){
+		this._reactive_state && state? this._reactive_state.value = state:null
 	}
 
 	_compressMessage(message: any) {
@@ -285,13 +308,14 @@ export default class WebRtcConnection {
 				if (msg.data.startsWith("/")) {
 					switch (msg.data) {
 						case "/remote:open":
+							this._set_reactive_state(ConnectionState.connecting)
 							this._signalingFromWebsocket = true;
 							this.createInitialOffer();
 							this._polite = false;
 							break;
 					}
-
 				} else {
+					this._set_reactive_state(ConnectionState.connecting)
 					this._signalingFromWebsocket = true;
 					await this.createAnswerFromCompressedString(msg.data);
 
@@ -369,7 +393,7 @@ export default class WebRtcConnection {
 				}
 				await Promise.all(asyncEventsList)
 				if (!this.pc.canTrickleIceCandidates) {
-					this._localCandidates= []
+					this._localCandidates = []
 					this.pc.restartIce()
 				}
 				if (sdpMessage.type == "offer") answerDesc = this.pc.localDescription
@@ -377,7 +401,7 @@ export default class WebRtcConnection {
 			}
 
 			catch (e: any) {
-				console.log("----------------------", e)
+				console.log("-------ERROR--------", e)
 				return answerDesc
 			}
 
@@ -386,17 +410,17 @@ export default class WebRtcConnection {
 	}
 
 	async attachVideoChatStream(stream: MediaStream = this._mediaSourcesHandler.currentStream) {
-		if (this.pc.connectionState!=undefined)
+		if (this.pc.connectionState != undefined)
 			if (!(["connected", "connecting"].includes(this.pc.connectionState))) return null;
-		else
-			if(this.pc.iceGatheringState!=="complete")
-				return null
-				
+			else
+				if (this.pc.iceGatheringState !== "complete")
+					return null
+
 		console.log("attach video chat stream", stream.getTracks())
 		const videochattracks = stream.getTracks()
 		console.log(this._mediaSourcesHandler)
 
-		for (const [key, sender] of Object.entries(this._videoChatSenders)){
+		for (const [key, sender] of Object.entries(this._videoChatSenders)) {
 			const track = videochattracks.find((track) => track.kind == key)
 			console.log(track)
 			if (track && track != undefined) {
@@ -441,6 +465,7 @@ export default class WebRtcConnection {
 	p2pDataChannelInitialization(channel: RTCDataChannel) {
 		channel.onopen = (event) => {
 			console.log("p2p is open!");
+			this._set_reactive_state(ConnectionState.connected)
 			this._websocket && this._websocket.close(1000, "close")
 			this._connected = true;
 			this.attachDataChannel("chat", 2, true)
@@ -452,6 +477,7 @@ export default class WebRtcConnection {
 
 		channel.onclose = () => {
 			console.log("channel close");
+			this._set_reactive_state(ConnectionState.disconnected)
 			this._connected = false;
 		};
 

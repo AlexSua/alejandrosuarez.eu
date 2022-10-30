@@ -107,14 +107,14 @@ let arriba: HTMLElement;
 let seccion_trabajo_abierta: any;
 
 
-function initialize() {
-	setTimeout(() => {
+async function initialize() {
+	// setTimeout(() => {
 		initializeTitles();
 		initializeVariables();
 		initializeJS();
 		initializeEventListeners();
 		initialized = true;
-	}, 100);
+	// }, 200);
 
 }
 
