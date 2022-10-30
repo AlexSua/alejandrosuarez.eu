@@ -122,7 +122,6 @@ watch(darkMode, (value) => {
 
 <style lang="scss">
 // @import "@/assets/styles/components/blog.scss";
-import { BlogListHeader } from '../../.nuxt/components';
 :not(.dark) .white-bar {
     background-color: #fff;
     min-height: 3px;
