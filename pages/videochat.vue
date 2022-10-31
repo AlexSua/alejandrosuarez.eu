@@ -1,11 +1,12 @@
 <template>
 	<div class="flex w-full h-screen bg-black">
-		<div class="w-full h-full flex absolute !z-32" v-if="webRtcConnectionState==1" >
-			<ProgressBar mode="indeterminate" class="w-full !h-2 !bg-transparent !z-20 !fixed flex-grow-0 "  ></ProgressBar>
+		<div class="w-full h-full flex absolute !z-32" v-if="webRtcConnectionState == 1">
+			<ProgressBar mode="indeterminate" class="w-full !h-2 !bg-transparent !z-20 !fixed flex-grow-0 ">
+			</ProgressBar>
 			<div class="flex-1 flex justify-center items-center text-vanilla-yellow pulsate max-h-20">
 				Establishing connection...
 			</div>
-			
+
 		</div>
 		<Dialog header="Serverless connection" footer="" v-model:visible="dialogServerLessOpen" class="flex">
 			<div class="flex-1 p-inputgroup py-2">
@@ -141,9 +142,13 @@
 					<label for="video-fullsize" class="mx-3">Fill the screen size</label>
 
 				</div> -->
-				<div class="field-checkbox m-9 ">
+				<div class="field-checkbox m-9 mb-2">
 					<Checkbox id="local-video-mirror" v-model="localVideoMirror" :binary="true" />
 					<label for="local-video-mirror" class="mx-3">Mirroring local video</label>
+				</div>
+				<div class="field-checkbox m-9 mt-2 ">
+					<Checkbox id="turn-server-enabled" v-model="turnServerEnabled" :binary="true" />
+					<label for="turn-server-enabled" class="mx-3">Turn server enabled</label>
 				</div>
 				<Button icon="pi pi-camera" label="Refresh media devices"
 					class=" p-button-danger m-auto flex-grow-0 !absolute bottom-0 right-0 left-0 min-w-[350px] w-full"
@@ -255,6 +260,8 @@ const isUserInteractionRequiredForVideoRemoteReproduction = ref<boolean>(false)
 const isDrawing = ref<boolean>(false)
 
 let videoRemoteStream: MediaStream;
+
+const turnServerEnabled = ref<boolean>(true)
 
 const frontCamera = ref<boolean>(true)
 const chatMessages = ref<Array<ChatMessage>>([])
@@ -658,7 +665,7 @@ function writeOnOffer(message: string) {
 }
 
 function createWebRTCConnection() {
-	webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer, onClose, webRtcConnectionState)
+	webRtcConnection = new WebRtcConnection(mediaSourcesHandler, ontrack, onDataChannel, writeOnOffer, onClose, webRtcConnectionState, turnServerEnabled.value)
 	return webRtcConnection
 }
 
@@ -994,7 +1001,23 @@ watch(webRtcConnectionState, (value) => {
 	console.log("Connection state: " + String(value));
 })
 
+watch(turnServerEnabled, (value) => {
+	useLocalStorage("turn-server-enabled", String(value))
+})
+
+
+function loadLocalStorageVariables() {
+	const isTurnServerEnabled = useLocalStorage("turn-server-enabled");
+
+	if (isTurnServerEnabled === "false") {
+		turnServerEnabled.value = false;
+	} else {
+		turnServerEnabled.value = true;
+	}
+}
+
 onMounted(() => {
+	loadLocalStorageVariables()
 	videoLocalContainer.value.ontransitionend = () => {
 		if (call.value && !isDrawing.value) {
 			!draggable.value && enableVideoLocalDraggable()
@@ -1014,7 +1037,7 @@ onMounted(() => {
 			await initalizeWebRTCfromCurrentRoomParam()
 		}
 	})();
-	
+
 
 })
 onBeforeUnmount(() => {
@@ -1066,8 +1089,8 @@ button {
 	}
 }
 
-.p-progressbar-value{
-	background-color:$vanilla-yellow!important;
+.p-progressbar-value {
+	background-color: $vanilla-yellow !important;
 }
 
 .pencil-active {
@@ -1088,20 +1111,24 @@ video::-webkit-media-controls-volume-slider {
 	display: none;
 
 }
+
 .pulsate {
-    -webkit-animation: pulsate 2s ease-out;
-    -webkit-animation-iteration-count: infinite; 
-    opacity: 1;
+	-webkit-animation: pulsate 2s ease-out;
+	-webkit-animation-iteration-count: infinite;
+	opacity: 1;
 }
+
 @-webkit-keyframes pulsate {
-    0% { 
-        opacity: 0.5;
-    }
-    50% { 
-        opacity: 1.0;
-    }
-    100% { 
-        opacity: 0.5;
-    }
+	0% {
+		opacity: 0.5;
+	}
+
+	50% {
+		opacity: 1.0;
+	}
+
+	100% {
+		opacity: 0.5;
+	}
 }
 </style>

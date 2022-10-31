@@ -52,35 +52,36 @@ export default class WebRtcConnection {
 		// address: "ws://127.0.0.1:8080/",
 	}
 
-	private readonly configuration = {
-		iceServers: [
-			{
-				urls: 'stun:stun.l.google.com:19302'
-			},
-			{
-				urls: "stun:openrelay.metered.ca:80",
-			},
-			{
-				urls: "turn:openrelay.metered.ca:443",
-				username: "openrelayproject",
-				credential: "openrelayproject",
-			},
-			{
-				urls: "turn:openrelay.metered.ca:443?transport=tcp",
-				username: "openrelayproject",
-				credential: "openrelayproject",
-			},
-			{
-				urls: "turn:openrelay.metered.ca:80",
-				username: "openrelayproject",
-				credential: "openrelayproject",
-			},
+	private _stun_servers = [
+		{
+			urls: 'stun:stun.l.google.com:19302'
+		},
+		{
+			urls: "stun:openrelay.metered.ca:80",
+		},
+	]
 
-			// {
-			//     urls: "turn:skynet.sytes.net:5349",
-			//     username: "guest",
-			//     credential: "&!bYELZK$&X^n5Tm#bKu6bQe"
-			// }
+	private _turn_servers = [
+		{
+			urls: "turn:openrelay.metered.ca:443",
+			username: "openrelayproject",
+			credential: "openrelayproject",
+		},
+		{
+			urls: "turn:openrelay.metered.ca:443?transport=tcp",
+			username: "openrelayproject",
+			credential: "openrelayproject",
+		},
+		{
+			urls: "turn:openrelay.metered.ca:80",
+			username: "openrelayproject",
+			credential: "openrelayproject",
+		},
+	]
+
+	private configuration = {
+		iceServers: [
+			...this._stun_servers
 		]
 	};
 
@@ -91,9 +92,14 @@ export default class WebRtcConnection {
 		onDataChannel?: (connection: WebRtcConnection, channel: RTCDataChannel) => void,
 		writeOnOffer?: (message: string) => void,
 		onClose?: () => void,
-		state: Ref<number> = null
-
+		state: Ref<number> = null,
+		turn_server: boolean = true
 	) {
+
+		if (turn_server)
+			this.configuration.iceServers = [...this.configuration.iceServers, ...this._turn_servers]
+		
+		console.log(this.configuration)
 
 		this.pc = new RTCPeerConnection(this.configuration);
 
