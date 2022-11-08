@@ -115,13 +115,14 @@ export default class WebRtcConnection {
 					sdp: this.pc.localDescription,
 					candidate: this._localCandidates
 				});
+				this._localCandidates = []
 				if (this._signalingFromWebsocket && this._websocket) {
 					this._websocket.send(compressedString);
 				} else {
 					writeOnOffer ? writeOnOffer(compressedString) : console.log(compressedString)
 					navigator.clipboard.writeText(compressedString)
 				}
-				this._localCandidates = []
+				
 			}
 		};
 		this.pc.ontrack = event => {
@@ -147,6 +148,7 @@ export default class WebRtcConnection {
 		this.pc.oniceconnectionstatechange = () => {
 			if (this.pc.iceConnectionState === "failed") {
 				this._localCandidates = []
+				console.log("------------------------------>>>>>>>>>>>>>")
 				this.pc.restartIce();
 			}
 		};
@@ -226,10 +228,11 @@ export default class WebRtcConnection {
 		console.log("creating initial offer", this.pc.signalingState)
 		if (!this.pc.signalingState.startsWith("stable") || "p2p" in this._dataChannels) {
 			// if (this._websocket && this._websocket.readyState == WebSocket.OPEN) {
-			this._sendWebsocketMessage({
-				sdp: this.pc.localDescription,
-				candidate: this._localCandidates
-			});
+			// this._sendWebsocketMessage({
+			// 	sdp: this.pc.localDescription,
+			// 	candidate: this._localCandidates
+			// });
+			this.pc.restartIce()
 			// }
 		} else {
 			// this._dataChannels = {}
