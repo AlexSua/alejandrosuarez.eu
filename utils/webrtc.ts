@@ -168,7 +168,9 @@ export default class WebRtcConnection {
 				case "failed":
 					if (this._was_connecting) {
 						this._localCandidates = []
-						this.pc.restartIce();
+						// this.pc.restartIce();
+						this._polite = true;
+						this._websocket.send("/restart");
 						this._was_connecting = false;
 					} else {
 						//TODO: has totally failed
@@ -327,6 +329,9 @@ export default class WebRtcConnection {
 							this.createInitialOffer();
 							this._polite = false;
 							break;
+						case "/restart":
+							this._polite = false
+							this.pc.restartIce()
 					}
 				} else {
 					this._set_reactive_state(ConnectionState.connecting)
