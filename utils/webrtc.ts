@@ -93,7 +93,7 @@ export default class WebRtcConnection {
 
 		if (turn_server)
 			this.configuration.iceServers = [...this.configuration.iceServers, ...this._turn_servers]
-
+		
 		console.log(this.configuration)
 
 		this.pc = new RTCPeerConnection(this.configuration);
@@ -116,13 +116,13 @@ export default class WebRtcConnection {
 					candidate: this._localCandidates
 				});
 				this._localCandidates = []
-				if (this._signalingFromWebsocket && this._websocket && this.pc.signalingState == "have-local-offer") {
+				if (this._signalingFromWebsocket && this._websocket) {
 					this._websocket.send(compressedString);
 				} else {
 					writeOnOffer ? writeOnOffer(compressedString) : console.log(compressedString)
 					navigator.clipboard.writeText(compressedString)
 				}
-
+				
 			}
 		};
 		this.pc.ontrack = event => {
@@ -216,7 +216,6 @@ export default class WebRtcConnection {
 		}
 
 		this.pc.onsignalingstatechange = event => {
-			console.log(this.pc.signalingState)
 			this._state = String(this.pc.signalingState)
 		}
 
@@ -332,12 +331,7 @@ export default class WebRtcConnection {
 				} else {
 					this._set_reactive_state(ConnectionState.connecting)
 					this._signalingFromWebsocket = true;
-					const answer = await this.createAnswerFromCompressedString(msg.data);
-					console.log("----------->",answer)
-					if (answer)
-						this._websocket.send(this._compressMessage({
-							sdp: answer,
-						}));
+					await this.createAnswerFromCompressedString(msg.data);
 				}
 			}
 			this._websocket.onclose = (msg: CloseEvent) => {
@@ -413,7 +407,6 @@ export default class WebRtcConnection {
 				await Promise.all(asyncEventsList)
 				// if (!this.pc.canTrickleIceCandidates) {
 				// 	this.pc.restartIce()
-				// 	return null
 				// }
 				if (sdpMessage.type == "offer") answerDesc = this.pc.localDescription
 				return answerDesc;
