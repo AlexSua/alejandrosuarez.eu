@@ -121,6 +121,7 @@ export default class WebRtcConnection {
 					writeOnOffer ? writeOnOffer(compressedString) : console.log(compressedString)
 					navigator.clipboard.writeText(compressedString)
 				}
+				this._localCandidates = []
 			}
 		};
 		this.pc.ontrack = event => {
