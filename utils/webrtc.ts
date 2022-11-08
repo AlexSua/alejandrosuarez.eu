@@ -116,7 +116,7 @@ export default class WebRtcConnection {
 					candidate: this._localCandidates
 				});
 				this._localCandidates = []
-				if (this._signalingFromWebsocket && this._websocket) {
+				if (this._signalingFromWebsocket && this._websocket && this.pc.signalingState == "have-local-offer") {
 					this._websocket.send(compressedString);
 				} else {
 					writeOnOffer ? writeOnOffer(compressedString) : console.log(compressedString)
@@ -216,6 +216,7 @@ export default class WebRtcConnection {
 		}
 
 		this.pc.onsignalingstatechange = event => {
+			console.log(this.pc.signalingState)
 			this._state = String(this.pc.signalingState)
 		}
 
@@ -410,10 +411,10 @@ export default class WebRtcConnection {
 					}
 				}
 				await Promise.all(asyncEventsList)
-				if (!this.pc.canTrickleIceCandidates) {
-					this.pc.restartIce()
-					return null
-				}
+				// if (!this.pc.canTrickleIceCandidates) {
+				// 	this.pc.restartIce()
+				// 	return null
+				// }
 				if (sdpMessage.type == "offer") answerDesc = this.pc.localDescription
 				return answerDesc;
 			}
