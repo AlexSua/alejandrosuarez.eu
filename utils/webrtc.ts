@@ -108,7 +108,7 @@ export default class WebRtcConnection {
 
 		this.pc.onicecandidate = (event) => {
 			// console.log(this.pc.canTrickleIceCandidates, event.candidate)
-			if (event.candidate) {
+			if (event.candidate && this.pc.canTrickleIceCandidates) {
 				this._localCandidates.push(event.candidate)
 			} else {
 				const compressedString = this._compressMessage({
