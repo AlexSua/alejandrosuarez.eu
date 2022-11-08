@@ -403,10 +403,9 @@ export default class WebRtcConnection {
 					}
 				}
 				await Promise.all(asyncEventsList)
-				if (!this.pc.canTrickleIceCandidates) {
-					this._localCandidates = []
-					this.pc.restartIce()
-				}
+				// if (!this.pc.canTrickleIceCandidates) {
+				// 	this.pc.restartIce()
+				// }
 				if (sdpMessage.type == "offer") answerDesc = this.pc.localDescription
 				return answerDesc;
 			}
