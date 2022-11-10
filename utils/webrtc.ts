@@ -53,9 +53,9 @@ export default class WebRtcConnection {
 	}
 
 	private _stun_servers = [
-		// {
-		// 	urls: 'stun:stun.l.google.com:19302'
-		// },
+		{
+			urls: 'stun:stun.l.google.com:19302'
+		},
 		{
 			urls: "stun:openrelay.metered.ca:80",
 		},
@@ -67,11 +67,11 @@ export default class WebRtcConnection {
 			username: "openrelayproject",
 			credential: "openrelayproject",
 		},
-		// {
-		// 	urls: "turn:openrelay.metered.ca:80",
-		// 	username: "openrelayproject",
-		// 	credential: "openrelayproject",
-		// },
+		{
+			urls: "turn:openrelay.metered.ca:80",
+			username: "openrelayproject",
+			credential: "openrelayproject",
+		},
 	]
 
 	private configuration = {
