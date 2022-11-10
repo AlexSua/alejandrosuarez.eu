@@ -224,6 +224,7 @@ const router = useRouter()
 const route = useRoute()
 const mouse = reactive([useMouse(), useMousePressed()])
 const windowSize = reactive(useWindowSize())
+const windowChange = reactive([windowSize,useDeviceOrientation()])
 const isResizing = ref(false)
 
 useSeo({
@@ -983,15 +984,16 @@ watch(draggable, () => {
 let windowSizeTimeout = null;
 
 
-watch(windowSize, () => {
+watch(windowChange,()=>{
 	isResizing.value = true;
 	windowSizeTimeout && clearTimeout(windowSizeTimeout);
 	resetVideoLocalPosition()
 	windowSizeTimeout = setTimeout(function () {
+		resetVideoLocalPosition()
 		isResizing.value = false;
 	}, 1000);
+},{deep:true})
 
-}, { deep: true })
 
 watch(localVideoMirror, (value) => {
 	useLocalStorage("local-video-mirror", String(value));
