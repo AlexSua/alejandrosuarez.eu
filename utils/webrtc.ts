@@ -110,7 +110,7 @@ export default class WebRtcConnection {
 			// console.log(this.pc.canTrickleIceCandidates, event.candidate)
 			if (event.candidate && this.pc.canTrickleIceCandidates) {
 				this._localCandidates.push(event.candidate)
-			} else if(!event.candidate && this._localCandidates.length>0) {
+			} else if(event.candidate == null && this.pc.iceGatheringState === 'complete') {
 				const compressedString = this._compressMessage({
 					sdp: this.pc.localDescription,
 					candidate:  this._localCandidates
