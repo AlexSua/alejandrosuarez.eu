@@ -110,10 +110,10 @@ export default class WebRtcConnection {
 			// console.log(this.pc.canTrickleIceCandidates, event.candidate)
 			if (event.candidate && this.pc.canTrickleIceCandidates) {
 				this._localCandidates.push(event.candidate)
-			} else {
+			} else if(!event.candidate) {
 				const compressedString = this._compressMessage({
 					sdp: this.pc.localDescription,
-					candidate: this._localCandidates
+					candidate:  Object.assign({}, this._localCandidates)
 				});
 				this._localCandidates = []
 				if (this._signalingFromWebsocket && this._websocket) {
