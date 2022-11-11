@@ -113,7 +113,7 @@ export default class WebRtcConnection {
 			} else if(!event.candidate) {
 				const compressedString = this._compressMessage({
 					sdp: this.pc.localDescription,
-					candidate:  Object.assign({}, this._localCandidates)
+					candidate:  this._localCandidates
 				});
 				this._localCandidates = []
 				if (this._signalingFromWebsocket && this._websocket) {
