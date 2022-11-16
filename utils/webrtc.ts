@@ -395,7 +395,7 @@ export default class WebRtcConnection {
 			}
 
 			catch (e: any) {
-				console.log("-------ERROR--------", e)
+				console.log("ERROR:", e)
 				return answerDesc
 			}
 
