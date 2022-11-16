@@ -107,7 +107,6 @@ export default class WebRtcConnection {
 		this._actions_queue = []
 
 		this.pc.onicecandidate = (event) => {
-			// console.log(this.pc.canTrickleIceCandidates, event.candidate)
 			if (event.candidate && this.pc.canTrickleIceCandidates) {
 				this._localCandidates.push(event.candidate)
 			} else if(event.candidate === null) {
@@ -168,7 +167,6 @@ export default class WebRtcConnection {
 				case "failed":
 					if (this._was_connecting) {
 						this._localCandidates = []
-						// this.pc.restartIce();
 						this._polite = true;
 						this._websocket.send("/restart");
 						this._was_connecting = false;
@@ -212,8 +210,7 @@ export default class WebRtcConnection {
 			}
 
 			catch (ex: any) {
-				console.log("erzxdror")
-				// console.log(ex.stack)
+				console.log(ex)
 			}
 		}
 
@@ -229,15 +226,8 @@ export default class WebRtcConnection {
 		this._localCandidates = []
 		console.log("creating initial offer", this.pc.signalingState)
 		if (!this.pc.signalingState.startsWith("stable") || "p2p" in this._dataChannels) {
-			// if (this._websocket && this._websocket.readyState == WebSocket.OPEN) {
-			// this._sendWebsocketMessage({
-			// 	sdp: this.pc.localDescription,
-			// 	candidate: this._localCandidates
-			// });
 			this.pc.restartIce()
-			// }
 		} else {
-			// this._dataChannels = {}
 			this.attachDataChannel("p2p", 1, false);
 		}
 	}
@@ -245,7 +235,6 @@ export default class WebRtcConnection {
 	async _configure_custom_quality() {
 		if ("video" in this._videoChatSenders) {
 			console.log("video transport state: ", this._videoChatSenders["video"])
-			// if ("connected" == this._videoChatSenders["video"].transport.state) {
 			let param = this._videoChatSenders["video"].getParameters()
 			this._videoChatSenders["video"].track.contentHint = "motion"
 			if (!param.encodings) {
@@ -255,21 +244,12 @@ export default class WebRtcConnection {
 				encodeParam.scaleResolutionDownBy = 1;
 			}
 			param.degradationPreference = "maintain-framerate"
-			// console.log(param)
-			// param.encodings = [{ scaleResolutionDownBy: 1 }]
-			// params.encodings[0].maxBitrate = 120000000;
-			// params.encodings[0].scaleResolutionDownBy = 1;
-			// params.degradationPreference = "maintain-framerate"
-			// params.encodings[0].
 			await this._videoChatSenders["video"].setParameters(param)
 			console.log("videochatsenders params", this._videoChatSenders["video"].getParameters())
 			console.log("videochatsenders track settings", this._videoChatSenders["video"].track.getSettings())
-			// }
 		}
 		if ("audio" in this._videoChatSenders) {
-			// if ("connected" == this._videoChatSenders["audio"].transport.state) {
 			this._videoChatSenders["audio"].track.contentHint = "speech"
-			// }
 		}
 	}
 
@@ -410,9 +390,6 @@ export default class WebRtcConnection {
 					}
 				}
 				await Promise.all(asyncEventsList)
-				// if (!this.pc.canTrickleIceCandidates) {
-				// 	this.pc.restartIce()
-				// }
 				if (sdpMessage.type == "offer") answerDesc = this.pc.localDescription
 				return answerDesc;
 			}

@@ -43,14 +43,14 @@
         "title": "Master's degree in Web Engineering",
         "place": "University of Oviedo",
         "logo": "logo_uniovi.png",
-        "duration": "2017 - 2020",
+        "duration": "2017 - 2019",
         "description": "This master’s degree offered me a transversal training inside computer science. From the administration of web servers such as Apache and Nginx, data mining and machine learning to web frameworks and design patterns. With this, the master gave me a broad spectrum of knowledge which made me versatile in the field of Computer Science."
       },
       {
         "title": "University degree in Computer Science",
         "place": "University of Santiago de Compostela",
         "logo": "logo_usc.png",
-        "duration": "2012 - 2017",
+        "duration": "2012 - 2016",
         "description": "A university degree with a practical approach which helped me stablish the foundations of Computer Science. Operating Systems, software development, compilers, project management and databases are some of the subjects I went through. Within the acquired skills, I also need to highlight: problem solving, teamwork and organization.\n<br/><br/>\n C and Java were the main languages on which I sustained my learning during this period."
       }
     ],
@@ -67,7 +67,7 @@
           "url": "https://home.cern/",
           "background": "cern.jpg",
           "style": "mix-blend-mode: unset",
-          "duration": "Nov ‘20 - Jan '22",
+          "duration": "Nov ‘20 - Jan '22 (1 year 3 months)",
           "about": "CERN is one of the world's largest research centers. It focuses on fundamental physics and its goal is to try to discover what the universe is made of and how it works.",
           "workdone": "In the organization I have been in the systems administration team where I have actively participated in the creation of tools that automate tasks within the group, I have supported the virtual machines of the OpenStack based cloud infrastructure that CERN uses, I have deployed with Ansible and supported a FastX cluster that provides a remote desktop service and during my time there I have also participated in the development in Python of a framework that now serves as an abstraction layer between CERN services and users.",
           "technologies": [
@@ -104,7 +104,7 @@
           "url": "https://www.enxine.com/",
           "style": "mix-blend-mode: hard-light",
           "background": "enxine.jpg",
-          "duration": "Oct ‘19 - Oct ‘20 (1 year)",
+          "duration": "Oct ‘19 - Sept ‘20 (1 year)",
           "about": "Enxine is a company specialized in Internet of Things. They offer all kind of hardware and software solutions to control and monitor electronic devices through internet.\n\n",
           "workdone": "Maintenance and development of new functionalities in the backend part of a system which controls electrical car chargers. This system belongs to Efimob, company that provides an electrical car charging network in Spain. Monitoring, automatic recharges payment, maintenance and control of this chargers are some of the features this system includes and where I actively worked in.\n\n",
           "technologies": [
@@ -157,7 +157,7 @@
           "logo": "connectors.jpg",
           "url": "https://connectors-plus.com/",
           "background": "connectors.jpeg",
-          "duration": "Jan ‘17 - May ‘17 (5 months)",
+          "duration": "Jan ‘17 - Jun ‘17 (6 months)",
           "about": "International mobility agency that facilitates experiences abroad in order to improve the linguistic and training capacities of people.",
           "workdone": "Develoment of a cross-platform social network whose function was to promote relationships between clients linked to mobility programs and improve communication between company and customers. Among some of its features, the social network includes administration and uploading of pictures, group creation, role management, permissions, user administration and group chats.\n\n",
           "technologies": [
@@ -181,7 +181,7 @@
           "logo": "null",
           "url": "null",
           "background": "almacen.jpeg",
-          "duration": "Jun ‘16 - Aug ‘16 (2 months)",
+          "duration": "Jun ‘16 - Jul ‘16 (2 months)",
           "about": "During my stay in United Kingdom I have worked for a small Amazon Provider.",
           "workdone": "I created software whose purpose was to automate processes like keeping record of orders, products and stock and the generation and printing of shipping tags. The visualization of these records and the execution of tasks could be done through interaction with a user interface written in java Swing.\n\n",
           "technologies": [

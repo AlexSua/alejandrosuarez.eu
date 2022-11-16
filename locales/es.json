@@ -39,13 +39,13 @@
       "positions": [
         {
           "place": "Ginebra, Suiza",
-          "duration": "Nov ‘20 - Ene '22 (1 año y 2 meses)",
+          "duration": "Nov ‘20 - Ene '22 (1 año y 3 meses)",
           "about": "El CERN es uno de los centros de investigación más grandes del mundo. Se centra en la física fundamental y su objetivo es tratar de descubrir de que está hecho el universo y de cómo funciona.\n\n",
           "workdone": "Dentro de la organización he estado en el departamento de administración de sistemas donde he participado activamente en la creación de herramientas que automatizan tareas dentro del grupo, he sido responsable de la administración de los sistemas que controlan componentes del acelerador, he dado soporte a las máquinas virtuales basadas en la infraestructura cloud openstack del CERN, he participado en la reorganización y división del proyecto ansible responsable de los sistemas que dan soporte a la infraestructura del acelerador junto con su publicación y despliegue con Gitlab CI/CD, he desplegado con ansible y dado soporte a un cluster FastX que provee un servicio de escritorio remoto y durante mi tiempo alli también he participado en el desarrollo en Python de un framework que serviría como capa de abstraccion entre los servicios del cern y los usuarios.\n\n"
         },
         {
           "place": "Santiago de Compostela, Galicia",
-          "duration": "Oct ‘19 - Oct ‘20 (1 año)",
+          "duration": "Oct ‘19 - Sept ‘20 (1 año)",
           "about": "Enxine es una empresa especializada en Internet de las Cosas. Ofrecen todo tipo de soluciones hardware o software para controlar y monitorizar componentes electrónicos a través de internet.\n\n",
           "workdone": "Dentro de la empresa he participado en el mantenimiento y desarrollo de nuevas funcionalidades dentro de la parte de backend de un sistema que se encarga del control de cargadores de coches eléctricos. Este sistema pertenece a Efimob, empresa que proporciona una red de cargadores para coches eléctricos en toda España. La monitorización, pago automático de recargas, mantenimiento y control de estos cargadores son algunas de las funcionalidades que este sistema incluye y en las cuales yo participo activamente."
         },
@@ -57,12 +57,12 @@
         },
         {
           "place": "Vigo, Galicia",
-          "duration": "Enero ‘17 - Mayo ‘17 (5 meses)",
+          "duration": "Enero ‘17 - Jun ‘17 (6 meses)",
           "about": "Agencia de movilidad internacional que facilita experiencias en el extranjero con el fin de mejorar las capacidades lingüísticas y formativas de las personas.\n\n",
           "workdone": "Desarrollé una red social multiplataforma que fomenta las relaciones entre los clientes adscritos a los programas de movilidad asi como la comunicación entre la empresa y sus clientes. Entre algunas de las funcionalidades de la red social se incluye la subida y gestión de imágenes, creación de grupos, gestión de roles, permisos, usuarios y chats grupales.\n\n"
         },
         {
-          "duration": "Jun ‘16 - Ago ‘16 (2 meses)",
+          "duration": "Jun ‘16 - Jul ‘16 (2 meses)",
           "about": "Durante mi estancia en Reino Unido he trabajado para un pequeño proveedor de Amazon.\n\n",
           "workdone": "El trabajo que hice fue el de crear un software cuyo objetivo era la automatización de procesos como llevar un registro de los productos y su stock, los pedidos y la generación e impresión de las etiquetas de envío. La visualización de los registros y ejecución de las tareas podían realizarse a través de la interacción con una interfaz gráfica.\n\n"
         },
