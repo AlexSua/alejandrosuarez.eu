@@ -18,7 +18,7 @@ export default class WebRtcConnection {
 	private pc: RTCPeerConnection;
 
 
-	private _localCandidates: Record<string, RTCIceCandidate> = {}
+	private _localCandidates: RTCIceCandidate[] = []
 	private _remoteCandidates: RTCIceCandidate[] = []
 
 	private _videoChatSendStream: MediaStream = new MediaStream()
@@ -53,9 +53,6 @@ export default class WebRtcConnection {
 	}
 
 	private _stun_servers = [
-		// {
-		// 	urls: 'stun:stun.l.google.com:19302'
-		// },
 		{
 			urls: "stun:stun.services.mozilla.com",
 		},
@@ -107,15 +104,14 @@ export default class WebRtcConnection {
 		this._actions_queue = []
 
 		this.pc.onicecandidate = (event) => {
-			if (event.candidate && !(event.candidate.address in this._localCandidates)) {
-				this._localCandidates[event.candidate.address] = event.candidate
+			if (event.candidate ) {
+				this._localCandidates.push(event.candidate)
 			} else if (event.candidate === null) {
 				const compressedString = this._compressMessage({
 					sdp: this.pc.localDescription,
-					candidate: Object.keys(this._localCandidates).map(function (key) {
-						return this._localCandidates[key];
-					}.bind(this))
+					candidate:this._localCandidates
 				});
+				this._localCandidates=[]
 				if (this._signalingFromWebsocket && this._websocket) {
 					this._websocket.send(compressedString);
 				} else {
