@@ -18,7 +18,7 @@ export default class WebRtcConnection {
 	private pc: RTCPeerConnection;
 
 
-	private _localCandidates: RTCIceCandidate[] = []
+	private _localCandidates: Record<string, RTCIceCandidate> = {}
 	private _remoteCandidates: RTCIceCandidate[] = []
 
 	private _videoChatSendStream: MediaStream = new MediaStream()
@@ -53,11 +53,11 @@ export default class WebRtcConnection {
 	}
 
 	private _stun_servers = [
+		// {
+		// 	urls: 'stun:stun.l.google.com:19302'
+		// },
 		{
-			urls: 'stun:stun.l.google.com:19302'
-		},
-		{
-			urls: "stun:openrelay.metered.ca:80",
+			urls: "stun:stun.services.mozilla.com",
 		},
 	]
 
@@ -93,7 +93,7 @@ export default class WebRtcConnection {
 
 		if (turn_server)
 			this.configuration.iceServers = [...this.configuration.iceServers, ...this._turn_servers]
-		
+
 		console.log(this.configuration)
 
 		this.pc = new RTCPeerConnection(this.configuration);
@@ -107,21 +107,22 @@ export default class WebRtcConnection {
 		this._actions_queue = []
 
 		this.pc.onicecandidate = (event) => {
-			if (event.candidate && this.pc.canTrickleIceCandidates) {
-				this._localCandidates.push(event.candidate)
-			} else if(event.candidate === null) {
+			if (event.candidate && !(event.candidate.address in this._localCandidates)) {
+				this._localCandidates[event.candidate.address] = event.candidate
+			} else if (event.candidate === null) {
 				const compressedString = this._compressMessage({
 					sdp: this.pc.localDescription,
-					candidate:  this._localCandidates
+					candidate: Object.keys(this._localCandidates).map(function (key) {
+						return this._localCandidates[key];
+					}.bind(this))
 				});
-				this._localCandidates = []
 				if (this._signalingFromWebsocket && this._websocket) {
 					this._websocket.send(compressedString);
 				} else {
 					writeOnOffer ? writeOnOffer(compressedString) : console.log(compressedString)
 					navigator.clipboard.writeText(compressedString)
 				}
-				
+
 			}
 		};
 		this.pc.ontrack = event => {
@@ -146,7 +147,6 @@ export default class WebRtcConnection {
 
 		this.pc.oniceconnectionstatechange = () => {
 			if (this.pc.iceConnectionState === "failed") {
-				this._localCandidates = []
 				console.log("------------------------------>>>>>>>>>>>>>")
 				this.pc.restartIce();
 			}
@@ -166,7 +166,6 @@ export default class WebRtcConnection {
 					break;
 				case "failed":
 					if (this._was_connecting) {
-						this._localCandidates = []
 						this._polite = true;
 						this._websocket.send("/restart");
 						this._was_connecting = false;
@@ -223,7 +222,6 @@ export default class WebRtcConnection {
 
 
 	async createInitialOffer() {
-		this._localCandidates = []
 		console.log("creating initial offer", this.pc.signalingState)
 		if (!this.pc.signalingState.startsWith("stable") || "p2p" in this._dataChannels) {
 			this.pc.restartIce()
@@ -286,7 +284,6 @@ export default class WebRtcConnection {
 	}
 
 	_createWebsocket(uuid: string = this._websocket_uuid, attempt: number = 0) {
-		this._localCandidates = []
 
 		console.log('Creating websocket')
 		if (this._websocket && this._websocket.readyState != WebSocket.CLOSED) return null;
