@@ -118,6 +118,10 @@ export default class WebRtcConnection {
 			this.pc.close()
             this.pc = null
 		}
+		this._remoteSrflxCandidate = undefined
+		this._sameNetwork = true
+		this._dataChannels = {}
+
 		this.pc = new RTCPeerConnection(this.configuration);
 
 		this.pc.onicecandidate = (event) => {
@@ -248,8 +252,7 @@ export default class WebRtcConnection {
 
 	async createInitialOffer() {
 		// console.log("creating initial offer", this.pc.signalingState)
-		this._remoteSrflxCandidate = undefined
-		this._sameNetwork = true
+
 		this.initWebRTCConnection()
 
 		// if ("p2p" in this._dataChannels) {
@@ -315,8 +318,9 @@ export default class WebRtcConnection {
 
 	_createWebsocket(uuid: string = this._websocket_uuid, attempt: number = 0) {
 
-		console.log('Creating websocket')
-		if (this._websocket && this._websocket.readyState != WebSocket.CLOSED) return null;
+		console.log('Creating websocket',this._websocket?this._websocket.readyState:null,uuid )
+		
+		if (this._websocket && (this._websocket.readyState != WebSocket.CLOSED && this._websocket.readyState != WebSocket.CLOSING )) return null;
 		return new Promise(async function (resolve, reject) {
 			if (!uuid || uuid == null) {
 				uuid = this._generateUUID()
@@ -329,12 +333,17 @@ export default class WebRtcConnection {
 			}
 			this._websocket.onmessage = async (msg: MessageEvent<any>) => {
 				if (msg.data.startsWith("/")) {
+					console.log(msg.data)
 					switch (msg.data) {
 						case "/remote:open":
-							this._set_reactive_state(ConnectionState.connecting)
 							this._signalingFromWebsocket = true;
-							this.createInitialOffer();
 							this._polite = false;
+							this.createInitialOffer();
+							this._set_reactive_state(ConnectionState.connecting)
+							break;
+						case "/remote:close":
+							// this._set_reactive_state(ConnectionState.disconnected)
+							// this.pc.close()
 							break;
 						case "/restart":
 							this._polite = false
@@ -363,6 +372,7 @@ export default class WebRtcConnection {
 	}
 
 	async websocketConsumeLink(uuid) {
+		this._websocket_uuid = uuid;
 		let result = await this._createWebsocket(uuid)
 		return result;
 	}
@@ -437,7 +447,11 @@ export default class WebRtcConnection {
 					}
 				}
 				await Promise.all(asyncEventsList)
-				if (sdpMessage.type == "offer") answerDesc = this.pc.localDescription
+				if (sdpMessage.type == "offer" && this.pc.signalingState!="stable") {
+					console.log("state",this.pc.signalingState)
+					answerDesc = await this.pc.createAnswer()
+				}
+				answerDesc = this.pc.localDescription
 				return answerDesc;
 			}
 
@@ -517,7 +531,7 @@ export default class WebRtcConnection {
 			}
 		};
 
-		channel.onclose = () => {
+		channel.onclose = async () => {
 			console.log("channel close");
 			this._set_reactive_state(ConnectionState.disconnected)
 			this._connected = false;
