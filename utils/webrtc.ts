@@ -118,12 +118,13 @@ export default class WebRtcConnection {
 					console.log("srflx", this._remoteSrflxCandidate, this._localSrflxCandidate)
 					if (this._remoteSrflxCandidate != undefined && this._localSrflxCandidate.address != this._remoteSrflxCandidate.address) {
 						this._sameNetwork = false
-					}else{
+					} else {
 						this._sameNetwork = true
 					}
 				}
-				if (this._sameNetwork && event.candidate.type != "host")
-					this._localCandidates.push(event.candidate)
+				if (!this._sameNetwork && event.candidate.type == "host")
+					return
+				this._localCandidates.push(event.candidate)
 			} else if (event.candidate === null) {
 				const compressedString = this._compressMessage({
 					sdp: this.pc.localDescription,
