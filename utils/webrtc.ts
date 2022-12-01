@@ -122,7 +122,7 @@ export default class WebRtcConnection {
 						this._sameNetwork = true
 					}
 				}
-				if (this._sameNetwork)
+				if (this._sameNetwork && event.candidate.type != "host")
 					this._localCandidates.push(event.candidate)
 			} else if (event.candidate === null) {
 				const compressedString = this._compressMessage({
