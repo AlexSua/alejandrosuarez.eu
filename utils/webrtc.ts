@@ -352,7 +352,10 @@ export default class WebRtcConnection {
 				} else {
 					this._set_reactive_state(ConnectionState.connecting)
 					this._signalingFromWebsocket = true;
-					await this.createAnswerFromCompressedString(msg.data);
+					const answerDesc = await this.createAnswerFromCompressedString(msg.data);
+					if(answerDesc!=null){
+						this._sendWebsocketMessage({sdp:answerDesc})
+					}
 				}
 			}
 			this._websocket.onclose = (msg: CloseEvent) => {
