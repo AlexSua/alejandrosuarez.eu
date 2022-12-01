@@ -122,13 +122,17 @@ export default class WebRtcConnection {
 						this._sameNetwork = true
 					}
 				}
-				if (!this._sameNetwork && event.candidate.type == "host")
-					return
 				this._localCandidates.push(event.candidate)
 			} else if (event.candidate === null) {
+				let candidatesToSend =[]
+				for(const candidate of this._localCandidates){
+					if (!this._sameNetwork && candidate.type == "host")
+						continue
+					candidatesToSend.push(candidate)
+				}
 				const compressedString = this._compressMessage({
 					sdp: this.pc.localDescription,
-					candidate: this._localCandidates
+					candidate: candidatesToSend
 				});
 				this._localCandidates = []
 				if (this._signalingFromWebsocket && this._websocket) {
@@ -238,6 +242,8 @@ export default class WebRtcConnection {
 
 	async createInitialOffer() {
 		console.log("creating initial offer", this.pc.signalingState)
+		this._remoteSrflxCandidate = undefined
+		this._sameNetwork = true
 		if (!this.pc.signalingState.startsWith("stable") || "p2p" in this._dataChannels) {
 			this.pc.restartIce()
 		} else {
@@ -412,7 +418,7 @@ export default class WebRtcConnection {
 					console.log("Same network? ", this._sameNetwork)
 					for (const element of message.candidate) {
 						const element_rtc_candidate = new RTCIceCandidate(element)
-						if (!this._sameNetwork && element_rtc_candidate.type === "host") continue;
+						if (!this._sameNetwork && element_rtc_candidate.type == "host") continue;
 						console.log(element)
 						asyncEventsList.push(this.pc.addIceCandidate(element))
 					}
