@@ -4,7 +4,7 @@ import MediaSourcesHandler from './media-sources-handler';
 
 export interface Message {
 	sdp: RTCSessionDescription | null,
-	candidate: RTCIceCandidate[],
+	candidate: RTCIceCandidateInit[],
 }
 
 export enum ConnectionState {
@@ -17,6 +17,9 @@ export default class WebRtcConnection {
 
 	private pc: RTCPeerConnection;
 
+	private _localSrflxCandidate: RTCIceCandidate
+	private _remoteSrflxCandidate: RTCIceCandidate
+	private _sameNetwork: boolean = true
 
 	private _localCandidates: RTCIceCandidate[] = []
 	private _remoteCandidates: RTCIceCandidate[] = []
@@ -58,8 +61,8 @@ export default class WebRtcConnection {
 		// },
 		{
 			urls: "stun:openrelay.metered.ca:80",
-		// {
-		// 	urls: "stun:stun.services.mozilla.com",
+			// {
+			// 	urls: "stun:stun.services.mozilla.com",
 		},
 	]
 
@@ -109,14 +112,24 @@ export default class WebRtcConnection {
 		this._actions_queue = []
 
 		this.pc.onicecandidate = (event) => {
-			if (event.candidate ) {
-				this._localCandidates.push(event.candidate)
+			if (event.candidate) {
+				if (event.candidate.type == "srflx") {
+					this._localSrflxCandidate = event.candidate
+					console.log("srflx", this._remoteSrflxCandidate, this._localSrflxCandidate)
+					if (this._remoteSrflxCandidate != undefined && this._localSrflxCandidate.address != this._remoteSrflxCandidate.address) {
+						this._sameNetwork = false
+					}else{
+						this._sameNetwork = true
+					}
+				}
+				if (this._sameNetwork)
+					this._localCandidates.push(event.candidate)
 			} else if (event.candidate === null) {
 				const compressedString = this._compressMessage({
 					sdp: this.pc.localDescription,
-					candidate:this._localCandidates
+					candidate: this._localCandidates
 				});
-				this._localCandidates=[]
+				this._localCandidates = []
 				if (this._signalingFromWebsocket && this._websocket) {
 					this._websocket.send(compressedString);
 				} else {
@@ -381,8 +394,24 @@ export default class WebRtcConnection {
 
 				if (message.candidate) {
 					console.log("adding candidate")
-					this._remoteCandidates = message.candidate
+
+					console.log("xx", message.candidate)
+
+					const remoteSrflxCandidate = message.candidate.find((element) => element.candidate.includes("typ srflx"))
+					if (remoteSrflxCandidate) {
+						this._remoteSrflxCandidate = new RTCIceCandidate(remoteSrflxCandidate)
+						console.log("srflx", this._remoteSrflxCandidate, this._localSrflxCandidate)
+
+						if (this._localSrflxCandidate != undefined && this._remoteSrflxCandidate.address != this._localSrflxCandidate.address)
+							this._sameNetwork = false
+						else
+							this._sameNetwork = true
+					}
+
+					console.log("Same network? ", this._sameNetwork)
 					for (const element of message.candidate) {
+						const element_rtc_candidate = new RTCIceCandidate(element)
+						if (!this._sameNetwork && element_rtc_candidate.type === "host") continue;
 						console.log(element)
 						asyncEventsList.push(this.pc.addIceCandidate(element))
 					}
