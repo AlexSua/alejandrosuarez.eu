@@ -62,13 +62,15 @@ export default class WebRtcConnection {
 		{
 			// urls: "stun:openrelay.metered.ca:80",
 			// {
-				urls: "stun:stun.services.mozilla.com",
+				// urls: "stun:stun.services.mozilla.com",
+				urls: ["stun:iphone-stun.strato-iphone.de:3478", "stun:stun01.sipphone.com"],
 		},
+		
 	]
 
 	private _turn_servers = [
 		{
-			urls: "turn:openrelay.metered.ca:443?transport=tcp",
+			urls: ["turn:openrelay.metered.ca:443?transport=tcp","turn:openrelay.metered.ca:80"],
 			username: "openrelayproject",
 			credential: "openrelayproject",
 		},
