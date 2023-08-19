@@ -51,7 +51,7 @@ export default class WebRtcConnection {
 	private _was_connecting: boolean = false
 
 	private readonly websocket_configuration = {
-		address: "wss://skynet.sytes.net:5355/",
+		address: "wss://server.alejandrosuarez.eu:5356/",
 		// address: "ws://127.0.0.1:8080/",
 	}
 
