@@ -56,21 +56,21 @@ export default class WebRtcConnection {
 	}
 
 	private _stun_servers = [
-		// {
-		// 	urls: 'stun:stun.l.google.com:19302'
-		// },
 		{
-			// urls: "stun:openrelay.metered.ca:80",
-			// {
-				// urls: "stun:stun.services.mozilla.com",
-				urls: ["stun:iphone-stun.strato-iphone.de:3478", "stun:stun01.sipphone.com"],
+			urls: 'stun:stun.l.google.com:19302'
 		},
+		// {
+		// 	// urls: "stun:openrelay.metered.ca:80",
+		// 	// {
+		// 		// urls: "stun:stun.services.mozilla.com",
+		// 		urls: ["stun:iphone-stun.strato-iphone.de:3478", "stun:stun01.sipphone.com"],
+		// },
 		
 	]
 
 	private _turn_servers = [
 		{
-			urls: ["turn:openrelay.metered.ca:443?transport=tcp","turn:openrelay.metered.ca:80"],
+			urls: ["turn:openrelay.metered.ca:80"],
 			username: "openrelayproject",
 			credential: "openrelayproject",
 		},
@@ -98,8 +98,8 @@ export default class WebRtcConnection {
 		turn_server: boolean = true
 	) {
 
-		if (turn_server)
-			this.configuration.iceServers = [...this.configuration.iceServers, ...this._turn_servers]
+		// if (turn_server)
+		// 	this.configuration.iceServers = [...this.configuration.iceServers, ...this._turn_servers]
 
 		console.log(this.configuration)
 
@@ -140,6 +140,7 @@ export default class WebRtcConnection {
 				this._localCandidates.push(event.candidate)
 			} else if (event.candidate === null) {
 				let candidatesToSend =[]
+				console.log("local candidates", this._localCandidates)
 				for(const candidate of this._localCandidates){
 					if (!this._sameNetwork && candidate.type === "host")
 						continue
@@ -151,6 +152,7 @@ export default class WebRtcConnection {
 				});
 				this._localCandidates = []
 				if (this._signalingFromWebsocket && this._websocket) {
+					console.log(compressedString)
 					this._websocket.send(compressedString);
 				} else {
 					this._writeOnOffer ? this._writeOnOffer(compressedString) : console.log(compressedString)
@@ -262,6 +264,7 @@ export default class WebRtcConnection {
 		// 	this.pc.restartIce()
 		// } else {
 		this.attachDataChannel("p2p", 1, false);
+		await this.pc.createOffer({ iceRestart: true })
 		// }
 	}
 
@@ -334,11 +337,11 @@ export default class WebRtcConnection {
 				resolve(uuid);
 			}
 			this._websocket.onmessage = async (msg: MessageEvent<any>) => {
+				this._signalingFromWebsocket = true;
 				if (msg.data.startsWith("/")) {
 					console.log(msg.data)
 					switch (msg.data) {
 						case "/remote:open":
-							this._signalingFromWebsocket = true;
 							this._polite = false;
 							this.createInitialOffer();
 							this._set_reactive_state(ConnectionState.connecting)
@@ -428,9 +431,7 @@ export default class WebRtcConnection {
 				}
 
 				if (message.candidate) {
-					console.log("adding candidate")
-
-					console.log("xx", message.candidate)
+					console.log("- remote candidates", message.candidate)
 
 					const remoteSrflxCandidate = message.candidate.find((element) => element.candidate.includes("typ srflx"))
 					if (remoteSrflxCandidate) {
